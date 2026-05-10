@@ -158,11 +158,17 @@ erDiagram
     ANALISE {
         int id_analise PK
         int id_usuario FK
-        Va tipo_analise
-        Va origem
-        Va resultado_resumo
-        Va relevancia
+        %%consumo - saude - inadimplencia - previsao - etc
+        Varchar tipo_analise
+        %% processo que disparou a analise (Talvez enum)
+        Varchar origem
+        Varchar resultado_resumo
+        Varchar relevancia
         Date data_criacao
+        int status_analise
+        Date periodo_analisado_inicio
+        Date periodo_analisado_fim
+        bit acionavel
     }
 	ANALISE }o--|| USUARIO : "tem"
     ANALISE ||--o{ ANALISE_IMPACTO : "identifica"
@@ -176,17 +182,23 @@ erDiagram
         Varchar tipo_entidade
         int id_entidade
         Varchar papel_entidade
+        %% campo bom para IA
+        decimal peso_entidade
     }
 
     ANALISE_RESULTADO {
         int id_resultado PK
         int id_analise FK
+        %% talvez ter uma tabela de classificacao
         Varchar classificacao
         decimal score
+        %% probabilidade da analise estar correta
         decimal probabilidade
+        %% relação entre variaveis e a resposta
         decimal coeficiente_geral
         Varchar nivel_risco
-        Varchar modelo_utilizado
+        %% IA ou Algoritmo ou ambos
+        Varchar modelo_utilizado 
         Varchar versao_modelo
         Varchar explicacao
         Date data_criacao
@@ -196,24 +208,41 @@ erDiagram
     ANALISE_RESULTADO_VARIAVEL {
         int id_variavel_resultado PK
         int id_resultado FK
+        %% dinamico representa uma variavel da analise
         Varchar nome_variavel
+        %% valor do usuário para essa variavel (ex: 45%, acima da media)
         Varchar valor_variavel
+        %% valor padrao dessa variavel (ex, 30%)
+        float valor_faixa
         float peso
+        %% impacto matematica (positivo, negativo)
         float coeficiente
+        %% risco aumentado - diminuido - neutro
         Varchar impacto_no_resultado
+        %% faixa de referencia normalizada
+        Varchar faixa_referencia
+        %% registra a ultima verificação dessas analises
+        Date data_registro
     }
 
     ANALISE_IMPACTO {
         int id_impacto PK
         int id_analise FK
+         %% financeiro - meta - risco - etc (talvez enum)
         Varchar tipo_impacto
         Varchar entidade_origem_tipo
         int entidade_origem_id
         Varchar entidade_impactada_tipo
         int entidade_impactada_id
+        %% humanizado
         Varchar descricao
+        %% alta - baixa - etc
         Varchar gravidade
         float score_impacto
+        %% ganho ou perca desse impacto
+        float impacto_estimado_valor
+        int impacto_temporal_anual
+        int impacto_temporal_mensal
     }
 
     RECOMENDACAO {
