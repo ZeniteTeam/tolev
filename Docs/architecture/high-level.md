@@ -1,7 +1,7 @@
 ```mermaid
 %%{init: {'theme':'dark', 'layout':'elk'}}%%
 
-flowchart TB
+graph LR
 
     %% CLIENTE
     subgraph CLIENTE["Cliente Layer"]
@@ -69,7 +69,7 @@ flowchart TB
     METAS --> DATABASE
     PROGRESSAO --> DATABASE
     TICKET --> DATABASE
-
+    
     %% CACHE CONNECTIONS
     USUARIO --> REDIS
     METAS --> REDIS
@@ -85,6 +85,8 @@ flowchart TB
     RECOMENDACAO --> AI
 
     ANALISE -. Evento .-> RECOMENDACAO
+    FINANCAS -. Evento .-> NOTIFICACAO
+    METAS -. Evento .-> NOTIFICACAO
     RECOMENDACAO -. Evento .-> NOTIFICACAO
 
     AI --> API_IA
