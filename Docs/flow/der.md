@@ -252,6 +252,7 @@ erDiagram
         Varchar tipo_recomendacao
         Varchar titulo
         Varchar descricao
+        int dificuldade
         Varchar prioridade
         Varchar status
         Date data_criacao
