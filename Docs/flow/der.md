@@ -5,170 +5,245 @@ erDiagram
     direction LR
 
     USUARIO {
-        long id PK
-        Varchar nome
-        Varchar genero
-        Date data_nascimento
+        BIGINT id PK
+        VARCHAR nome
+        VARCHAR genero
+        DATE data_nascimento
+        VARCHAR nome_usuario
+        VARCHAR senha
+        VARCHAR email
     }
     USUARIO ||--o{ TICKETS : "faz"
     USUARIO ||--o{ METAS : "possui"
     USUARIO ||--o{ DIVIDAS : "possui"
     USUARIO ||--o{ CONTA_BANCARIA : "possui"
-    USUARIO ||--o{ FEEDBACK : "faz"
     USUARIO ||--o{ USUARIO_ASSINATURAS : "faz"
-
-
+    USUARIO ||--o{ FEEDBACK_USUARIO : "faz"
 
     METAS {
-        long id PK
-        long id_usuario FK
-        Varchar nome_meta
-        int valor_meta
-        int status_meta
-		int tipo_meta
+        BIGINT id PK
+        BIGINT id_usuario
+        VARCHAR nome_meta
+        NUMERIC valor_meta
+        %% enum
+        NUMERIC status_meta 
+        %% enum
+		NUMERIC tipo_meta
     }
 	METAS||--||PROGRESSO_META : "possui"
 
 	PROGRESSO_META {
-		long id PK
-		long id_meta FK
-		int progresso
-		Date ultimo_progresso
+		BIGINT id PK
+		BIGINT id_meta FK
+		NUMERIC progresso
+		DATE ultimo_progresso
+        NUMERIC peso
 	}
 
     DIVIDAS {
-        long id PK
-        long id_usuario FK
+        BIGINT id PK
+        BIGINT id_usuario
+        NUMERIC valor_divida
+        %% enum
+        NUMERIC status_meta
     }
 
 	DIVIDAS||--||PROGRESSO_DIVIDA : "possui"
 
 	PROGRESSO_DIVIDA {
-		long id PK
-		long id_meta FK
-		int progresso
-		Date ultimo_progresso
+		BIGINT id PK
+		BIGINT id_divida FK
+		NUMERIC progresso
+		DATE ultimo_progresso
+        NUMERIC peso
 	}
 
 	MAPA_PROGRESSAO{
-		long id PK
-		string url_modelo
-		string nome_mapa
+		BIGINT id PK
+		VARCHAR url_modelo
+		VARCHAR nome_mapa
 	}
 
 	MAPA_MODULOS_DETALHES {
-		long id PK
-		long id_mapa_modulo FK
-		int requisitos
-		int pos_x
-		int pox_y
+		BIGINT id PK
+		BIGINT id_mapa_modulo FK
+		NUMERIC requisitos
+		NUMERIC pos_x
+	    NUMERIC pox_y
 	}
 	MAPA_MODULOS_DETALHES}o--||MAPA_MODULOS : "possui" 
 
 	MAPA_MODULOS {
-		long id PK
-		long id_mapa_progressao FK
-		int requisitos
-		int pos_x
-		int pox_y
-		int tipo
+		BIGINT id PK
+		BIGINT id_mapa_progressao FK
+		NUMERIC requisitos
+		NUMERIC pos_x
+		NUMERIC pox_ys
+        %% enum
+		NUMERIC tipo
 	}
 	MAPA_MODULOS}o--||MAPA_PROGRESSAO : "possui" 
 	MAPA_MODULOS||--O{MODULO_PROGRESSAO_USUARIO : "possui" 
 
 
 	MODULO_PROGRESSAO_USUARIO {
-		long id PK	
-		long id_mapa_modulo
-		long id_usuario FK
-		int progressao
+		BIGINT id PK	
+		BIGINT id_mapa_modulo
+		BIGINT id_usuario
+		NUMERIC progressao
 	}
 	MODULO_PROGRESSAO_USUARIO}o--o{USUARIO : "possui" 
 
 
     FEEDBACK {
-        long id PK
-        long id_usuario FK
+        BIGINT id PK
+        VARCHAR descricao
+        VARCHAR titulo
+        %% enum
+        NUMERIC tipo_feedback
     }
+    FEEDBACK ||--o{ FEEDBACK_USUARIO : "possui"
+
+    FEEDBACK_USUARIO {
+        BIGINT id PK
+        BIGINT id_feedback FK
+        BIGINT id_usuario
+        NUMERIC nota
+        DATE data_criacao
+    }
+
 
     CONTA_BANCARIA {
-        long id PK
-        long id_usuario FK
-        long id_banco FK
+        BIGINT id PK
+        BIGINT id_usuario 
+        BIGINT id_banco FK
+        %% encriptado
+        VARCHAR numero_conta
+        %% enum
+        NUMERIC tipo_conta       
+        BIT conta_conjunta       
+        VARCHAR nome_conta
+        %% enum
+        NUMERIC moeda
+        NUMERIC saldo_atual
+        NUMERIC saldo_disponivel
+        NUMERIC limite_credito
+        DATE data_abertura
+        %% enum
+        NUMERIC status_conta
+        DATE ultima_atualizacao
+        NUMERIC agencia
+        NUMERIC media_receita
+        NUMERIC media_despesa
+        DATE criado_em
+        DATE atualizado_em
+
     }
     CONTA_BANCARIA ||--o{ TRANSACOES : "registra"
+    CONTA_BANCARIA ||--o{ TRANSACOES_RECORRENTES : "registra"
 
     BANCO {
-        long id PK
+        BIGINT id PK
+        VARCHAR titulo
+        NUMERIC agencia
+        DATE criado_em
+        DATE atualizado_em
     }
     BANCO ||--o{ CONTA_BANCARIA : "tem"
 
-    TICKETS {
-        long id PK
-        long id_usuario FK
-        Varchar titulo_ticket
-        Varchar descricao_ticket
-        Varchar categoria_ticket
-        int status_ticket
-        Date data_abertura
-        Date data_atualizacao
-        Date data_fechamento
+    TRANSACOES {
+        BIGINT id PK
+        BIGINT id_conta_bancaria FK
+        BIGINT id_vendedor FK
+		NUMERIC valor
+		DATE data_transacao
+        %% enum
+		NUMERIC tipo_transacao
+        VARCHAR descricao
+        VARCHAR descricao_normalizada
+        BIT parcelado
+        NUMERIC total_parcelas
+        NUMERIC numero_parcela
+        %% enum
+        NUMERIC metodo_pagamento
     }
 
-    TRANSACOES {
-        long id PK
-        long id_conta_bancaria FK
-        long id_vendedor FK
-		int valor
-		Date data_transacao
-		int tipo_transacao  
+    %% PENSAR MELHOR
+    TRANSACOES_RECORRENTES {
+        BIGINT id PK
+        BIGINT id_conta_bancaria FK
+        BIGINT id_vendedor FK
+		NUMERIC valor
+        %% enum
+		NUMERIC tipo_transacao
+        %% enum
+        VARCHAR descricao_normalizada
+        BIT parcelado
     }
-	TRANSACOES}o--||VENDEDOR : "para"
+
+	TRANSACOES_RECORRENTES}o--||VENDEDOR : "para"
+    TRANSACOES}o--||VENDEDOR : "para"
 
     CATEGORIA_COMPRA {
-        long id PK
-		long id_vendedor FK
-        Varchar nome_categoria
+        BIGINT id PK
+		BIGINT id_vendedor FK
+        VARCHAR nome_categoria
     }
 	VENDEDOR ||--o{ CATEGORIA_COMPRA : "tem"
 
 	VENDEDOR {
-		long id PK
-		Varchar nome_empresa
-		string cpf_cnpj
+		BIGINT id PK
+		VARCHAR nome_empresa
+		VARCHAR cpf_cnpj
 	}
+    
+    TICKETS {
+        BIGINT id PK
+        BIGINT id_usuario 
+        VARCHAR titulo_ticket
+        VARCHAR descricao_ticket
+        VARCHAR categoria_ticket
+        %% enum
+        NUMERIC status_ticket
+        DATE data_abertura
+        DATE data_atualizacao
+        DATE data_fechamento
+    }
 
     USUARIO_ASSINATURAS {
-        long id PK
-        long id_assinatura FK
-        long id_usuario FK
-        Date data_inicio
-        Date data_fim
-        int status_assinatura
+        BIGINT id PK
+        BIGINT id_assinatura FK
+        BIGINT id_usuario 
+        DATE data_inicio
+        DATE data_fim
+        NUMERIC status_assinatura
     }
 
     
     ASSINATURAS {
-        long id PK
-        Varchar modelo_assinatura
+        BIGINT id PK
+        VARCHAR modelo_assinatura
     }
     ASSINATURAS ||--o{ USUARIO_ASSINATURAS : "possui"
 
 
     ANALISE {
-        int id_analise PK
-        int id_usuario FK
+        BIGINT id_analise PK
+        BIGINT id_usuario 
         %%consumo - saude - inadimplencia - previsao - etc
-        Varchar tipo_analise
+        %% enum
+        NUMERIC tipo_analise
         %% processo que disparou a analise (Talvez enum)
-        Varchar origem
-        Varchar resultado_resumo
-        Varchar relevancia
-        Date data_criacao
-        int status_analise
-        Date periodo_analisado_inicio
-        Date periodo_analisado_fim
-        bit acionavel
+        %% enum TALVEZ
+        VARCHAR origem
+        VARCHAR resultado_resumo
+        VARCHAR relevancia
+        DATE data_criacao
+        %% enum
+        NUMERIC status_analise
+        DATE periodo_analisado_inicio
+        DATE periodo_analisado_fim
+        BIT acionavel
     }
 	ANALISE }o--|| USUARIO : "tem"
     ANALISE ||--o{ ANALISE_IMPACTO : "identifica"
@@ -177,95 +252,96 @@ erDiagram
     ANALISE ||--|| ANALISE_RESULTADO : "gera"
 
     ANALISE_ENTIDADE {
-        int id_analise_entidade PK
-        int id_analise FK
-        Varchar tipo_entidade
-        int id_entidade
-        Varchar papel_entidade
+        BIGINT id_analise_entidade PK
+        BIGINT id_analise FK
+        VARCHAR tipo_entidade
+        NUMERIC id_entidade
+        VARCHAR papel_entidade
         %% campo bom para IA
         decimal peso_entidade
     }
 
     ANALISE_RESULTADO {
-        int id_resultado PK
-        int id_analise FK
+        BIGINT id_resultado PK
+        BIGINT id_analise FK
         %% talvez ter uma tabela de classificacao
-        Varchar classificacao
-        decimal score
+        VARCHAR classificacao
+        %% campo de IA
+        NUMERIC score
         %% probabilidade da analise estar correta
-        decimal probabilidade
+        NUMERIC probabilidade
         %% relação entre variaveis e a resposta
-        decimal coeficiente_geral
-        Varchar nivel_risco
+        NUMERIC coeficiente_geral
+        VARCHAR nivel_risco
         %% IA ou Algoritmo ou ambos
-        Varchar modelo_utilizado 
-        Varchar versao_modelo
-        Varchar explicacao
-        Date data_criacao
+        VARCHAR modelo_utilizado 
+        VARCHAR versao_modelo
+        VARCHAR explicacao
+        DATE data_criacao
     }
     ANALISE_RESULTADO ||--o{ ANALISE_RESULTADO_VARIAVEL : "detalha"
 
     ANALISE_RESULTADO_VARIAVEL {
-        int id_variavel_resultado PK
-        int id_resultado FK
+        BIGINT id_variavel_resultado PK
+        BIGINT id_resultado FK
         %% dinamico representa uma variavel da analise
-        Varchar nome_variavel
+        VARCHAR nome_variavel
         %% valor do usuário para essa variavel (ex: 45%, acima da media)
-        Varchar valor_variavel
+        VARCHAR valor_variavel
         %% valor padrao dessa variavel (ex, 30%)
-        float valor_faixa
-        float peso
+        NUMERIC valor_faixa
+        NUMERIC peso
         %% impacto matematica (positivo, negativo)
-        float coeficiente
+        NUMERIC coeficiente
         %% risco aumentado - diminuido - neutro
-        Varchar impacto_no_resultado
+        VARCHAR impacto_no_resultado
         %% faixa de referencia normalizada
-        Varchar faixa_referencia
+        VARCHAR faixa_referencia
         %% registra a ultima verificação dessas analises
-        Date data_registro
+        DATE data_registro
     }
 
     ANALISE_IMPACTO {
-        int id_impacto PK
-        int id_analise FK
+        BIGINT id_impacto PK
+        BIGINT id_analise FK
          %% financeiro - meta - risco - etc (talvez enum)
-        Varchar tipo_impacto
-        Varchar entidade_origem_tipo
-        int entidade_origem_id
-        Varchar entidade_impactada_tipo
+        VARCHAR tipo_impacto
+        VARCHAR entidade_origem_tipo
+        BIGINT entidade_origem_id
+        VARCHAR entidade_impactada_tipo
         int entidade_impactada_id
         %% humanizado
-        Varchar descricao
+        VARCHAR descricao
         %% alta - baixa - etc
-        Varchar gravidade
-        float score_impacto
+        VARCHAR gravidade
+        NUMERIC score_impacto
         %% ganho ou perca desse impacto
-        float impacto_estimado_valor
-        int impacto_temporal_anual
-        int impacto_temporal_mensal
+        NUMERIC impacto_estimado_valor
+        NUMERIC impacto_temporal_anual
+        NUMERIC impacto_temporal_mensal
     }
 
     RECOMENDACAO {
-        int id_recomendacao PK
-        int id_usuario FK
-        int id_analise FK
-        Varchar tipo_recomendacao
-        Varchar titulo
-        Varchar descricao
-        int dificuldade
-        Varchar prioridade
-        Varchar status
-        Date data_criacao
+        BIGINT id_recomendacao PK
+        BIGINT id_usuario 
+        BIGINT id_analise FK
+        VARCHAR tipo_recomendacao
+        VARCHAR titulo
+        VARCHAR descricao
+        NUMERIC dificuldade
+        VARCHAR prioridade
+        VARCHAR status
+        DATE data_criacao
     }
    	RECOMENDACAO ||--o{ RECOMENDACAO_ENTIDADE : "relaciona"
 	RECOMENDACAO }o--|| USUARIO : "tem"
 
     RECOMENDACAO_ENTIDADE {
-        int id_recomendacao_entidade PK
-        int id_recomendacao FK
-        Varchar tipo_entidade
-        int id_entidade
-        Varchar papel_entidade
+        BIGINT id_recomendacao_entidade PK
+        BIGINT id_recomendacao FK
+        VARCHAR tipo_entidade
+        BIGINT id_entidade
+        VARCHAR papel_entidade
     }
 
   

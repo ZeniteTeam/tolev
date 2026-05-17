@@ -1,28 +1,159 @@
 ```mermaid
-%%{init: {'theme':'dark', 'layout':'elk'}}%%
 
+%%{init: {'theme':'dark', 'layout':'elk'}}%%
 classDiagram
 direction TB
 
-%% =========================
-%% USER DOMAIN
-%% =========================
+%% =====================================================
+%% USUARIO
+%% =====================================================
 
 class Usuario {
     +Long id
     +String nome
     +String genero
     +Date dataNascimento
+
+    +adicionarConta()
+    +criarMeta()
+    +abrirTicket()
 }
+
+class Feedback {
+    +Long id
+}
+
+class Ticket {
+    +Long id
+    +String titulo
+    +String descricao
+    +CategoriaTicket categoria
+    +StatusTicket status
+    +Date dataAbertura
+    +Date dataAtualizacao
+    +Date dataFechamento
+
+    +fechar()
+    +atualizarStatus()
+}
+
+class UsuarioAssinatura {
+    +Long id
+    +Date dataInicio
+    +Date dataFim
+    +StatusAssinatura status
+
+    +ativar()
+    +cancelar()
+    +expirada()
+}
+
+class Assinatura {
+    +Long id
+    +String modeloAssinatura
+}
+
+Usuario "1" --> "*" Ticket : cria
+Usuario "1" --> "*" Feedback : envia
+Usuario "1" --> "*" UsuarioAssinatura : possui
+Assinatura "1" --> "*" UsuarioAssinatura : vincula
+
+%% =====================================================
+%% PROGRESSAO
+%% =====================================================
+
+class Meta {
+    +Long id
+    +String nomeMeta
+    +Integer valorMeta
+    +StatusMeta status
+    +TipoMeta tipo
+
+    +atualizarProgresso()
+    +concluir()
+    +estaConcluida()
+}
+
+class ProgressoMeta {
+    +Long id
+    +Integer progresso
+    +Date ultimoProgresso
+
+    +incrementar()
+    +calcularPercentual()
+}
+
+class Divida {
+    +Long id
+
+    +calcularQuitacao()
+    +quitada()
+}
+
+class ProgressoDivida {
+    +Long id
+    +Integer progresso
+    +Date ultimoProgresso
+}
+
+class MapaProgressao {
+    +Long id
+    +String urlModelo
+    +String nomeMapa
+
+    +desbloquearModulo()
+}
+
+class MapaModulo {
+    +Long id
+    +Integer requisitos
+    +Integer posX
+    +Integer posY
+    +TipoModulo tipo
+
+    +desbloqueado()
+}
+
+class MapaModuloDetalhe {
+    +Long id
+    +Integer requisitos
+    +Integer posX
+    +Integer posY
+}
+
+class ModuloProgressaoUsuario {
+    +Long id
+    +Integer progressao
+
+    +incrementar()
+    +concluido()
+}
+
+Usuario "1" --> "*" Meta : possui
+Meta *-- ProgressoMeta : composicao
+
+Usuario "1" --> "*" Divida : possui
+Divida *-- ProgressoDivida : composicao
+
+MapaProgressao *-- "*" MapaModulo : possui
+MapaModulo *-- "*" MapaModuloDetalhe : detalhes
+
+MapaModulo "1" --> "*" ModuloProgressaoUsuario
+Usuario "1" --> "*" ModuloProgressaoUsuario
+
+%% =====================================================
+%% FINANCAS
+%% =====================================================
 
 class ContaBancaria {
     +Long id
-    +String tipoConta
+
+    +registrarTransacao()
+    +saldoAtual()
 }
 
 class Banco {
     +Long id
-    +String nome
 }
 
 class Transacao {
@@ -30,6 +161,9 @@ class Transacao {
     +Decimal valor
     +Date dataTransacao
     +TipoTransacao tipo
+
+    +ehDespesa()
+    +ehReceita()
 }
 
 class Vendedor {
@@ -43,158 +177,223 @@ class CategoriaCompra {
     +String nomeCategoria
 }
 
-Usuario "1" --> "*" ContaBancaria
+Usuario "1" --> "*" ContaBancaria : possui
 Banco "1" --> "*" ContaBancaria
-ContaBancaria "1" --> "*" Transacao
-Transacao "*" --> "1" Vendedor
+
+ContaBancaria *-- "*" Transacao : registra
+Transacao --> Vendedor : destino
+
 Vendedor "1" --> "*" CategoriaCompra
 
-%% =========================
-%% GOALS DOMAIN
-%% =========================
-
-class Meta {
-    +Long id
-    +String nomeMeta
-    +Decimal valorMeta
-    +StatusMeta status
-}
-
-class ProgressoMeta {
-    +Long id
-    +Integer progresso
-    +Date ultimoProgresso
-}
-
-Usuario "1" --> "*" Meta
-Meta "1" --> "1" ProgressoMeta
-
-%% =========================
-%% DEBT DOMAIN
-%% =========================
-
-class Divida {
-    +Long id
-    +Decimal valorAtual
-}
-
-class ProgressoDivida {
-    +Long id
-    +Integer progresso
-}
-
-Usuario "1" --> "*" Divida
-Divida "1" --> "1" ProgressoDivida
-
-%% =========================
-%% PROGRESSION DOMAIN
-%% =========================
-
-class MapaProgressao {
-    +Long id
-    +String nomeMapa
-}
-
-class ModuloMapa {
-    +Long id
-    +Integer tipo
-    +Integer posX
-    +Integer posY
-}
-
-class ModuloDetalhe {
-    +Long id
-    +String descricao
-}
-
-class ProgressoModuloUsuario {
-    +Long id
-    +Integer progresso
-}
-
-MapaProgressao "1" --> "*" ModuloMapa
-ModuloMapa "1" --> "*" ModuloDetalhe
-Usuario "1" --> "*" ProgressoModuloUsuario
-ModuloMapa "1" --> "*" ProgressoModuloUsuario
-
-%% =========================
-%% ANALYTICS DOMAIN
-%% =========================
+%% =====================================================
+%% ANALISE
+%% =====================================================
 
 class Analise {
     +Long id
     +TipoAnalise tipo
     +String origem
+    +String resultadoResumo
+    +String relevancia
+    +Date dataCriacao
+    +StatusAnalise status
     +Boolean acionavel
+
+    +finalizar()
+    +gerarResumo()
+    +possuiRisco()
 }
 
-class ResultadoAnalise {
+class AnaliseEntidade {
     +Long id
+    +String tipoEntidade
+    +Long idEntidade
+    +String papelEntidade
+    +Decimal pesoEntidade
+}
+
+class AnaliseResultado {
+    +Long id
+    +String classificacao
     +Decimal score
     +Decimal probabilidade
-    +String nivelRisco
+    +Decimal coeficienteGeral
+    +NivelRisco nivelRisco
+    +String modeloUtilizado
+    +String versaoModelo
+    +String explicacao
+
+    +altoRisco()
 }
 
-class VariavelResultado {
+class AnaliseResultadoVariavel {
     +Long id
     +String nomeVariavel
+    +String valorVariavel
+    +Float valorFaixa
     +Float peso
     +Float coeficiente
+    +String impactoResultado
+    +String faixaReferencia
+    +Date dataRegistro
 }
 
-class ImpactoAnalise {
+class AnaliseImpacto {
     +Long id
-    +String tipoImpacto
+    +TipoImpacto tipoImpacto
+    +String descricao
+    +String gravidade
     +Float scoreImpacto
+    +Float impactoEstimadoValor
+
+    +impactoCritico()
 }
 
 class Recomendacao {
     +Long id
+    +TipoRecomendacao tipo
     +String titulo
-    +Prioridade prioridade
-}
-
-Usuario "1" --> "*" Analise
-Analise "1" --> "1" ResultadoAnalise
-ResultadoAnalise "1" --> "*" VariavelResultado
-Analise "1" --> "*" ImpactoAnalise
-Analise "1" --> "*" Recomendacao
-Usuario "1" --> "*" Recomendacao
-
-%% =========================
-%% SUPPORT DOMAIN
-%% =========================
-
-class Ticket {
-    +Long id
-    +String titulo
-    +StatusTicket status
-}
-
-class Feedback {
-    +Long id
     +String descricao
+    +Integer dificuldade
+    +Prioridade prioridade
+    +StatusRecomendacao status
+    +Date dataCriacao
+
+    +aceitar()
+    +ignorar()
+    +concluir()
 }
 
-Usuario "1" --> "*" Ticket
-Usuario "1" --> "*" Feedback
-
-%% =========================
-%% SUBSCRIPTION DOMAIN
-%% =========================
-
-class Assinatura {
+class RecomendacaoEntidade {
     +Long id
-    +String modelo
+    +String tipoEntidade
+    +Long idEntidade
+    +String papelEntidade
 }
 
-class UsuarioAssinatura {
-    +Long id
-    +Date dataInicio
-    +Date dataFim
+Usuario "1" --> "*" Analise : possui
+
+Analise *-- "*" AnaliseImpacto
+Analise *-- "*" AnaliseEntidade
+Analise *-- "1" AnaliseResultado
+
+AnaliseResultado *-- "*" AnaliseResultadoVariavel
+
+Analise --> "*" Recomendacao : gera
+
+Usuario "1" --> "*" Recomendacao
+Recomendacao *-- "*" RecomendacaoEntidade
+
+%% =====================================================
+%% ENUMS
+%% =====================================================
+
+class StatusMeta {
+    <<enumeration>>
+    ATIVA
+    CONCLUIDA
+    CANCELADA
 }
 
-Usuario "1" --> "*" UsuarioAssinatura
-Assinatura "1" --> "*" UsuarioAssinatura
+class TipoMeta {
+    <<enumeration>>
+    ECONOMIA
+    INVESTIMENTO
+    PAGAMENTO
+}
+
+class StatusTicket {
+    <<enumeration>>
+    ABERTO
+    EM_ANALISE
+    RESPONDIDO
+    FECHADO
+}
+
+class CategoriaTicket {
+    <<enumeration>>
+    BUG
+    FINANCEIRO
+    SUPORTE
+    FEEDBACK
+}
+
+class TipoTransacao {
+    <<enumeration>>
+    RECEITA
+    DESPESA
+    TRANSFERENCIA
+}
+
+class TipoAnalise {
+    <<enumeration>>
+    CONSUMO
+    RISCO
+    PREVISAO
+    INADIMPLENCIA
+}
+
+class StatusAnalise {
+    <<enumeration>>
+    PENDENTE
+    PROCESSANDO
+    FINALIZADA
+    ERRO
+}
+
+class NivelRisco {
+    <<enumeration>>
+    BAIXO
+    MEDIO
+    ALTO
+    CRITICO
+}
+
+class Prioridade {
+    <<enumeration>>
+    BAIXA
+    MEDIA
+    ALTA
+}
+
+class StatusRecomendacao {
+    <<enumeration>>
+    PENDENTE
+    ACEITA
+    IGNORADA
+    CONCLUIDA
+}
+
+class StatusAssinatura {
+    <<enumeration>>
+    ATIVA
+    CANCELADA
+    EXPIRADA
+}
+
+class TipoImpacto {
+    <<enumeration>>
+    FINANCEIRO
+    RISCO
+    META
+    COMPORTAMENTO
+}
+
+class TipoRecomendacao {
+    <<enumeration>>
+    ECONOMIA
+    INVESTIMENTO
+    ALERTA
+    HABITO
+}
+
+class TipoModulo {
+    <<enumeration>>
+    DESAFIO
+    RECOMPENSA
+    EDUCACAO
+    PROGRESSAO
+}
+
 
 ```
