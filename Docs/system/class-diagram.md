@@ -1,8 +1,7 @@
 ```mermaid
-
 %%{init: {'theme':'dark', 'layout':'elk'}}%%
 classDiagram
-direction TB
+direction 
 
 %% =====================================================
 %% USUARIO
@@ -13,28 +12,40 @@ class Usuario {
     +String nome
     +String genero
     +Date dataNascimento
+    +String nomeUsuario
+    +String senha
+    +String email
 
-    +adicionarConta()
-    +criarMeta()
-    +abrirTicket()
-}
-
-class Feedback {
-    +Long id
+    +alterarNomeUsuario()
+    +alterarSenha()
+    +alterarEmail()
 }
 
 class Ticket {
     +Long id
-    +String titulo
-    +String descricao
+    +String tituloTicket
+    +String descricaoTicket
     +CategoriaTicket categoria
     +StatusTicket status
     +Date dataAbertura
     +Date dataAtualizacao
     +Date dataFechamento
 
-    +fechar()
-    +atualizarStatus()
+    +fecharTicket()
+    +reabrirTicket()
+}
+
+class Feedback {
+    +Long id
+    +String descricao
+    +String titulo
+    +TipoFeedback tipo
+}
+
+class FeedbackUsuario {
+    +Long id
+    +Integer nota
+    +Date dataCriacao
 }
 
 class UsuarioAssinatura {
@@ -43,9 +54,8 @@ class UsuarioAssinatura {
     +Date dataFim
     +StatusAssinatura status
 
-    +ativar()
-    +cancelar()
-    +expirada()
+    +cancelarAssinatura()
+    +isAssinaturaexpirada()
 }
 
 class Assinatura {
@@ -53,10 +63,12 @@ class Assinatura {
     +String modeloAssinatura
 }
 
-Usuario "1" --> "*" Ticket : cria
-Usuario "1" --> "*" Feedback : envia
-Usuario "1" --> "*" UsuarioAssinatura : possui
-Assinatura "1" --> "*" UsuarioAssinatura : vincula
+Usuario "1" --> "*" Ticket
+Usuario "1" --> "*" FeedbackUsuario
+Feedback "1" --> "*" FeedbackUsuario
+
+Usuario "1" --> "*" UsuarioAssinatura
+Assinatura "1" --> "*" UsuarioAssinatura
 
 %% =====================================================
 %% PROGRESSAO
@@ -65,78 +77,80 @@ Assinatura "1" --> "*" UsuarioAssinatura : vincula
 class Meta {
     +Long id
     +String nomeMeta
-    +Integer valorMeta
+    +Decimal valorMeta
     +StatusMeta status
     +TipoMeta tipo
 
-    +atualizarProgresso()
-    +concluir()
-    +estaConcluida()
+    +concluirMeta()
+    +cancelarMeta()
 }
 
 class ProgressoMeta {
     +Long id
-    +Integer progresso
+    +Decimal progresso
+    +Decimal peso
     +Date ultimoProgresso
 
-    +incrementar()
-    +calcularPercentual()
+    +incrementarProgressoMeta()
 }
 
 class Divida {
     +Long id
+    +Decimal valorDivida
+    +StatusDivida status
 
-    +calcularQuitacao()
-    +quitada()
+    +isDividaQuitada()
 }
 
 class ProgressoDivida {
     +Long id
-    +Integer progresso
+    +Decimal progresso
+    +Decimal peso
     +Date ultimoProgresso
+
+    +incrementarProgressoDivida()
 }
 
 class MapaProgressao {
     +Long id
     +String urlModelo
     +String nomeMapa
-
-    +desbloquearModulo()
 }
 
 class MapaModulo {
     +Long id
-    +Integer requisitos
-    +Integer posX
-    +Integer posY
+    +Decimal requisitos
+    +Decimal posX
+    +Decimal posY
     +TipoModulo tipo
+    +EstiloModulo estilo
 
-    +desbloqueado()
+    +isModuloDesbloqueado()
 }
 
 class MapaModuloDetalhe {
     +Long id
-    +Integer requisitos
-    +Integer posX
-    +Integer posY
+    +Decimal requisitos
+    +Decimal posX
+    +Decimal posY
 }
 
 class ModuloProgressaoUsuario {
     +Long id
-    +Integer progressao
+    +Decimal progressao
 
-    +incrementar()
-    +concluido()
+    +incrementarProgressoMapa()
+    +isModuloMapaConcluido()
 }
 
-Usuario "1" --> "*" Meta : possui
-Meta *-- ProgressoMeta : composicao
+Usuario "1" --> "*" Meta
+Meta *-- ProgressoMeta
 
-Usuario "1" --> "*" Divida : possui
-Divida *-- ProgressoDivida : composicao
+Usuario "1" --> "*" Divida
+Divida *-- ProgressoDivida
 
-MapaProgressao *-- "*" MapaModulo : possui
-MapaModulo *-- "*" MapaModuloDetalhe : detalhes
+MapaProgressao *-- "*" MapaModulo
+MapaModulo *-- "*" MapaModuloDetalhe
 
 MapaModulo "1" --> "*" ModuloProgressaoUsuario
 Usuario "1" --> "*" ModuloProgressaoUsuario
@@ -145,15 +159,35 @@ Usuario "1" --> "*" ModuloProgressaoUsuario
 %% FINANCAS
 %% =====================================================
 
-class ContaBancaria {
-    +Long id
-
-    +registrarTransacao()
-    +saldoAtual()
-}
-
 class Banco {
     +Long id
+    +String titulo
+    +Decimal agencia
+    +Date criadoEm
+    +Date atualizadoEm
+}
+
+class ContaBancaria {
+    +Long id
+    +String numeroConta
+    +TipoConta tipoConta
+    +Boolean contaConjunta
+    +String nomeConta
+    +Moeda moeda
+    +Decimal saldoAtual
+    +Decimal saldoDisponivel
+    +Decimal limiteCredito
+    +Date dataAbertura
+    +StatusConta statusConta
+    +Date ultimaAtualizacao
+    +Decimal agencia
+    +Decimal mediaReceita
+    +Decimal mediaDespesa
+    +Date criadoEm
+    +Date atualizadoEm
+
+    +atualizarSaldo()
+    +possuiLimite()
 }
 
 class Transacao {
@@ -161,9 +195,23 @@ class Transacao {
     +Decimal valor
     +Date dataTransacao
     +TipoTransacao tipo
+    +String descricao
+    +String descricaoNormalizada
+    +Boolean parcelado
+    +Decimal totalParcelas
+    +Decimal numeroParcela
+    +MetodoPagamento metodoPagamento
 
-    +ehDespesa()
-    +ehReceita()
+    +isDespesa()
+    +isReceita()
+}
+
+class TransacaoRecorrente {
+    +Long id
+    +Decimal valor
+    +TipoTransacao tipo
+    +String descricaoNormalizada
+    +Boolean parcelado
 }
 
 class Vendedor {
@@ -177,11 +225,14 @@ class CategoriaCompra {
     +String nomeCategoria
 }
 
-Usuario "1" --> "*" ContaBancaria : possui
+Usuario "1" --> "*" ContaBancaria
 Banco "1" --> "*" ContaBancaria
 
-ContaBancaria *-- "*" Transacao : registra
-Transacao --> Vendedor : destino
+ContaBancaria *-- "*" Transacao
+ContaBancaria *-- "*" TransacaoRecorrente
+
+Transacao --> Vendedor
+TransacaoRecorrente --> Vendedor
 
 Vendedor "1" --> "*" CategoriaCompra
 
@@ -197,10 +248,11 @@ class Analise {
     +String relevancia
     +Date dataCriacao
     +StatusAnalise status
+    +Date periodoInicio
+    +Date periodoFim
     +Boolean acionavel
 
-    +finalizar()
-    +gerarResumo()
+    +finalizarAnalise()
     +possuiRisco()
 }
 
@@ -222,6 +274,7 @@ class AnaliseResultado {
     +String modeloUtilizado
     +String versaoModelo
     +String explicacao
+    +Date dataCriacao
 
     +altoRisco()
 }
@@ -230,9 +283,9 @@ class AnaliseResultadoVariavel {
     +Long id
     +String nomeVariavel
     +String valorVariavel
-    +Float valorFaixa
-    +Float peso
-    +Float coeficiente
+    +Decimal valorFaixa
+    +Decimal peso
+    +Decimal coeficiente
     +String impactoResultado
     +String faixaReferencia
     +Date dataRegistro
@@ -241,10 +294,16 @@ class AnaliseResultadoVariavel {
 class AnaliseImpacto {
     +Long id
     +TipoImpacto tipoImpacto
+    +String entidadeOrigemTipo
+    +Long entidadeOrigemId
+    +String entidadeImpactadaTipo
+    +Long entidadeImpactadaId
     +String descricao
     +String gravidade
-    +Float scoreImpacto
-    +Float impactoEstimadoValor
+    +Decimal scoreImpacto
+    +Decimal impactoEstimadoValor
+    +Decimal impactoTemporalAnual
+    +Decimal impactoTemporalMensal
 
     +impactoCritico()
 }
@@ -254,14 +313,13 @@ class Recomendacao {
     +TipoRecomendacao tipo
     +String titulo
     +String descricao
-    +Integer dificuldade
+    +Decimal dificuldade
     +Prioridade prioridade
     +StatusRecomendacao status
     +Date dataCriacao
 
-    +aceitar()
-    +ignorar()
-    +concluir()
+    +aceitarRecomendacao()
+    +concluirRecomendacao()
 }
 
 class RecomendacaoEntidade {
@@ -271,7 +329,7 @@ class RecomendacaoEntidade {
     +String papelEntidade
 }
 
-Usuario "1" --> "*" Analise : possui
+Usuario "1" --> "*" Analise
 
 Analise *-- "*" AnaliseImpacto
 Analise *-- "*" AnaliseEntidade
@@ -279,7 +337,7 @@ Analise *-- "1" AnaliseResultado
 
 AnaliseResultado *-- "*" AnaliseResultadoVariavel
 
-Analise --> "*" Recomendacao : gera
+Analise --> "*" Recomendacao
 
 Usuario "1" --> "*" Recomendacao
 Recomendacao *-- "*" RecomendacaoEntidade
@@ -298,8 +356,51 @@ class StatusMeta {
 class TipoMeta {
     <<enumeration>>
     ECONOMIA
+    BEM_ESTAR
     INVESTIMENTO
+    DIVIDA
+    RESERVA
+    EDUCACAO
+}
+
+class StatusDivida {
+    <<enumeration>>
+    ATIVA
+    PAGA
+    ATRASADA
+}
+
+class TipoModulo {
+    <<enumeration>>
+    DESAFIO
+    EDUCACAO
+    BONUS
+    PROGRESSAO
+}
+
+class EstiloModulo {
+    <<enumeration>>
+    MONTANHA
+    CIDADE
+    FLORESTA
+    RIO
+}
+
+class TipoFeedback {
+    <<enumeration>>
+    BUG
+    SUGESTAO
+    EXPERIENCIA
+    SUPORTE
+}
+
+class CategoriaTicket {
+    <<enumeration>>
+    FINANCEIRO
+    TECNICO
     PAGAMENTO
+    CONTA
+    OUTROS
 }
 
 class StatusTicket {
@@ -310,12 +411,33 @@ class StatusTicket {
     FECHADO
 }
 
-class CategoriaTicket {
+class StatusAssinatura {
     <<enumeration>>
-    BUG
-    FINANCEIRO
-    SUPORTE
-    FEEDBACK
+    ATIVA
+    CANCELADA
+    EXPIRADA
+}
+
+class TipoConta {
+    <<enumeration>>
+    CORRENTE
+    POUPANCA
+    SALARIO
+    INVESTIMENTO
+}
+
+class StatusConta {
+    <<enumeration>>
+    ATIVA
+    BLOQUEADA
+    ENCERRADA
+}
+
+class Moeda {
+    <<enumeration>>
+    BRL
+    USD
+    EUR
 }
 
 class TipoTransacao {
@@ -325,12 +447,22 @@ class TipoTransacao {
     TRANSFERENCIA
 }
 
+class MetodoPagamento {
+    <<enumeration>>
+    PIX
+    CARTAO_CREDITO
+    CARTAO_DEBITO
+    BOLETO
+    TED
+}
+
 class TipoAnalise {
     <<enumeration>>
     CONSUMO
-    RISCO
-    PREVISAO
+    SAUDE_FINANCEIRA
     INADIMPLENCIA
+    PREVISAO
+    RISCO
 }
 
 class StatusAnalise {
@@ -349,11 +481,29 @@ class NivelRisco {
     CRITICO
 }
 
+class TipoImpacto {
+    <<enumeration>>
+    FINANCEIRO
+    META
+    DIVIDA
+    RISCO
+    COMPORTAMENTO
+}
+
+class TipoRecomendacao {
+    <<enumeration>>
+    ECONOMIA
+    ALERTA
+    INVESTIMENTO
+    HABITO
+}
+
 class Prioridade {
     <<enumeration>>
     BAIXA
     MEDIA
     ALTA
+    CRITICA
 }
 
 class StatusRecomendacao {
@@ -363,37 +513,5 @@ class StatusRecomendacao {
     IGNORADA
     CONCLUIDA
 }
-
-class StatusAssinatura {
-    <<enumeration>>
-    ATIVA
-    CANCELADA
-    EXPIRADA
-}
-
-class TipoImpacto {
-    <<enumeration>>
-    FINANCEIRO
-    RISCO
-    META
-    COMPORTAMENTO
-}
-
-class TipoRecomendacao {
-    <<enumeration>>
-    ECONOMIA
-    INVESTIMENTO
-    ALERTA
-    HABITO
-}
-
-class TipoModulo {
-    <<enumeration>>
-    DESAFIO
-    RECOMPENSA
-    EDUCACAO
-    PROGRESSAO
-}
-
 
 ```

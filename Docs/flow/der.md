@@ -81,6 +81,8 @@ erDiagram
 		NUMERIC pox_ys
         %% enum
 		NUMERIC tipo
+        %% enum
+        NUMERIC estilo
 	}
 	MAPA_MODULOS}o--||MAPA_PROGRESSAO : "possui" 
 	MAPA_MODULOS||--O{MODULO_PROGRESSAO_USUARIO : "possui" 

@@ -1,0 +1,33 @@
+
+.idea/
+*.iml
+
+.DS_Store
+Thumbs.db
+
+*.log
+
+.env
+
+tolevBack/target/
+tolevBack/.mvn/wrapper/maven-wrapper.jar
+tolevBack/out/
+META-INF/
+
+# Node
+
+mobile/node_modules/
+
+# React Native
+
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/ios/build/
+
+# Docker
+
+postgres_data/
+
+# Redis
+
+redis_data/
