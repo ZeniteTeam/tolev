@@ -11,6 +11,7 @@ Thumbs.db
 
 .claude
 .claude/
+CLAUDE.md
 
 tolevBack/target/
 tolevBack/.mvn/wrapper/maven-wrapper.jar

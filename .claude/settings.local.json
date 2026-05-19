@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Lucas\\\\Desktop\\\\TolevProject\\\\tolevBack\\\\src\\\\main\\\\java\\\\com\\\\br\\\\startup\\\\tolevBack\" -Recurse -Filter \"*.java\")",
-      "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
-    ]
-  }
-}
