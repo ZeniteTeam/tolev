@@ -9,6 +9,9 @@ Thumbs.db
 
 .env
 
+.claude
+.claude/
+
 tolevBack/target/
 tolevBack/.mvn/wrapper/maven-wrapper.jar
 tolevBack/out/
