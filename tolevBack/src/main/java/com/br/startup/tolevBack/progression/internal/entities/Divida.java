@@ -1,6 +1,6 @@
 package com.br.startup.tolevBack.progression.internal.entities;
 
-import com.br.startup.tolevBack.finance.enums.StatusDivida;
+import com.br.startup.tolevBack.progression.enums.StatusDivida;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
