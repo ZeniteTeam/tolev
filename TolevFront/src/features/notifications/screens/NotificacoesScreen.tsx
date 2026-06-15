@@ -7,7 +7,7 @@ import {
   TrendingUp,
   type LucideIcon,
 } from "lucide-react-native";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { PageTitle, Screen } from "../../../components";
 import { colors, shadows } from "../../../theme";
 
@@ -51,9 +51,9 @@ export default function NotificacoesScreen() {
       <PageTitle title="Notificações" sub="Atualizações sobre suas metas e finanças" />
 
       {GROUPS.map((g) => (
-        <View key={g.label} style={{ marginBottom: 22 }}>
-          <Text style={styles.groupLabel}>{g.label}</Text>
-          <View style={[styles.group, shadows.card]}>
+        <View key={g.label} className="mb-[22px]">
+          <Text className="text-[11px] text-muted uppercase tracking-[0.6px] font-semibold mb-2 pl-1">{g.label}</Text>
+          <View className="bg-white rounded-lg overflow-hidden" style={shadows.card}>
             {g.items.map((n, i) => (
               <NotifRow key={i} {...n} last={i === g.items.length - 1} />
             ))}
@@ -72,56 +72,15 @@ function NotifRow({ icon: Icon, tint, title, sub, time, last }: NotifItem & { la
       ? { bg: "#F1F5F3", fg: colors.text.secondary }
       : { bg: colors.primary[100], fg: colors.primary[700] };
   return (
-    <View style={[styles.row, !last && styles.rowDivider]}>
-      <View style={[styles.icon, { backgroundColor: palette.bg }]}>
+    <View className={`flex-row items-start gap-3.5 p-3.5 ${!last ? "border-b border-b-[#F1F5F3]" : ""}`}>
+      <View className="w-9 h-9 rounded-full items-center justify-center" style={{ backgroundColor: palette.bg }}>
         <Icon size={18} color={palette.fg} strokeWidth={2} />
       </View>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.sub}>{sub}</Text>
+      <View className="flex-1">
+        <Text className="font-semibold text-[14px] text-ink leading-[18px]">{title}</Text>
+        <Text className="text-[12px] text-muted mt-[3px] leading-4 font-regular">{sub}</Text>
       </View>
-      <Text style={styles.time}>{time}</Text>
+      <Text className="text-[11px] text-muted pt-0.5 font-regular">{time}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  groupLabel: {
-    fontSize: 11,
-    color: colors.text.secondary,
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    marginBottom: 8,
-    paddingLeft: 4,
-  },
-  group: { backgroundColor: "#fff", borderRadius: 16, overflow: "hidden" },
-  row: { flexDirection: "row", alignItems: "flex-start", gap: 14, padding: 14 },
-  rowDivider: { borderBottomWidth: 1, borderBottomColor: "#F1F5F3" },
-  icon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    fontSize: 14,
-    color: colors.text.primary,
-    lineHeight: 18,
-  },
-  sub: {
-    fontSize: 12,
-    color: colors.text.secondary,
-    marginTop: 3,
-    lineHeight: 16,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  time: {
-    fontSize: 11,
-    color: colors.text.secondary,
-    paddingTop: 2,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-});

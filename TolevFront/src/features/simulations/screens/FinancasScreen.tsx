@@ -20,7 +20,7 @@ export default function FinancasScreen() {
     <Screen bottomPad={120}>
       <PageTitle title="Finanças" sub="Simule, projete e analise seu progresso" />
 
-      <View style={{ marginBottom: 6 }}>
+      <View className="mb-1.5">
         <TabsUnderline items={TABS} active={tab} onChange={setTab} />
       </View>
 

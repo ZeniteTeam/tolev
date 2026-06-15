@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
-import { StyleSheet, View, ViewStyle } from "react-native";
-import { colors } from "../theme";
+import { View, ViewStyle } from "react-native";
 
 type Props = {
   children?: ReactNode;
@@ -8,19 +7,16 @@ type Props = {
   style?: ViewStyle;
 };
 
+const sizeClasses: Record<NonNullable<Props["size"]>, string> = {
+  md: "w-10 h-10",
+  lg: "w-12 h-12",
+  xl: "w-16 h-16",
+};
+
 export default function Ring({ children, size = "md", style }: Props) {
-  const dim = size === "xl" ? 64 : size === "lg" ? 48 : 40;
   return (
-    <View style={[styles.base, { width: dim, height: dim, borderRadius: dim / 2 }, style]}>
+    <View className={`bg-primary-100 items-center justify-center rounded-full ${sizeClasses[size]}`} style={style}>
       {children}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    backgroundColor: colors.primary[100],
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

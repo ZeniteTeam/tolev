@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { Pressable, StyleSheet, Text, ViewStyle } from "react-native";
-import { colors, shadows } from "../theme";
+import { Pressable, Text, ViewStyle } from "react-native";
+import { shadows } from "../theme";
 
 type Variant = "primary" | "outline" | "ghost";
 
@@ -11,55 +11,28 @@ type Props = {
   style?: ViewStyle;
 };
 
+const containerClasses: Record<Variant, string> = {
+  primary: "bg-coral-500",
+  outline: "bg-transparent border-2 border-teal-500",
+  ghost: "bg-transparent",
+};
+
+const labelClasses: Record<Variant, string> = {
+  primary: "text-white",
+  outline: "text-teal-500",
+  ghost: "text-muted",
+};
+
 export default function Button({ children, variant = "primary", onPress, style }: Props) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.base,
-        variant === "primary" && [styles.primary, shadows.deep],
-        variant === "outline" && styles.outline,
-        variant === "ghost" && styles.ghost,
-        pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
-        style,
-      ]}
+      className={`h-12 rounded-[36px] items-center justify-center px-7 active:opacity-85 active:scale-[0.98] ${containerClasses[variant]}`}
+      style={[variant === "primary" && shadows.deep, style]}
     >
-      <Text
-        style={[
-          styles.label,
-          variant === "primary" && { color: "#fff" },
-          variant === "outline" && { color: colors.teal[500] },
-          variant === "ghost" && { color: colors.text.secondary },
-        ]}
-      >
+      <Text className={`font-bold text-[17px] leading-[20px] ${labelClasses[variant]}`}>
         {children}
       </Text>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    height: 48,
-    borderRadius: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 28,
-  },
-  primary: {
-    backgroundColor: colors.coral[500],
-  },
-  outline: {
-    backgroundColor: "transparent",
-    borderWidth: 2,
-    borderColor: colors.teal[500],
-  },
-  ghost: {
-    backgroundColor: "transparent",
-  },
-  label: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 17,
-    lineHeight: 20,
-  },
-});

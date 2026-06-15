@@ -1,5 +1,5 @@
 import { LucideIcon } from "lucide-react-native";
-import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
+import { TextInput, TextInputProps, View } from "react-native";
 import { colors } from "../theme";
 
 type Props = {
@@ -13,10 +13,10 @@ type Props = {
 
 export default function Field({ icon: Icon, value, onChangeText, placeholder, secureTextEntry, keyboardType }: Props) {
   return (
-    <View style={styles.wrap}>
+    <View className="h-12 rounded-[36px] bg-primary-50 flex-row items-center px-[18px] gap-2.5">
       {Icon && <Icon size={20} color={colors.coral[500]} strokeWidth={2} />}
       <TextInput
-        style={styles.input}
+        className="flex-1 font-regular text-base text-ink py-0"
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -27,22 +27,3 @@ export default function Field({ icon: Icon, value, onChangeText, placeholder, se
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    height: 48,
-    borderRadius: 36,
-    backgroundColor: colors.primary[50],
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 18,
-    gap: 10,
-  },
-  input: {
-    flex: 1,
-    fontFamily: "PlusJakartaSans_400Regular",
-    fontSize: 16,
-    color: colors.text.primary,
-    paddingVertical: 0,
-  },
-});

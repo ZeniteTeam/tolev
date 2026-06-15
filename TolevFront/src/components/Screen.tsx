@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
-import { ScrollView, StyleSheet, ViewStyle } from "react-native";
-import { colors } from "../theme";
+import { ScrollView, ViewStyle } from "react-native";
 
 type Props = {
   children: ReactNode;
@@ -11,22 +10,12 @@ type Props = {
 export default function Screen({ children, contentStyle, bottomPad = 32 }: Props) {
   return (
     <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={[styles.content, { paddingBottom: bottomPad }, contentStyle]}
+      className="flex-1 bg-bg"
+      contentContainerClassName="px-5 pt-[18px]"
+      contentContainerStyle={[{ paddingBottom: bottomPad }, contentStyle]}
       showsVerticalScrollIndicator={false}
     >
       {children}
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 18,
-  },
-});

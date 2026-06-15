@@ -11,7 +11,7 @@ type Props = {
 
 export default function Stars({ count = 5, filled = 5, size = 22, onChange }: Props) {
   return (
-    <View style={{ flexDirection: "row", gap: 6 }}>
+    <View className="flex-row gap-1.5">
       {Array.from({ length: count }).map((_, i) => {
         const isFilled = i < filled;
         const node = (

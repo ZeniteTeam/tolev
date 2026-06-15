@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { colors } from "../theme";
 
 export type BankId =
@@ -28,51 +28,29 @@ export default function BankFilter({ active, onChange }: Props) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.scroll}
+      contentContainerClassName="px-1 py-2 gap-3.5"
     >
-      {BANKS.map((b) => (
-        <Pressable key={b.id} onPress={() => onChange(b.id)} style={styles.item}>
-          <View
-            style={[
-              styles.logo,
-              { backgroundColor: b.color },
-              active === b.id && { borderWidth: 2, borderColor: colors.coral[500] },
-            ]}
-          >
-            <Text style={{ color: b.textColor, fontFamily: "PlusJakartaSans_700Bold", fontSize: 14 }}>
-              {b.short}
+      {BANKS.map((b) => {
+        const isActive = active === b.id;
+        return (
+          <Pressable key={b.id} onPress={() => onChange(b.id)} className="items-center gap-1.5 w-14">
+            <View
+              className="w-11 h-11 rounded-full items-center justify-center"
+              style={[
+                { backgroundColor: b.color },
+                isActive && { borderWidth: 2, borderColor: colors.coral[500] },
+              ]}
+            >
+              <Text style={{ color: b.textColor }} className="font-bold text-[14px]">
+                {b.short}
+              </Text>
+            </View>
+            <Text className={`text-xs ${isActive ? "text-primary-700 font-bold" : "text-muted font-medium"}`}>
+              {b.name}
             </Text>
-          </View>
-          <Text style={[styles.name, active === b.id && { color: colors.primary[700], fontFamily: "PlusJakartaSans_700Bold" }]}>
-            {b.name}
-          </Text>
-        </Pressable>
-      ))}
+          </Pressable>
+        );
+      })}
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  scroll: {
-    paddingHorizontal: 4,
-    paddingVertical: 8,
-    gap: 14,
-  },
-  item: {
-    alignItems: "center",
-    gap: 6,
-    width: 56,
-  },
-  logo: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  name: {
-    fontSize: 11,
-    color: colors.text.secondary,
-    fontFamily: "PlusJakartaSans_500Medium",
-  },
-});

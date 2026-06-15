@@ -1,38 +1,30 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { AlertCircle, Smile, Thermometer, Zap } from "lucide-react-native";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { LineChart, Progress, Ring } from "../../../components";
 import { colors, shadows } from "../../../theme";
 
 export default function ProjecoesTab() {
   return (
-    <View style={{ paddingTop: 22 }}>
+    <View className="pt-[22px]">
       <LinearGradient
         colors={[colors.primary[700], colors.primary[600]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.heroCard, shadows.card]}
+        className="rounded-[18px] p-[22px] mb-3.5"
+        style={shadows.card}
       >
-        <Text style={styles.heroLabel}>Quitação prevista</Text>
-        <Text style={styles.heroValue}>Dez/2026</Text>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 6,
-            marginTop: 6,
-          }}
-        >
+        <Text className="text-white/[0.85] text-sm font-semibold">Quitação prevista</Text>
+        <Text className="text-white text-[30px] font-bold mt-1.5">Dez/2026</Text>
+        <View className="flex-row items-center gap-1.5 mt-1.5">
           <Zap size={14} color={colors.primary[300]} strokeWidth={2} />
-          <Text style={styles.heroSub}>
-            <Text style={{ fontFamily: "PlusJakartaSans_700Bold" }}>
-              Passa voando!{" "}
-            </Text>
+          <Text className="text-white/[0.9] text-sm font-regular">
+            <Text className="font-bold">Passa voando!{" "}</Text>
             Faltam 7 meses
           </Text>
         </View>
 
-        <View style={{ marginTop: 14 }}>
+        <View className="mt-3.5">
           <LineChart
             values={[5, 13, 22, 30, 40, 52, 65, 78, 92, 100]}
             height={120}
@@ -41,7 +33,7 @@ export default function ProjecoesTab() {
           />
         </View>
 
-        <View style={styles.heroGrid}>
+        <View className="flex-row flex-wrap gap-3 mt-3.5 pt-4 border-t border-t-white/[0.18]">
           <Stat label="Dívida total" value="R$ 30.000" sub="a quitar" />
           <Stat label="Pagamento mensal" value="R$ 4.285" sub="previsto" />
           <Stat
@@ -54,15 +46,8 @@ export default function ProjecoesTab() {
         </View>
       </LinearGradient>
 
-      <View style={[styles.card, shadows.card]}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "flex-start",
-            gap: 14,
-            marginBottom: 14,
-          }}
-        >
+      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+        <View className="flex-row items-start gap-3.5 mb-3.5">
           <Ring>
             <Thermometer
               size={22}
@@ -70,87 +55,51 @@ export default function ProjecoesTab() {
               strokeWidth={2}
             />
           </Ring>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.cardTitle}>Termômetro da dívida</Text>
-            <Text style={styles.cardSub}>
+          <View className="flex-1">
+            <Text className="font-bold text-[16px] text-ink">Termômetro da dívida</Text>
+            <Text className="text-[12px] text-muted mt-0.5 font-regular">
               Você já percorreu{" "}
-              <Text
-                style={{
-                  color: colors.text.primary,
-                  fontFamily: "PlusJakartaSans_700Bold",
-                }}
-              >
-                40%
-              </Text>
+              <Text className="text-ink font-bold">40%</Text>
             </Text>
           </View>
         </View>
         <Progress pct={40} height={12} />
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginTop: 10,
-          }}
-        >
-          <Text style={styles.termoStat}>R$ 20.000 pagos</Text>
-          <Text style={styles.termoStat}>R$ 30.000 restantes</Text>
+        <View className="flex-row justify-between mt-2.5">
+          <Text className="text-[12px] text-primary-700 font-semibold">R$ 20.000 pagos</Text>
+          <Text className="text-[12px] text-primary-700 font-semibold">R$ 30.000 restantes</Text>
         </View>
       </View>
 
-      <View style={{ flexDirection: "row", gap: 12, marginBottom: 16 }}>
-        <View style={[styles.miniCard, shadows.card]}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 12,
-            }}
-          >
+      <View className="flex-row gap-3 mb-4">
+        <View className="flex-1 bg-white rounded-[18px] p-[18px]" style={shadows.card}>
+          <View className="flex-row items-center gap-2 mb-3">
             <Ring style={{ width: 32, height: 32, borderRadius: 16 }}>
               <Smile size={16} color={colors.teal[500]} strokeWidth={2} />
             </Ring>
-            <Text style={styles.miniLabel}>Livre hoje</Text>
+            <Text className="text-[12px] text-muted font-regular">Livre hoje</Text>
           </View>
-          <Text style={[styles.miniValue, { color: colors.teal[500] }]}>
-            R$ 84
-          </Text>
-          <Text style={styles.miniSub}>sem comprometer dívidas</Text>
+          <Text className="font-bold text-[22px] text-teal-500">R$ 84</Text>
+          <Text className="text-[11px] text-muted mt-1 font-regular">sem comprometer dívidas</Text>
         </View>
-        <View style={[styles.miniCard, shadows.card]}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 12,
-            }}
-          >
-            <View
-              style={[
-                styles.iconBubble,
-                { backgroundColor: "rgba(254,111,80,0.12)" },
-              ]}
-            >
+        <View className="flex-1 bg-white rounded-[18px] p-[18px]" style={shadows.card}>
+          <View className="flex-row items-center gap-2 mb-3">
+            <View className="w-8 h-8 rounded-full items-center justify-center bg-coral-500/[0.12]">
               <AlertCircle
                 size={16}
                 color={colors.coral[500]}
                 strokeWidth={2}
               />
             </View>
-            <Text style={styles.miniLabel}>Comprometido</Text>
+            <Text className="text-[12px] text-muted font-regular">Comprometido</Text>
           </View>
-          <Text style={[styles.miniValue, { color: colors.coral[500] }]}>
-            72%
-          </Text>
-          <Text style={styles.miniSub}>da renda mensal</Text>
+          <Text className="font-bold text-[22px] text-coral-500">72%</Text>
+          <Text className="text-[11px] text-muted mt-1 font-regular">da renda mensal</Text>
         </View>
       </View>
 
-      <View style={[styles.card, shadows.card]}>
-        <Text style={styles.cardTitle}>Próximos 6 meses</Text>
-        <Text style={[styles.cardSub, { marginBottom: 18 }]}>
+      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+        <Text className="font-bold text-[16px] text-ink">Próximos 6 meses</Text>
+        <Text className="text-[12px] text-muted mt-0.5 font-regular mb-[18px]">
           Dívida projetada vs. pagamentos
         </Text>
         <ProjectionBars />
@@ -171,12 +120,12 @@ function Stat({
   valueColor?: string;
 }) {
   return (
-    <View style={{ width: "48%" }}>
-      <Text style={styles.statLabel}>{label}</Text>
-      <Text style={[styles.statValue, valueColor && { color: valueColor }]}>
+    <View className="w-[48%]">
+      <Text className="text-[11px] text-white/[0.78] mb-1 font-regular">{label}</Text>
+      <Text className="text-white font-bold text-[16px]" style={valueColor ? { color: valueColor } : undefined}>
         {value}
       </Text>
-      <Text style={styles.statSub}>{sub}</Text>
+      <Text className="text-[11px] text-white/[0.7] mt-0.5 font-regular">{sub}</Text>
     </View>
   );
 }
@@ -193,33 +142,15 @@ function ProjectionBars() {
   const max = 30;
   return (
     <View>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "flex-end",
-          gap: 10,
-          height: 140,
-        }}
-      >
+      <View className="flex-row items-end gap-2.5 h-[140px]">
         {months.map(({ m, divida, pagto }) => (
-          <View
-            key={m}
-            style={{
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "flex-end",
-              height: "100%",
-            }}
-          >
-            <View
-              style={{ width: 24, height: "100%", justifyContent: "flex-end" }}
-            >
+          <View key={m} className="flex-1 items-center justify-end h-full">
+            <View className="w-6 h-full justify-end">
               <View
+                className="rounded-t-md"
                 style={{
                   height: `${(divida / max) * 100}%`,
                   backgroundColor: colors.primary[500],
-                  borderTopLeftRadius: 6,
-                  borderTopRightRadius: 6,
                 }}
               />
               <View
@@ -232,24 +163,14 @@ function ProjectionBars() {
           </View>
         ))}
       </View>
-      <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
+      <View className="flex-row gap-2.5 mt-2">
         {months.map(({ m }) => (
-          <Text
-            key={m}
-            style={[styles.barAxisLabel, { flex: 1, textAlign: "center" }]}
-          >
+          <Text key={m} className="flex-1 text-center text-[11px] text-muted font-regular">
             {m}
           </Text>
         ))}
       </View>
-      <View
-        style={{
-          flexDirection: "row",
-          gap: 16,
-          justifyContent: "center",
-          marginTop: 14,
-        }}
-      >
+      <View className="flex-row gap-4 justify-center mt-3.5">
         <Legend color={colors.primary[500]} label="Dívida restante" />
         <Legend color={colors.coral[500]} label="Pagamento" />
       </View>
@@ -259,117 +180,9 @@ function ProjectionBars() {
 
 function Legend({ color, label }: { color: string; label: string }) {
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-      <View
-        style={{
-          width: 10,
-          height: 10,
-          borderRadius: 3,
-          backgroundColor: color,
-        }}
-      />
-      <Text
-        style={{
-          fontSize: 12,
-          color: colors.text.secondary,
-          fontFamily: "PlusJakartaSans_400Regular",
-        }}
-      >
-        {label}
-      </Text>
+    <View className="flex-row items-center gap-1.5">
+      <View className="w-2.5 h-2.5 rounded-[3px]" style={{ backgroundColor: color }} />
+      <Text className="text-[12px] text-muted font-regular">{label}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  heroCard: { borderRadius: 18, padding: 22, marginBottom: 14 },
-  heroLabel: {
-    color: "rgba(255,255,255,0.85)",
-    fontSize: 13,
-    fontFamily: "PlusJakartaSans_600SemiBold",
-  },
-  heroValue: {
-    color: "#fff",
-    fontSize: 30,
-    fontFamily: "PlusJakartaSans_700Bold",
-    marginTop: 6,
-  },
-  heroSub: {
-    color: "rgba(255,255,255,0.9)",
-    fontSize: 13,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  heroGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginTop: 14,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.18)",
-  },
-  statLabel: {
-    fontSize: 11,
-    color: "rgba(255,255,255,0.78)",
-    marginBottom: 4,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  statValue: {
-    color: "#fff",
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 16,
-  },
-  statSub: {
-    fontSize: 11,
-    color: "rgba(255,255,255,0.7)",
-    marginTop: 2,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 20,
-    marginBottom: 14,
-  },
-  cardTitle: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 16,
-    color: colors.text.primary,
-  },
-  cardSub: {
-    fontSize: 12,
-    color: colors.text.secondary,
-    marginTop: 2,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  termoStat: {
-    fontSize: 12,
-    color: colors.primary[700],
-    fontFamily: "PlusJakartaSans_600SemiBold",
-  },
-  miniCard: { flex: 1, backgroundColor: "#fff", borderRadius: 18, padding: 18 },
-  miniLabel: {
-    fontSize: 12,
-    color: colors.text.secondary,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  miniValue: { fontFamily: "PlusJakartaSans_700Bold", fontSize: 22 },
-  miniSub: {
-    fontSize: 11,
-    color: colors.text.secondary,
-    marginTop: 4,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  iconBubble: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  barAxisLabel: {
-    fontSize: 11,
-    color: colors.text.secondary,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-});

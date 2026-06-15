@@ -7,7 +7,6 @@ import MetasScreen from "../features/missions/screens/MetasScreen";
 import NotificacoesScreen from "../features/notifications/screens/NotificacoesScreen";
 import ProgressaoScreen from "../features/progress/screens/ProgressaoScreen";
 import FinancasScreen from "../features/simulations/screens/FinancasScreen";
-import { colors } from "../theme";
 import TabBar from "./TabBar";
 
 const Tab = createBottomTabNavigator();
@@ -16,7 +15,7 @@ function withHeader(Component: React.ComponentType<any>, variant: "home" | "slim
   return function Wrapped(props: any) {
     const navigation = useNavigation<any>();
     return (
-      <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <View className="flex-1 bg-bg">
         {variant === "home" ? (
           <HomeHeader
             onAvatar={() => navigation.getParent()?.navigate("Perfil")}

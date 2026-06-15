@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Lock, Mail } from "lucide-react-native";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Field } from "../../../components";
 import { colors } from "../../../theme";
@@ -16,36 +16,36 @@ export default function LoginScreen({ onLogin }: Props) {
   const [senha, setSenha] = useState("senha-leve");
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1 bg-primary-600">
       <LinearGradient
         colors={[colors.primary[700], colors.primary[800]]}
-        style={StyleSheet.absoluteFill}
+        className="absolute top-0 left-0 right-0 bottom-0"
       />
-      <View style={[styles.hero, { paddingTop: insets.top + 80 }]}>
-        <Text style={styles.wordmark}>TOLEV</Text>
-        <Text style={styles.tagline}>Sua experiência financeira</Text>
+      <View className="px-10 pb-10" style={{ paddingTop: insets.top + 80 }}>
+        <Text className="font-bold text-[64px] leading-[70px] tracking-[-1px] text-white">TOLEV</Text>
+        <Text className="text-white text-[18px] mt-1.5 font-regular">Sua experiência financeira</Text>
       </View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.slab}
+        className="flex-1 bg-[#FEFEFE] rounded-t-[32px] px-8 pt-10"
       >
-        <Text style={styles.heading}>Login</Text>
+        <Text className="font-bold text-3xl text-primary-700 mb-9">Login</Text>
 
-        <View style={{ gap: 14 }}>
+        <View className="gap-3.5">
           <Field icon={Mail} placeholder="Email" value={email} onChangeText={setEmail} />
           <Field icon={Lock} placeholder="Senha" secureTextEntry value={senha} onChangeText={setSenha} />
 
           <Pressable>
-            <Text style={styles.forgot}>Esqueci a senha</Text>
+            <Text className="text-right text-[14px] text-info-700 px-1.5 pb-2 font-medium">Esqueci a senha</Text>
           </Pressable>
 
           <Button variant="primary" onPress={onLogin}>Entrar</Button>
 
-          <View style={styles.divider}>
-            <View style={styles.line} />
-            <Text style={styles.or}>ou</Text>
-            <View style={styles.line} />
+          <View className="flex-row items-center gap-3 my-1.5">
+            <View className="flex-1 h-px bg-black/[0.34]" />
+            <Text className="text-muted text-base font-regular">ou</Text>
+            <View className="flex-1 h-px bg-black/[0.34]" />
           </View>
 
           <Button variant="outline" onPress={onLogin}>Criar conta</Button>
@@ -54,65 +54,3 @@ export default function LoginScreen({ onLogin }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.primary[600],
-  },
-  hero: {
-    paddingHorizontal: 40,
-    paddingBottom: 40,
-  },
-  wordmark: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 64,
-    letterSpacing: -1,
-    color: "#fff",
-    lineHeight: 70,
-  },
-  tagline: {
-    color: "#fff",
-    fontSize: 18,
-    marginTop: 6,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  slab: {
-    flex: 1,
-    backgroundColor: "#FEFEFE",
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    paddingHorizontal: 32,
-    paddingTop: 40,
-  },
-  heading: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 34,
-    color: colors.primary[700],
-    marginBottom: 36,
-  },
-  forgot: {
-    textAlign: "right",
-    fontSize: 14,
-    color: colors.info[700],
-    paddingHorizontal: 6,
-    paddingBottom: 8,
-    fontFamily: "PlusJakartaSans_500Medium",
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginVertical: 6,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(0,0,0,0.34)",
-  },
-  or: {
-    color: colors.text.secondary,
-    fontSize: 16,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-});

@@ -1,5 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors } from "../theme";
+import { Pressable, Text, View } from "react-native";
 
 type Item = { key: string; label: string };
 
@@ -11,47 +10,18 @@ type Props = {
 
 export default function TabsUnderline({ items, active, onChange }: Props) {
   return (
-    <View style={styles.row}>
+    <View className="flex-row border-b border-b-[#F1F5F3]">
       {items.map((it) => {
         const isActive = active === it.key;
         return (
-          <Pressable key={it.key} onPress={() => onChange(it.key)} style={styles.tab}>
-            <Text style={[styles.label, isActive && styles.activeLabel]}>{it.label}</Text>
-            <View style={[styles.underline, isActive && styles.activeUnderline]} />
+          <Pressable key={it.key} onPress={() => onChange(it.key)} className="flex-1 items-center py-3 gap-2">
+            <Text className={`font-semibold text-md ${isActive ? "text-primary-700" : "text-muted"}`}>
+              {it.label}
+            </Text>
+            <View className={`h-[3px] w-9 rounded-pill ${isActive ? "bg-coral-500" : "bg-transparent"}`} />
           </Pressable>
         );
       })}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F3",
-  },
-  tab: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 12,
-    gap: 8,
-  },
-  label: {
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    fontSize: 15,
-    color: colors.text.secondary,
-  },
-  activeLabel: {
-    color: colors.primary[700],
-  },
-  underline: {
-    height: 3,
-    width: 36,
-    borderRadius: 999,
-    backgroundColor: "transparent",
-  },
-  activeUnderline: {
-    backgroundColor: colors.coral[500],
-  },
-});

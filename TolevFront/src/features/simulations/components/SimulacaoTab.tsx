@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Button, Chip, Field } from "../../../components";
-import { colors, shadows } from "../../../theme";
+import { shadows } from "../../../theme";
 
 type Filters = {
   categoria: string;
@@ -26,32 +26,32 @@ export default function SimulacaoTab({ onSubmit }: Props) {
     });
 
   return (
-    <View style={{ paddingTop: 18 }}>
-      <Text style={styles.intro}>Configure filtros para prever impactos financeiros</Text>
+    <View className="pt-[18px]">
+      <Text className="text-sm text-muted mb-[18px] font-regular leading-[18px]">Configure filtros para prever impactos financeiros</Text>
 
-      <View style={[styles.card, shadows.card]}>
-        <Text style={styles.cardTitle}>Categoria</Text>
-        <Text style={styles.cardSub}>Qual área deseja simular?</Text>
-        <View style={styles.chips}>
+      <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
+        <Text className="font-bold text-[15px] text-primary-700 mb-1">Categoria</Text>
+        <Text className="text-[12px] text-muted mb-3.5 font-regular">Qual área deseja simular?</Text>
+        <View className="flex-row flex-wrap gap-2">
           <Chip active={cat === "dividas"} onPress={() => setCat("dividas")}>Dívidas</Chip>
           <Chip active={cat === "evolucao"} onPress={() => setCat("evolucao")}>Evolução</Chip>
           <Chip active={cat === "gastos"} onPress={() => setCat("gastos")}>Gastos</Chip>
         </View>
       </View>
 
-      <View style={[styles.card, shadows.card]}>
-        <Text style={styles.cardTitle}>Período</Text>
-        <Text style={styles.cardSub}>Quanto tempo deseja simular?</Text>
-        <View style={styles.chips}>
+      <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
+        <Text className="font-bold text-[15px] text-primary-700 mb-1">Período</Text>
+        <Text className="text-[12px] text-muted mb-3.5 font-regular">Quanto tempo deseja simular?</Text>
+        <View className="flex-row flex-wrap gap-2">
           <Chip active={periodo === "6m"} onPress={() => setPeriodo("6m")}>6 meses</Chip>
           <Chip active={periodo === "1a"} onPress={() => setPeriodo("1a")}>1 ano</Chip>
           <Chip active={periodo === "3a"} onPress={() => setPeriodo("3a")}>3 anos</Chip>
         </View>
       </View>
 
-      <View style={[styles.card, shadows.card]}>
-        <Text style={styles.cardTitle}>Valor mensal</Text>
-        <Text style={styles.cardSub}>Quanto pretende dedicar?</Text>
+      <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
+        <Text className="font-bold text-[15px] text-primary-700 mb-1">Valor mensal</Text>
+        <Text className="text-[12px] text-muted mb-3.5 font-regular">Quanto pretende dedicar?</Text>
         <Field value={valor} onChangeText={setValor} />
       </View>
 
@@ -59,36 +59,3 @@ export default function SimulacaoTab({ onSubmit }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  intro: {
-    fontSize: 13,
-    color: colors.text.secondary,
-    marginBottom: 18,
-    fontFamily: "PlusJakartaSans_400Regular",
-    lineHeight: 18,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 14,
-  },
-  cardTitle: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 15,
-    color: colors.primary[700],
-    marginBottom: 4,
-  },
-  cardSub: {
-    fontSize: 12,
-    color: colors.text.secondary,
-    marginBottom: 14,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  chips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-});

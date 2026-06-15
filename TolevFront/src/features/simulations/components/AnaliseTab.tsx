@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { BankFilter, DotPagination, Donut, LineChart, PeriodFilter } from "../../../components";
 import type { BankId } from "../../../components/BankFilter";
 import { colors, shadows } from "../../../theme";
@@ -12,17 +12,17 @@ export default function AnaliseTab() {
   const [periodo, setPeriodo] = useState("6m");
 
   return (
-    <View style={{ paddingTop: 18 }}>
-      <Text style={styles.label}>Filtrar por banco</Text>
+    <View className="pt-[18px]">
+      <Text className="text-sm text-ink font-semibold mb-2 pl-1">Filtrar por banco</Text>
       <BankFilter active={bank} onChange={setBank} />
 
-      <View style={[styles.card, shadows.card]}>
-        <Text style={styles.cardTitle}>
+      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+        <Text className="font-bold text-[16px] text-ink">
           {pieIdx === 0 ? "Distribuição de gastos" : "Receitas vs. Despesas"}
         </Text>
-        <Text style={styles.cardSub}>Último mês</Text>
+        <Text className="text-[12px] text-muted mt-0.5 font-regular">Último mês</Text>
 
-        <View style={{ marginTop: 16 }}>
+        <View className="mt-4">
           {pieIdx === 0 && <CategoriaGastosDetailed />}
           {pieIdx === 1 && (
             <PieView segments={[
@@ -35,18 +35,18 @@ export default function AnaliseTab() {
         <DotPagination count={2} active={pieIdx} onChange={setPieIdx} />
       </View>
 
-      <View style={[styles.card, shadows.card]}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+        <View className="flex-row justify-between">
           <View>
-            <Text style={styles.cardTitle}>Progresso de dívidas</Text>
-            <Text style={styles.cardSub}>
+            <Text className="font-bold text-[16px] text-ink">Progresso de dívidas</Text>
+            <Text className="text-[12px] text-muted mt-0.5 font-regular">
               {chartIdx === 0 ? "Linha do tempo" : "Comparativo mensal"}
             </Text>
           </View>
-          <Text style={styles.pct}>65%</Text>
+          <Text className="font-bold text-[18px] text-teal-500">65%</Text>
         </View>
 
-        <View style={{ marginTop: 12 }}>
+        <View className="mt-3">
           {chartIdx === 0 && (
             <LineChart values={[15, 22, 30, 38, 50, 58, 65]} color={colors.teal[500]} />
           )}
@@ -54,15 +54,15 @@ export default function AnaliseTab() {
         </View>
 
         <DotPagination count={2} active={chartIdx} onChange={setChartIdx} />
-        <View style={{ marginTop: 8 }}>
+        <View className="mt-2">
           <PeriodFilter active={periodo} onChange={setPeriodo} />
         </View>
       </View>
 
-      <View style={[styles.card, shadows.card]}>
-        <Text style={styles.cardTitle}>Vazamentos financeiros</Text>
-        <Text style={styles.cardSub}>Gastos categorizados</Text>
-        <View style={{ marginTop: 12, gap: 10 }}>
+      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+        <Text className="font-bold text-[16px] text-ink">Vazamentos financeiros</Text>
+        <Text className="text-[12px] text-muted mt-0.5 font-regular">Gastos categorizados</Text>
+        <View className="mt-3 gap-2.5">
           {[
             ["Mercado", 100, 0.86],
             ["Streaming", 50, 0.42],
@@ -70,11 +70,14 @@ export default function AnaliseTab() {
             ["Transporte", 33, 0.28],
             ["Outros", 45, 0.38],
           ].map(([label, value, w]) => (
-            <View key={label as string} style={styles.hbarRow}>
-              <Text style={styles.hbarLabel}>{label}</Text>
-              <View style={styles.hbarTrack}>
-                <View style={[styles.hbarFill, { width: `${(w as number) * 100}%` }]}>
-                  <Text style={styles.hbarVal}>R$ {value}</Text>
+            <View key={label as string} className="flex-row items-center gap-3">
+              <Text className="w-[100px] font-semibold text-sm text-ink text-right">{label}</Text>
+              <View className="flex-1 h-[22px] bg-[#F1F5F3] rounded-sm overflow-hidden">
+                <View
+                  className="h-full bg-primary-500 rounded-sm justify-center items-end px-2.5"
+                  style={{ width: `${(w as number) * 100}%` }}
+                >
+                  <Text className="text-white font-bold text-[12px]">R$ {value}</Text>
                 </View>
               </View>
             </View>
@@ -97,24 +100,22 @@ function DebtBars() {
   ];
   return (
     <View>
-      <View style={{ flexDirection: "row", alignItems: "flex-end", height: 160, gap: 8 }}>
+      <View className="flex-row items-end h-[160px] gap-2">
         {months.map(({ m, v }, i) => (
-          <View key={m} style={{ flex: 1, alignItems: "center", justifyContent: "flex-end" }}>
+          <View key={m} className="flex-1 items-center justify-end">
             <View
+              className="w-[70%] rounded-t-md"
               style={{
-                width: "70%",
                 height: `${v * 100}%`,
                 backgroundColor: i === months.length - 1 ? colors.teal[500] : colors.teal[300],
-                borderTopLeftRadius: 6,
-                borderTopRightRadius: 6,
               }}
             />
           </View>
         ))}
       </View>
-      <View style={{ flexDirection: "row", marginTop: 8, gap: 8 }}>
+      <View className="flex-row mt-2 gap-2">
         {months.map(({ m }) => (
-          <Text key={m} style={{ flex: 1, textAlign: "center", fontSize: 10, color: colors.text.secondary }}>{m}</Text>
+          <Text key={m} className="flex-1 text-center text-[10px] text-muted">{m}</Text>
         ))}
       </View>
     </View>
@@ -124,7 +125,7 @@ function DebtBars() {
 function PieView({ segments }: { segments: { label: string; value: number; color: string }[] }) {
   const total = segments.reduce((s, x) => s + x.value, 0);
   return (
-    <View style={{ flexDirection: "row", gap: 18, alignItems: "center" }}>
+    <View className="flex-row gap-[18px] items-center">
       <Donut
         segments={segments.map(s => ({ value: s.value, color: s.color }))}
         size={140}
@@ -132,14 +133,14 @@ function PieView({ segments }: { segments: { label: string; value: number; color
         centerLabel="Total"
         centerValue={`R$ ${total}`}
       />
-      <View style={{ flex: 1, gap: 8 }}>
+      <View className="flex-1 gap-2">
         {segments.map(s => {
           const pct = Math.round((s.value / total) * 100);
           return (
-            <View key={s.label} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-              <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: s.color }} />
-              <Text style={{ flex: 1, fontSize: 12, color: colors.text.primary, fontFamily: "PlusJakartaSans_400Regular" }}>{s.label}</Text>
-              <Text style={{ fontSize: 12, color: colors.text.secondary, fontFamily: "PlusJakartaSans_700Bold" }}>{pct}%</Text>
+            <View key={s.label} className="flex-row items-center gap-2.5">
+              <View className="w-2.5 h-2.5 rounded-[3px]" style={{ backgroundColor: s.color }} />
+              <Text className="flex-1 text-[12px] text-ink font-regular">{s.label}</Text>
+              <Text className="text-[12px] text-muted font-bold">{pct}%</Text>
             </View>
           );
         })}
@@ -147,34 +148,3 @@ function PieView({ segments }: { segments: { label: string; value: number; color
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  label: {
-    fontSize: 13,
-    color: colors.text.primary,
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    marginBottom: 8,
-    paddingLeft: 4,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 20,
-    marginBottom: 14,
-  },
-  cardTitle: { fontFamily: "PlusJakartaSans_700Bold", fontSize: 16, color: colors.text.primary },
-  cardSub: { fontSize: 12, color: colors.text.secondary, marginTop: 2, fontFamily: "PlusJakartaSans_400Regular" },
-  pct: { fontFamily: "PlusJakartaSans_700Bold", fontSize: 18, color: colors.teal[500] },
-  hbarRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  hbarLabel: { width: 100, fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: colors.text.primary, textAlign: "right" },
-  hbarTrack: { flex: 1, height: 22, backgroundColor: "#F1F5F3", borderRadius: 4, overflow: "hidden" },
-  hbarFill: {
-    height: "100%",
-    backgroundColor: colors.primary[500],
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "flex-end",
-    paddingHorizontal: 10,
-  },
-  hbarVal: { color: "#fff", fontFamily: "PlusJakartaSans_700Bold", fontSize: 12 },
-});

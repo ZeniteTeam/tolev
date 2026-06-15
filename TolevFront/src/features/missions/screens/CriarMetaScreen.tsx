@@ -13,7 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 import { Button, Field, PageTitle, Screen } from "../../../components";
 import { colors, shadows } from "../../../theme";
 
@@ -66,7 +66,7 @@ export default function CriarMetaScreen() {
       </FormSection>
 
       <FormSection label="Categoria">
-        <View style={styles.catGrid}>
+        <View className="flex-row flex-wrap gap-2">
           {CATEGORIAS.map((c) => {
             const isActive = categoria === c.id;
             const Icon = c.icon;
@@ -74,22 +74,15 @@ export default function CriarMetaScreen() {
               <Pressable
                 key={c.id}
                 onPress={() => setCategoria(c.id)}
-                style={[
-                  styles.catItem,
-                  isActive ? styles.catItemActive : shadows.card,
-                ]}
+                className={`w-[23%] bg-white rounded-[14px] py-3.5 px-1.5 items-center ${isActive ? "bg-primary-100 border-2 border-primary-700" : ""}`}
+                style={!isActive ? shadows.card : undefined}
               >
                 <Icon
                   size={22}
                   color={isActive ? colors.primary[700] : colors.text.secondary}
                   strokeWidth={2}
                 />
-                <Text
-                  style={[
-                    styles.catLabel,
-                    isActive && { color: colors.primary[700] },
-                  ]}
-                >
+                <Text className={`text-[11px] mt-1.5 font-semibold ${isActive ? "text-primary-700" : "text-muted"}`}>
                   {c.name}
                 </Text>
               </Pressable>
@@ -99,14 +92,15 @@ export default function CriarMetaScreen() {
       </FormSection>
 
       <FormSection label="Por que essa meta é importante?">
-        <View style={[styles.textarea, shadows.card]}>
+        <View className="bg-white rounded-lg p-3.5 min-h-[90px]" style={shadows.card}>
           <TextInput
             multiline
             placeholder="Ex.: Quero proporcionar mais conforto para minha família"
             placeholderTextColor={colors.text.secondary}
             value={motivo}
             onChangeText={setMotivo}
-            style={styles.textareaInput}
+            className="font-regular text-md text-ink min-h-[70px]"
+            style={{ textAlignVertical: "top" }}
           />
         </View>
       </FormSection>
@@ -130,8 +124,8 @@ export default function CriarMetaScreen() {
       </FormSection>
 
       <FormSection label="Nível de comprometimento mensal">
-        <View style={[styles.starCard, shadows.card]}>
-          <View style={{ flexDirection: "row", gap: 6 }}>
+        <View className="bg-white rounded-lg py-[18px] px-5 flex-row items-center justify-between" style={shadows.card}>
+          <View className="flex-row gap-1.5">
             {[1, 2, 3, 4, 5].map((n) => (
               <Pressable key={n} onPress={() => setCommitment(n)}>
                 <Star
@@ -143,7 +137,7 @@ export default function CriarMetaScreen() {
               </Pressable>
             ))}
           </View>
-          <Text style={styles.commitmentLabel}>
+          <Text className="text-coral-500 font-bold text-sm">
             {COMMITMENT_LABELS[commitment - 1]}
           </Text>
         </View>
@@ -158,7 +152,7 @@ export default function CriarMetaScreen() {
         />
       </FormSection>
 
-      <View style={{ gap: 8, marginTop: 8 }}>
+      <View className="gap-2 mt-2">
         <Button variant="primary" onPress={() => navigation.goBack()}>
           Criar meta
         </Button>
@@ -178,70 +172,9 @@ function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <View style={{ marginBottom: 18 }}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+    <View className="mb-[18px]">
+      <Text className="text-sm text-ink font-semibold mb-2 pl-1">{label}</Text>
       {children}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  fieldLabel: {
-    fontSize: 13,
-    color: colors.text.primary,
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    marginBottom: 8,
-    paddingLeft: 4,
-  },
-  catGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  catItem: {
-    width: "23%",
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 6,
-    alignItems: "center",
-  },
-  catItemActive: {
-    backgroundColor: colors.primary[100],
-    borderWidth: 2,
-    borderColor: colors.primary[700],
-  },
-  catLabel: {
-    fontSize: 11,
-    marginTop: 6,
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    color: colors.text.secondary,
-  },
-  textarea: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 14,
-    minHeight: 90,
-  },
-  textareaInput: {
-    fontFamily: "PlusJakartaSans_400Regular",
-    fontSize: 15,
-    color: colors.text.primary,
-    textAlignVertical: "top",
-    minHeight: 70,
-  },
-  starCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  commitmentLabel: {
-    color: colors.coral[500],
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 13,
-  },
-});

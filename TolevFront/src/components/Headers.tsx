@@ -1,7 +1,6 @@
 import { ArrowLeft, Bell, HelpCircle, User } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors } from "../theme";
 
 type HomeHeaderProps = {
   greeting?: string;
@@ -12,19 +11,19 @@ type HomeHeaderProps = {
 export function HomeHeader({ greeting = "Maria", onAvatar, onNotifications }: HomeHeaderProps) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.home, { paddingTop: insets.top + 12 }]}>
-      <Pressable onPress={onAvatar} style={styles.avatar}>
+    <View className="bg-primary-700 pb-[18px] px-5 flex-row items-center" style={{ paddingTop: insets.top + 12 }}>
+      <Pressable onPress={onAvatar} className="w-10 h-10 rounded-full bg-white/[0.18] items-center justify-center">
         <User size={22} color="#fff" strokeWidth={2} />
       </Pressable>
-      <View style={{ flex: 1, marginLeft: 12 }}>
-        <Text style={styles.hi}>Olá,</Text>
-        <Text style={styles.name}>{greeting}</Text>
+      <View className="flex-1 ml-3">
+        <Text className="text-white/[0.82] font-regular text-sm">Olá,</Text>
+        <Text className="text-white font-bold text-lg">{greeting}</Text>
       </View>
-      <View style={styles.rightRow}>
-        <Pressable onPress={onNotifications} style={styles.pill}>
+      <View className="flex-row gap-2">
+        <Pressable onPress={onNotifications} className="w-9 h-9 rounded-full bg-white/[0.18] items-center justify-center">
           <Bell size={18} color="#fff" strokeWidth={2} />
         </Pressable>
-        <Pressable style={styles.pill}>
+        <Pressable className="w-9 h-9 rounded-full bg-white/[0.18] items-center justify-center">
           <HelpCircle size={18} color="#fff" strokeWidth={2} />
         </Pressable>
       </View>
@@ -41,72 +40,27 @@ type SlimProps = {
 export function SlimHeader({ onBack, onProfile, onNotifications }: SlimProps) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.slim, { paddingTop: insets.top + 12 }]}>
+    <View
+      className="bg-primary-700 pb-[18px] px-5 flex-row items-center justify-between"
+      style={{ paddingTop: insets.top + 12 }}
+    >
       {onBack ? (
-        <Pressable onPress={onBack} style={styles.pill}>
+        <Pressable onPress={onBack} className="w-9 h-9 rounded-full bg-white/[0.18] items-center justify-center">
           <ArrowLeft size={20} color="#fff" strokeWidth={2} />
         </Pressable>
       ) : (
-        <Pressable onPress={onProfile} style={styles.pill}>
+        <Pressable onPress={onProfile} className="w-9 h-9 rounded-full bg-white/[0.18] items-center justify-center">
           <User size={20} color="#fff" strokeWidth={2} />
         </Pressable>
       )}
-      <View style={styles.rightRow}>
-        <Pressable onPress={onNotifications} style={styles.pill}>
+      <View className="flex-row gap-2">
+        <Pressable onPress={onNotifications} className="w-9 h-9 rounded-full bg-white/[0.18] items-center justify-center">
           <Bell size={18} color="#fff" strokeWidth={2} />
         </Pressable>
-        <Pressable style={styles.pill}>
+        <Pressable className="w-9 h-9 rounded-full bg-white/[0.18] items-center justify-center">
           <HelpCircle size={18} color="#fff" strokeWidth={2} />
         </Pressable>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  home: {
-    backgroundColor: colors.primary[700],
-    paddingBottom: 18,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  slim: {
-    backgroundColor: colors.primary[700],
-    paddingBottom: 18,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pill: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  rightRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  hi: {
-    color: "rgba(255,255,255,0.82)",
-    fontFamily: "PlusJakartaSans_400Regular",
-    fontSize: 13,
-  },
-  name: {
-    color: "#fff",
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 20,
-  },
-});

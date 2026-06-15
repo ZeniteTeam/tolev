@@ -1,5 +1,5 @@
 import { Calendar, Gift, MoreVertical, Target } from "lucide-react-native";
-import { StyleSheet, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Button, LineChart, PageTitle, QuoteCard, Ring, Screen, Stars } from "../../../components";
 import { colors, shadows } from "../../../theme";
 
@@ -7,18 +7,18 @@ export default function MetaExpandidaScreen() {
   const months = ["Jun/25", "Set/25", "Dez/25", "Mar/26", "Ago/26"];
   return (
     <Screen bottomPad={140}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 18 }}>
+      <View className="flex-row items-center gap-3 mb-[18px]">
         <Ring style={{ width: 48, height: 48, borderRadius: 24 }}>
           <Target size={26} color={colors.primary[700]} strokeWidth={2} />
         </Ring>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.eyebrow}>META EM PROGRESSO</Text>
-          <Text style={styles.heading}>Comprar um carro</Text>
+        <View className="flex-1">
+          <Text className="text-[11px] text-muted tracking-[0.5px] font-semibold">META EM PROGRESSO</Text>
+          <Text className="font-bold text-[22px] text-ink mt-0.5">Comprar um carro</Text>
         </View>
         <MoreVertical size={20} color={colors.text.secondary} strokeWidth={2} />
       </View>
 
-      <View style={{ gap: 12, marginBottom: 18 }}>
+      <View className="gap-3 mb-[18px]">
         <QuoteCard variant="primary">
           Quero um carro para proporcionar mais conforto para a minha família
         </QuoteCard>
@@ -27,56 +27,56 @@ export default function MetaExpandidaScreen() {
         </QuoteCard>
       </View>
 
-      <View style={[styles.card, shadows.card]}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+        <View className="flex-row justify-between items-start">
           <View>
-            <Text style={styles.muted}>Acumulado</Text>
-            <Text style={styles.amount}>R$ 40.000</Text>
-            <Text style={styles.muted}>de R$ 70.000</Text>
+            <Text className="text-sm text-muted font-regular">Acumulado</Text>
+            <Text className="font-bold text-[28px] text-primary-700 mt-1">R$ 40.000</Text>
+            <Text className="text-sm text-muted font-regular">de R$ 70.000</Text>
           </View>
-          <View style={styles.pctBadge}>
-            <Text style={styles.pctBadgeText}>60%</Text>
+          <View className="bg-primary-100 px-3.5 py-2 rounded-pill">
+            <Text className="font-bold text-[16px] text-primary-700">60%</Text>
           </View>
         </View>
 
-        <View style={{ marginTop: 16 }}>
+        <View className="mt-4">
           <LineChart
             values={[5, 18, 30, 45, 60]}
             color={colors.teal[500]}
             showGoalLine
           />
-          <View style={{ flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 4, marginTop: 4 }}>
+          <View className="flex-row justify-between px-1 mt-1">
             {months.map((m) => (
-              <Text key={m} style={styles.axisLabel}>{m}</Text>
+              <Text key={m} className="text-[11px] text-muted font-regular">{m}</Text>
             ))}
           </View>
         </View>
       </View>
 
-      <View style={[styles.card, shadows.card, { flexDirection: "row", alignItems: "center", gap: 16 }]}>
+      <View className="bg-white rounded-[18px] p-5 mb-3.5 flex-row items-center gap-4" style={shadows.card}>
         <Ring><Calendar size={22} color={colors.primary[700]} strokeWidth={2} /></Ring>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.muted}>Período da meta</Text>
-          <View style={{ flexDirection: "row", alignItems: "baseline", gap: 8, marginTop: 4 }}>
-            <Text style={styles.dateText}>01/06/2025</Text>
-            <Text style={styles.muted}>—</Text>
-            <Text style={styles.dateText}>01/08/2026</Text>
+        <View className="flex-1">
+          <Text className="text-sm text-muted font-regular">Período da meta</Text>
+          <View className="flex-row items-baseline gap-2 mt-1">
+            <Text className="font-bold text-[15px] text-ink">01/06/2025</Text>
+            <Text className="text-sm text-muted font-regular">—</Text>
+            <Text className="font-bold text-[15px] text-ink">01/08/2026</Text>
           </View>
         </View>
       </View>
 
-      <View style={{ flexDirection: "row", gap: 12, marginBottom: 16 }}>
-        <View style={[styles.miniCard, shadows.card]}>
-          <Text style={styles.miniLabel}>Nível de{"\n"}comprometimento</Text>
-          <View style={{ alignItems: "center", marginVertical: 10 }}><Stars /></View>
-          <Text style={styles.miniValueCoral}>Excelente</Text>
+      <View className="flex-row gap-3 mb-4">
+        <View className="flex-1 bg-white rounded-[18px] p-[18px] items-center" style={shadows.card}>
+          <Text className="text-[12px] text-muted font-regular text-center">Nível de{"\n"}comprometimento</Text>
+          <View className="items-center my-2.5"><Stars /></View>
+          <Text className="text-coral-500 font-bold text-[14px] text-center">Excelente</Text>
         </View>
-        <View style={[styles.miniCard, shadows.card]}>
-          <Text style={styles.miniLabel}>Recompensa ao{"\n"}concluir</Text>
-          <View style={{ alignItems: "center", marginVertical: 10 }}>
+        <View className="flex-1 bg-white rounded-[18px] p-[18px] items-center" style={shadows.card}>
+          <Text className="text-[12px] text-muted font-regular text-center">Recompensa ao{"\n"}concluir</Text>
+          <View className="items-center my-2.5">
             <Ring><Gift size={22} color={colors.primary[700]} strokeWidth={2} /></Ring>
           </View>
-          <Text style={styles.miniValueTeal}>+2 pontos de{"\n"}resiliência</Text>
+          <Text className="text-teal-500 font-bold text-sm text-center">+2 pontos de{"\n"}resiliência</Text>
         </View>
       </View>
 
@@ -84,77 +84,3 @@ export default function MetaExpandidaScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  eyebrow: {
-    fontSize: 11,
-    color: colors.text.secondary,
-    letterSpacing: 0.5,
-    fontFamily: "PlusJakartaSans_600SemiBold",
-  },
-  heading: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 22,
-    color: colors.text.primary,
-    marginTop: 2,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 20,
-    marginBottom: 14,
-  },
-  muted: {
-    fontSize: 13,
-    color: colors.text.secondary,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  amount: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 28,
-    color: colors.primary[700],
-    marginTop: 4,
-  },
-  pctBadge: {
-    backgroundColor: colors.primary[100],
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-  },
-  pctBadgeText: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 16,
-    color: colors.primary[700],
-  },
-  axisLabel: {
-    fontSize: 11,
-    color: colors.text.secondary,
-    fontFamily: "PlusJakartaSans_400Regular",
-  },
-  dateText: { fontFamily: "PlusJakartaSans_700Bold", fontSize: 15, color: colors.text.primary },
-  miniCard: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 18,
-    alignItems: "center",
-  },
-  miniLabel: {
-    fontSize: 12,
-    color: colors.text.secondary,
-    fontFamily: "PlusJakartaSans_400Regular",
-    textAlign: "center",
-  },
-  miniValueCoral: {
-    color: colors.coral[500],
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 14,
-    textAlign: "center",
-  },
-  miniValueTeal: {
-    color: colors.teal[500],
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 13,
-    textAlign: "center",
-  },
-});

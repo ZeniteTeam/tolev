@@ -1,5 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
-import { colors } from "../theme";
+import { Text, View } from "react-native";
 
 type Props = {
   title: string;
@@ -8,27 +7,9 @@ type Props = {
 
 export default function PageTitle({ title, sub }: Props) {
   return (
-    <View style={styles.wrap}>
-      <Text style={styles.title}>{title}</Text>
-      {sub && <Text style={styles.sub}>{sub}</Text>}
+    <View className="mb-[22px]">
+      <Text className="font-bold text-[24px] leading-[28px] text-ink">{title}</Text>
+      {sub && <Text className="font-regular text-sm text-muted mt-1">{sub}</Text>}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    marginBottom: 22,
-  },
-  title: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    fontSize: 24,
-    color: colors.text.primary,
-    lineHeight: 28,
-  },
-  sub: {
-    fontFamily: "PlusJakartaSans_400Regular",
-    fontSize: 13,
-    color: colors.text.secondary,
-    marginTop: 4,
-  },
-});

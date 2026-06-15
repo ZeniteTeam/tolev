@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
-import { StyleSheet, View, ViewStyle } from "react-native";
-import { colors } from "../theme";
+import { View, ViewStyle } from "react-native";
 
 type Props = {
   children: ReactNode;
@@ -8,12 +7,5 @@ type Props = {
 };
 
 export default function Frame({ children, style }: Props) {
-  return <View style={[styles.frame, style]}>{children}</View>;
+  return <View className="flex-1 bg-bg" style={style}>{children}</View>;
 }
-
-const styles = StyleSheet.create({
-  frame: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-});

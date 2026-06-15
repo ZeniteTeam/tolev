@@ -8,7 +8,6 @@ import MetaExpandidaScreen from "../features/missions/screens/MetaExpandidaScree
 import NotificacoesScreen from "../features/notifications/screens/NotificacoesScreen";
 import PerfilScreen from "../features/profile/screens/PerfilScreen";
 import SimulacaoResultadoScreen from "../features/simulations/screens/SimulacaoResultadoScreen";
-import { colors } from "../theme";
 import MainTabs from "./MainTabs";
 
 const Stack = createNativeStackNavigator();
@@ -16,7 +15,7 @@ const Stack = createNativeStackNavigator();
 function ModalShell({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation<any>();
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View className="flex-1 bg-bg">
       <SlimHeader
         onBack={() => navigation.goBack()}
         onNotifications={() => navigation.navigate("Notificacoes")}

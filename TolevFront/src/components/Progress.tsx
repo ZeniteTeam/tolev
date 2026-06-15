@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { colors } from "../theme";
 
 type Props = {
@@ -10,23 +10,14 @@ type Props = {
 
 export default function Progress({ pct, height = 8, trackColor, fillColor }: Props) {
   return (
-    <View style={[styles.track, { height, backgroundColor: trackColor ?? colors.teal[300] + "55" }]}>
+    <View className="w-full rounded-pill overflow-hidden" style={{ height, backgroundColor: trackColor ?? colors.teal[300] + "55" }}>
       <View
+        className="h-full rounded-pill"
         style={{
           width: `${Math.max(0, Math.min(100, pct))}%`,
-          height: "100%",
           backgroundColor: fillColor ?? colors.teal[500],
-          borderRadius: 999,
         }}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  track: {
-    width: "100%",
-    borderRadius: 999,
-    overflow: "hidden",
-  },
-});
