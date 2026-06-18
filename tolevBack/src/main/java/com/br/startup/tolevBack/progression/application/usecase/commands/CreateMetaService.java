@@ -3,6 +3,7 @@ package com.br.startup.tolevBack.progression.application.usecase.commands;
 import com.br.startup.tolevBack.progression.application.dto.request.MetaRequest;
 import com.br.startup.tolevBack.progression.application.dto.response.MetaResponse;
 import com.br.startup.tolevBack.progression.internal.entity.Meta;
+import com.br.startup.tolevBack.progression.internal.enums.StatusMeta;
 import com.br.startup.tolevBack.progression.internal.mapper.MetaMapper;
 import com.br.startup.tolevBack.progression.internal.repository.IMetaRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,12 @@ public class CreateMetaService {
                 .idUsuario(request.idUsuario())
                 .nomeMeta(request.nomeMeta())
                 .valorMeta(request.valorMeta())
-                .status(request.status())
+                .status(request.status() != null ? request.status() : StatusMeta.ATIVA)
                 .tipo(request.tipo())
+                .categoria(request.categoria())
+                .dataLimite(request.dataLimite())
+                .recompensa(request.recompensa())
+                .motivacaoMeta(request.motivacaoMeta())
                 .build();
         return MetaMapper.toResponse(metaRepository.save(meta), null);
     }

@@ -27,6 +27,10 @@ public class UpdateMetaService {
         meta.setValorMeta(request.valorMeta());
         meta.setStatus(request.status());
         meta.setTipo(request.tipo());
+        meta.setCategoria(request.categoria());
+        meta.setDataLimite(request.dataLimite());
+        meta.setRecompensa(request.recompensa());
+        meta.setMotivacaoMeta(request.motivacaoMeta());
         Meta saved = metaRepository.save(meta);
         ProgressoMeta progresso = progressoMetaRepository.findByMeta(saved).orElse(null);
         return MetaMapper.toResponse(saved, progresso);

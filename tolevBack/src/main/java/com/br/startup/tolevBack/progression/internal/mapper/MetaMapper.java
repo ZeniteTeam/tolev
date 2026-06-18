@@ -14,7 +14,12 @@ public class MetaMapper {
                 meta.getValorMeta(),
                 meta.getStatus(),
                 meta.getTipo(),
-                progresso != null ? progresso.getProgresso() : null
+                meta.getCategoria(),
+                meta.getDataLimite(),
+                meta.getRecompensa(),
+                meta.getMotivacaoMeta(),
+                progresso != null ? progresso.getProgresso() : null,
+                progresso != null ? progresso.getPercentualQuitado() : null
         );
     }
 }

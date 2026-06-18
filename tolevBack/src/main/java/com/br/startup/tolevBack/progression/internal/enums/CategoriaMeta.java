@@ -7,5 +7,6 @@ public enum CategoriaMeta {
     VIAGEM,
     TECNOLOGIA,
     EDUCACAO,
-    SAUDE
+    SAUDE,
+    OUTROS
 }

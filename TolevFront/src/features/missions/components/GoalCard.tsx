@@ -10,9 +10,10 @@ type Props = {
   valorFinal: string;
   icon: LucideIcon;
   onPress?: () => void;
+  onMore?: () => void;
 };
 
-export function GoalCard({ title, pct, valorAtual, valorFinal, icon: Icon, onPress }: Props) {
+export function GoalCard({ title, pct, valorAtual, valorFinal, icon: Icon, onPress, onMore }: Props) {
   return (
     <Pressable onPress={onPress} className="bg-white rounded-[18px] p-5 mb-3.5 gap-5" style={shadows.card}>
       <View className="flex-row items-center gap-3">
@@ -20,7 +21,9 @@ export function GoalCard({ title, pct, valorAtual, valorFinal, icon: Icon, onPre
           <Icon size={18} color={colors.primary[700]} strokeWidth={2} />
         </View>
         <Text className="flex-1 font-semibold text-[16px] text-ink">{title}</Text>
-        <MoreVertical size={18} color={colors.text.secondary} strokeWidth={2} />
+        <Pressable onPress={onMore} hitSlop={10}>
+          <MoreVertical size={18} color={colors.text.secondary} strokeWidth={2} />
+        </Pressable>
       </View>
 
       <View>
