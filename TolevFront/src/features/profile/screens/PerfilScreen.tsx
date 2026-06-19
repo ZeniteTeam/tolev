@@ -1,4 +1,3 @@
-import { useNavigation } from "@react-navigation/native";
 import {
   Bell,
   ChevronRight,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 import { Ring, Screen } from "../../../components";
+import { useAuthStore } from "../../../store/authStore";
 import { colors, shadows } from "../../../theme";
 
 type Props = {
@@ -23,15 +23,15 @@ type Props = {
 };
 
 export default function PerfilScreen({ onLogout }: Props) {
-  const navigation = useNavigation<any>();
+  const user = useAuthStore((s) => s.user);
   return (
     <Screen bottomPad={64}>
       <View className="items-center pt-2 pb-[22px]">
         <View className="w-24 h-24 rounded-full bg-primary-100 items-center justify-center mb-3.5" style={shadows.card}>
           <User size={56} color={colors.primary[700]} strokeWidth={1.6} />
         </View>
-        <Text className="font-bold text-[22px] text-ink">Maria Silva</Text>
-        <Text className="text-sm text-muted mt-1 font-regular">maria.silva@email.com</Text>
+        <Text className="font-bold text-[22px] text-ink">{user?.nome ?? user?.nomeUsuario ?? "Usuário"}</Text>
+        <Text className="text-sm text-muted mt-1 font-regular">{user?.email ?? ""}</Text>
         <View className="flex-row items-center gap-1.5 bg-primary-100 px-3.5 py-1.5 rounded-pill mt-2.5">
           <Star size={14} color={colors.primary[700]} fill={colors.primary[700]} />
           <Text className="text-primary-700 font-semibold text-[12px]">Premium</Text>
@@ -63,10 +63,7 @@ export default function PerfilScreen({ onLogout }: Props) {
       </Group>
 
       <Pressable
-        onPress={() => {
-          onLogout?.();
-          navigation.getParent()?.reset({ index: 0, routes: [{ name: "Login" }] });
-        }}
+        onPress={() => onLogout?.()}
         className="flex-row items-center justify-center gap-2 py-3.5"
       >
         <LogOut size={18} color={colors.coral[500]} strokeWidth={2} />
