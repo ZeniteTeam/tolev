@@ -23,4 +23,40 @@ const api = axios.create({
   timeout: 15000,
 });
 
+/**
+ * In-memory copy of the JWT, kept in sync by the auth store. The request
+ * interceptor needs the token synchronously, so we can't read it from the
+ * async SecureStore on every call.
+ */
+let authToken: string | null = null;
+
+/** Sets (or clears) the bearer token sent on every request. */
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+}
+
+/** Callback invoked when the API rejects the current token (401). */
+let onUnauthorized: (() => void) | null = null;
+
+export function setOnUnauthorized(handler: (() => void) | null): void {
+  onUnauthorized = handler;
+}
+
+api.interceptors.request.use((config) => {
+  if (authToken) {
+    config.headers.Authorization = `Bearer ${authToken}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      onUnauthorized?.();
+    }
+    return Promise.reject(error);
+  },
+);
+
 export default api;
