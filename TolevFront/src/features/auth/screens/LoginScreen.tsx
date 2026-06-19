@@ -1,19 +1,46 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { LinearGradient } from "expo-linear-gradient";
 import { Lock, Mail } from "lucide-react-native";
-import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView, Platform, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Field } from "../../../components";
 import { colors } from "../../../theme";
+import { getApiErrorMessage } from "../../../util/apiError";
+import { useLogin } from "../hooks/useLogin";
+import { loginFormSchema, type LoginFormValues } from "../schema/authSchema";
 
 type Props = {
-  onLogin: () => void;
+  onAuthenticated: () => void;
+  onGoToRegister: () => void;
 };
 
-export default function LoginScreen({ onLogin }: Props) {
+export default function LoginScreen({ onAuthenticated, onGoToRegister }: Props) {
   const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState("maria@tolev.app");
-  const [senha, setSenha] = useState("senha-leve");
+  const login = useLogin();
+
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: { email: "", senha: "" },
+  });
+
+  function onSubmit(values: LoginFormValues) {
+    login.mutate(
+      { email: values.email.trim(), senha: values.senha },
+      {
+        onSuccess: onAuthenticated,
+        onError: (error) =>
+          setError("root", {
+            message: getApiErrorMessage(error, "Não foi possível entrar. Tente novamente."),
+          }),
+      },
+    );
+  }
 
   return (
     <View className="flex-1 bg-primary-600">
@@ -33,14 +60,58 @@ export default function LoginScreen({ onLogin }: Props) {
         <Text className="font-bold text-3xl text-primary-700 mb-9">Login</Text>
 
         <View className="gap-3.5">
-          <Field icon={Mail} placeholder="Email" value={email} onChangeText={setEmail} />
-          <Field icon={Lock} placeholder="Senha" secureTextEntry value={senha} onChangeText={setSenha} />
+          <View>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { value, onChange } }) => (
+                <Field
+                  icon={Mail}
+                  placeholder="Email"
+                  value={value}
+                  onChangeText={onChange}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                />
+              )}
+            />
+            {errors.email ? (
+              <Text className="text-[12px] text-coral-500 font-regular mt-1.5 pl-1">{errors.email.message}</Text>
+            ) : null}
+          </View>
+
+          <View>
+            <Controller
+              control={control}
+              name="senha"
+              render={({ field: { value, onChange } }) => (
+                <Field
+                  icon={Lock}
+                  placeholder="Senha"
+                  secureTextEntry
+                  value={value}
+                  onChangeText={onChange}
+                  autoCapitalize="none"
+                />
+              )}
+            />
+            {errors.senha ? (
+              <Text className="text-[12px] text-coral-500 font-regular mt-1.5 pl-1">{errors.senha.message}</Text>
+            ) : null}
+          </View>
 
           <Pressable>
             <Text className="text-right text-[14px] text-info-700 px-1.5 pb-2 font-medium">Esqueci a senha</Text>
           </Pressable>
 
-          <Button variant="primary" onPress={onLogin}>Entrar</Button>
+          {errors.root ? (
+            <Text className="text-[13px] text-coral-500 font-medium text-center -mt-1">{errors.root.message}</Text>
+          ) : null}
+
+          <Button variant="primary" onPress={login.isPending ? undefined : handleSubmit(onSubmit)}>
+            {login.isPending ? "Entrando..." : "Entrar"}
+          </Button>
 
           <View className="flex-row items-center gap-3 my-1.5">
             <View className="flex-1 h-px bg-black/[0.34]" />
@@ -48,7 +119,7 @@ export default function LoginScreen({ onLogin }: Props) {
             <View className="flex-1 h-px bg-black/[0.34]" />
           </View>
 
-          <Button variant="outline" onPress={onLogin}>Criar conta</Button>
+          <Button variant="outline" onPress={onGoToRegister}>Criar conta</Button>
         </View>
       </KeyboardAvoidingView>
     </View>
