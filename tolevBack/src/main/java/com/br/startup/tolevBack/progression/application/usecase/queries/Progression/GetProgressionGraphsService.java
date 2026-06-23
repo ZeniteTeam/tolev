@@ -1,4 +1,4 @@
-package com.br.startup.tolevBack.progression.application.usecase.queries;
+package com.br.startup.tolevBack.progression.application.usecase.queries.Progression;
 
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressionGraphsResponse;
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressionGraphsResponse.MetaProgressPoint;

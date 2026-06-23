@@ -1,4 +1,4 @@
-package com.br.startup.tolevBack.progression.application.usecase.commands;
+package com.br.startup.tolevBack.progression.application.usecase.commands.Progression;
 
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressaoModuloResponse;
 import com.br.startup.tolevBack.progression.internal.entity.MapaModulo;

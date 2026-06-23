@@ -1,12 +1,14 @@
 package com.br.startup.tolevBack.progression.api.facade;
 
+import com.br.startup.tolevBack.progression.application.dto.request.AddValueToMetaRequest;
 import com.br.startup.tolevBack.progression.application.dto.request.MetaRequest;
 import com.br.startup.tolevBack.progression.application.dto.response.MetaResponse;
-import com.br.startup.tolevBack.progression.application.usecase.commands.CreateMetaService;
-import com.br.startup.tolevBack.progression.application.usecase.commands.DeleteMetaService;
-import com.br.startup.tolevBack.progression.application.usecase.commands.UpdateMetaService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetMetaByIdService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetMetasByUserService;
+import com.br.startup.tolevBack.progression.application.usecase.commands.Goals.AddNewValueToMetaService;
+import com.br.startup.tolevBack.progression.application.usecase.commands.Goals.CreateMetaService;
+import com.br.startup.tolevBack.progression.application.usecase.commands.Goals.DeleteMetaService;
+import com.br.startup.tolevBack.progression.application.usecase.commands.Goals.UpdateMetaService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMetaByIdService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMetasByUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ public class MetaFacade {
     private final CreateMetaService createMeta;
     private final UpdateMetaService updateMeta;
     private final DeleteMetaService deleteMeta;
+    private final AddNewValueToMetaService addNewValueToMeta;
 
     public List<MetaResponse> getAll(Long idUsuario) {
         return getMetasByUser.execute(idUsuario);
@@ -40,5 +43,9 @@ public class MetaFacade {
 
     public void delete(Long id) {
         deleteMeta.execute(id);
+    }
+
+    public void addNewValue(AddValueToMetaRequest id) {
+        addNewValueToMeta.execute(id);
     }
 }

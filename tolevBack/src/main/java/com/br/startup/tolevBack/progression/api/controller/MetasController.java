@@ -1,6 +1,7 @@
 package com.br.startup.tolevBack.progression.api.controller;
 
 import com.br.startup.tolevBack.progression.api.facade.MetaFacade;
+import com.br.startup.tolevBack.progression.application.dto.request.AddValueToMetaRequest;
 import com.br.startup.tolevBack.progression.application.dto.request.MetaRequest;
 import com.br.startup.tolevBack.progression.application.dto.response.MetaResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,12 @@ public class MetasController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMeta(@PathVariable Long id) {
         metaFacade.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<Void> addValueToMeta(@RequestBody AddValueToMetaRequest request) {
+        metaFacade.addNewValue(request);
         return ResponseEntity.noContent().build();
     }
 }

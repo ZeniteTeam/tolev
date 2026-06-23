@@ -1,5 +1,6 @@
 import { useRoute } from "@react-navigation/native";
 import { Calendar, Gift, MoreVertical } from "lucide-react-native";
+import { useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { Button, Progress, QuoteCard, Ring, Screen } from "../../../components";
 import { colors, shadows } from "../../../theme";
@@ -7,6 +8,7 @@ import type { StatusMeta } from "../../../types/meta";
 import { formatCurrencyBRL } from "../../../util/currency";
 import { isoToBrDate } from "../../../util/date";
 import { categoriaIcon, categoriaLabel } from "../constants/categorias";
+import InsertValueModal from "../components/InsertValueModal";
 import { useMeta } from "../hooks/useMeta";
 import { metaProgressPct } from "../utils/meta-view";
 
@@ -20,6 +22,7 @@ export default function MetaExpandidaScreen() {
   const route = useRoute<any>();
   const id = route.params?.id as number | undefined;
   const { data: meta, isLoading, isError } = useMeta(id);
+  const [isAddValueModalOpen, setAddValueModalOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -56,7 +59,9 @@ export default function MetaExpandidaScreen() {
           <Text className="text-[11px] text-muted tracking-[0.5px] font-semibold">
             {STATUS_LABEL[meta.status]}
           </Text>
-          <Text className="font-bold text-[22px] text-ink mt-0.5">{meta.nomeMeta}</Text>
+          <Text className="font-bold text-[22px] text-ink mt-0.5">
+            {meta.nomeMeta}
+          </Text>
         </View>
         <MoreVertical size={20} color={colors.text.secondary} strokeWidth={2} />
       </View>
@@ -79,7 +84,9 @@ export default function MetaExpandidaScreen() {
             </Text>
           </View>
           <View className="bg-primary-100 px-3.5 py-2 rounded-pill">
-            <Text className="font-bold text-[16px] text-primary-700">{pct}%</Text>
+            <Text className="font-bold text-[16px] text-primary-700">
+              {pct}%
+            </Text>
           </View>
         </View>
 
@@ -88,7 +95,10 @@ export default function MetaExpandidaScreen() {
         </View>
       </View>
 
-      <View className="bg-white rounded-[18px] p-5 mb-3.5 flex-row items-center gap-4" style={shadows.card}>
+      <View
+        className="bg-white rounded-[18px] p-5 mb-3.5 flex-row items-center gap-4"
+        style={shadows.card}
+      >
         <Ring>
           <Calendar size={22} color={colors.primary[700]} strokeWidth={2} />
         </Ring>
@@ -101,8 +111,13 @@ export default function MetaExpandidaScreen() {
       </View>
 
       <View className="flex-row gap-3 mb-4">
-        <View className="flex-1 bg-white rounded-[18px] p-[18px] items-center" style={shadows.card}>
-          <Text className="text-[12px] text-muted font-regular text-center">Categoria</Text>
+        <View
+          className="flex-1 bg-white rounded-[18px] p-[18px] items-center"
+          style={shadows.card}
+        >
+          <Text className="text-[12px] text-muted font-regular text-center">
+            Categoria
+          </Text>
           <View className="items-center my-2.5">
             <Ring>
               <Icon size={22} color={colors.primary[700]} strokeWidth={2} />
@@ -112,8 +127,13 @@ export default function MetaExpandidaScreen() {
             {categoriaLabel(meta.categoria)}
           </Text>
         </View>
-        <View className="flex-1 bg-white rounded-[18px] p-[18px] items-center" style={shadows.card}>
-          <Text className="text-[12px] text-muted font-regular text-center">Recompensa ao{"\n"}concluir</Text>
+        <View
+          className="flex-1 bg-white rounded-[18px] p-[18px] items-center"
+          style={shadows.card}
+        >
+          <Text className="text-[12px] text-muted font-regular text-center">
+            Recompensa ao{"\n"}concluir
+          </Text>
           <View className="items-center my-2.5">
             <Ring>
               <Gift size={22} color={colors.primary[700]} strokeWidth={2} />
@@ -125,7 +145,15 @@ export default function MetaExpandidaScreen() {
         </View>
       </View>
 
-      <Button variant="primary">Adicionar valor</Button>
+      <Button variant="primary" onPress={() => setAddValueModalOpen(true)}>
+        Adicionar valor
+      </Button>
+
+      <InsertValueModal
+        visible={isAddValueModalOpen}
+        metaId={meta.id}
+        onClose={() => setAddValueModalOpen(false)}
+      />
     </Screen>
   );
 }

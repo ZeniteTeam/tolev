@@ -1,7 +1,12 @@
 package com.br.startup.tolevBack.progression.integration.implementation;
 
 import com.br.startup.tolevBack.progression.application.dto.response.*;
-import com.br.startup.tolevBack.progression.application.usecase.queries.*;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDebtPayoffEstimateService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDebtProjectionService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDividaByIdService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMetaByIdService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMetasByUserService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Progression.GetProgressaoModulosService;
 import com.br.startup.tolevBack.progression.integration.api.ProgressionIntegrationApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -3,9 +3,9 @@ package com.br.startup.tolevBack.progression.api.facade;
 import com.br.startup.tolevBack.progression.application.dto.response.DebtPayoffEstimateResponse;
 import com.br.startup.tolevBack.progression.application.dto.response.DebtProjectionResponse;
 import com.br.startup.tolevBack.progression.application.dto.response.DebtRiskResponse;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetDebtPayoffEstimateService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetDebtProjectionService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetDebtRiskService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDebtPayoffEstimateService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDebtProjectionService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDebtRiskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

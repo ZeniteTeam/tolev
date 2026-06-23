@@ -1,4 +1,4 @@
-package com.br.startup.tolevBack.progression.application.usecase.commands;
+package com.br.startup.tolevBack.progression.application.usecase.commands.Goals;
 
 import com.br.startup.tolevBack.progression.internal.entity.Meta;
 import com.br.startup.tolevBack.progression.internal.repository.IMetaRepository;

@@ -1,4 +1,4 @@
-package com.br.startup.tolevBack.progression.application.usecase.queries;
+package com.br.startup.tolevBack.progression.application.usecase.queries.Goals;
 
 import com.br.startup.tolevBack.progression.application.dto.response.MapaProgressaoResponse;
 import com.br.startup.tolevBack.progression.internal.mapper.MapaProgressaoMapper;

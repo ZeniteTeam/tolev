@@ -3,9 +3,9 @@ package com.br.startup.tolevBack.progression.api.facade;
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressionGraphsResponse;
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressionOverviewResponse;
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressionStatsResponse;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetProgressionGraphsService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetProgressionOverviewService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetProgressionStatsService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Progression.GetProgressionGraphsService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Progression.GetProgressionOverviewService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Progression.GetProgressionStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

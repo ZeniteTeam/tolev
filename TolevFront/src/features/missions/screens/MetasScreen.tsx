@@ -32,7 +32,10 @@ export default function MetasScreen() {
   return (
     <View className="flex-1 bg-bg">
       <Screen bottomPad={140}>
-        <PageTitle title="Suas metas" sub="Acompanhe sua jornada rumo aos seus sonhos" />
+        <PageTitle
+          title="Suas metas"
+          sub="Acompanhe sua jornada rumo aos seus sonhos"
+        />
 
         {isLoading ? (
           <View className="py-16 items-center">
@@ -72,7 +75,9 @@ export default function MetasScreen() {
                     valorAtual={formatCurrencyBRL(meta.progresso)}
                     valorFinal={formatCurrencyBRL(meta.valorMeta)}
                     icon={categoriaIcon(meta.categoria)}
-                    onPress={() => navigation.navigate("MetaExpandida", { id: meta.id })}
+                    onPress={() =>
+                      navigation.navigate("MetaExpandida", { id: meta.id })
+                    }
                     onMore={() => confirmDelete(meta.id, meta.nomeMeta)}
                   />
                 ))}
@@ -103,10 +108,22 @@ export default function MetasScreen() {
   );
 }
 
-function SectionHeader({ title, sub, className = "" }: { title: string; sub: string; className?: string }) {
+function SectionHeader({
+  title,
+  sub,
+  className = "",
+}: {
+  title: string;
+  sub: string;
+  className?: string;
+}) {
   return (
-    <View className={`flex-row justify-between items-baseline mb-3 pl-1 ${className}`}>
-      <Text className="text-[11px] text-muted font-bold tracking-[0.6px]">{title}</Text>
+    <View
+      className={`flex-row justify-between items-baseline mb-3 pl-1 ${className}`}
+    >
+      <Text className="text-[11px] text-muted font-bold tracking-[0.6px]">
+        {title}
+      </Text>
       <Text className="text-[11px] text-muted font-regular">{sub}</Text>
     </View>
   );
