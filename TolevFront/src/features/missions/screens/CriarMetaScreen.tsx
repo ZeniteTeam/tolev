@@ -12,8 +12,7 @@ import { brDateToIso } from "../../../util/date";
 import { CATEGORIAS } from "../constants/categorias";
 import { useCreateMeta } from "../hooks/useCreateMeta";
 import { metaFormSchema, type MetaFormValues } from "../schema/metaSchema";
-
-const COMMITMENT_LABELS = ["Baixo", "Leve", "Moderado", "Alto", "Excelente"];
+import { use, useState } from "react";
 
 export default function CriarMetaScreen() {
   const navigation = useNavigation<any>();
@@ -31,7 +30,8 @@ export default function CriarMetaScreen() {
       categoria: "GERAL",
       motivacaoMeta: "",
       valorMeta: "",
-      dataLimite: "",
+      dataLimite: undefined,
+      valorDedicado: "",
       recompensa: "",
       commitment: 3,
     },
@@ -47,10 +47,11 @@ export default function CriarMetaScreen() {
       idUsuario: userId,
       nomeMeta: values.nomeMeta.trim(),
       valorMeta: parseCurrencyToNumber(values.valorMeta),
+      valorDedicado: parseCurrencyToNumber(values.valorDedicado),
       status: "ATIVA",
       tipo: "ECONOMIA",
       categoria: values.categoria,
-      dataLimite: values.dataLimite ? brDateToIso(values.dataLimite) : null,
+      dataLimite: values.dataLimite,
       recompensa: values.recompensa?.trim() ? values.recompensa.trim() : null,
       motivacaoMeta: values.motivacaoMeta?.trim() ? values.motivacaoMeta.trim() : null,
     };
@@ -61,6 +62,32 @@ export default function CriarMetaScreen() {
         Alert.alert("Erro", "Não foi possível criar a meta. Tente novamente."),
     });
   }
+
+  const [valorTotal, setValorTotal] = useState('');
+  const [data, setData] = useState('');
+
+  const formatDateText = (text: string) => {
+    let clean = text.replace(/\D/g, '');
+
+    if (clean.length >= 2) {
+      let day = parseInt(clean.slice(0, 2), 10);
+      if (day > 31) day = 31;
+      if (day === 0) day = 1;
+      clean = String(day).padStart(2, '0') + clean.slice(2);
+    }
+
+    if (clean.length >= 4) {
+      let month = parseInt(clean.slice(2, 4), 10);
+      if (month > 12) month = 12;
+      if (month === 0) month = 1;
+      clean = clean.slice(0, 2) + String(month).padStart(2, '0') + clean.slice(4);
+    }
+
+    // 4. Structural positioning slice (DD/MM/YYYY)
+    if (clean.length <= 2) return clean;
+    if (clean.length <= 4) return `${clean.slice(0, 2)}/${clean.slice(2)}`;
+    return `${clean.slice(0, 2)}/${clean.slice(2, 4)}/${clean.slice(4, 8)}`;
+  };
 
   return (
     <Screen bottomPad={48}>
@@ -138,7 +165,7 @@ export default function CriarMetaScreen() {
         </View>
       </FormSection>
 
-      <FormSection label="Valor total" error={errors.valorMeta?.message}>
+      <FormSection label="Valor total da meta" error={errors.valorMeta?.message}>
         <Controller
           control={control}
           name="valorMeta"
@@ -146,7 +173,10 @@ export default function CriarMetaScreen() {
             <Field
               placeholder="R$ 0,00"
               value={value}
-              onChangeText={onChange}
+              onChangeText={(v) => {
+                setValorTotal(v)
+                onChange(v)
+              }}
               keyboardType="numeric"
             />
           )}
@@ -157,42 +187,53 @@ export default function CriarMetaScreen() {
         <Controller
           control={control}
           name="dataLimite"
+          render={({ field: { value, onChange } }) => {
+
+            const displayValue = value instanceof Date
+              ? value.toLocaleDateString('pt-BR')
+              : value;
+
+            return (
+              <Field
+                icon={Calendar}
+                placeholder="DD/MM/AAAA"
+                value={displayValue}
+                onChangeText={(v) => {
+                  const format = formatDateText(v);
+
+                  if (format.length === 10) {
+                    const [day, month, year] = format.split('/').map(Number);
+                    const dateObject = new Date(year, month - 1, day);
+                    onChange(dateObject);
+                  } else {
+                    onChange(format);
+                  }
+
+                  setData(format);
+                }}
+                keyboardType="numeric"
+              />
+            );
+          }}
+        />
+      </FormSection>
+
+      <FormSection label="Valor a ser dedicado na meta" error={errors.valorMeta?.message}>
+        <Controller
+          control={control}
+          name="valorDedicado"
           render={({ field: { value, onChange } }) => (
             <Field
-              icon={Calendar}
-              placeholder="DD/MM/AAAA"
+              placeholder="R$ 0,00"
               value={value}
               onChangeText={onChange}
               keyboardType="numeric"
             />
           )}
         />
-      </FormSection>
-
-      <FormSection label="Nível de comprometimento mensal">
-        <Controller
-          control={control}
-          name="commitment"
-          render={({ field: { value, onChange } }) => (
-            <View className="bg-white rounded-lg py-[18px] px-5 flex-row items-center justify-between" style={shadows.card}>
-              <View className="flex-row gap-1.5">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <Pressable key={n} onPress={() => onChange(n)}>
-                    <Star
-                      size={28}
-                      color={colors.coral[500]}
-                      fill={n <= value ? colors.coral[500] : "transparent"}
-                      strokeWidth={2}
-                    />
-                  </Pressable>
-                ))}
-              </View>
-              <Text className="text-coral-500 font-bold text-sm">
-                {COMMITMENT_LABELS[value - 1]}
-              </Text>
-            </View>
-          )}
-        />
+        {/* <Text>
+          Para concluir essa meta dentro do prazo de {data}
+        </Text> */}
       </FormSection>
 
       <FormSection label="Recompensa ao concluir (opcional)" error={errors.recompensa?.message}>

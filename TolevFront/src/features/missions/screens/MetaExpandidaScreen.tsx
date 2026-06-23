@@ -70,7 +70,7 @@ export default function MetaExpandidaScreen() {
       <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
         <View className="flex-row justify-between items-start">
           <View>
-            <Text className="text-sm text-muted font-regular">Acumulado</Text>
+            <Text className="text-sm text-muted font-regular">Valor Atual Dedicado</Text>
             <Text className="font-bold text-[28px] text-primary-700 mt-1">
               {formatCurrencyBRL(meta.progresso)}
             </Text>
@@ -87,6 +87,16 @@ export default function MetaExpandidaScreen() {
           <Progress pct={pct} height={8} />
         </View>
       </View>
+
+      {/* <View className="bg-white rounded-[18px] p-5 mb-3.5 flex-row items-center gap-4" style={shadows.card}>
+        <View className="flex-1">
+          <Text className="font-bold text-[15px] text-ink mt-1">
+            Gráfico de Projeção de Conclusão
+          </Text>
+
+          
+        </View>
+      </View> */}
 
       <View className="bg-white rounded-[18px] p-5 mb-3.5 flex-row items-center gap-4" style={shadows.card}>
         <Ring>

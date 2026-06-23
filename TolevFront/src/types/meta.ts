@@ -34,10 +34,11 @@ export interface MetaRequest {
   idUsuario: number;
   nomeMeta: string;
   valorMeta: number;
+  valorDedicado: number;
   status?: StatusMeta;
   tipo?: TipoMeta;
   categoria?: CategoriaMeta;
-  dataLimite?: string | null; // ISO date "yyyy-MM-dd"
+  dataLimite?: Date; // ISO date "yyyy-MM-dd"
   recompensa?: string | null;
   motivacaoMeta?: string | null;
 }
@@ -47,11 +48,12 @@ export interface MetaResponse {
   id: number;
   idUsuario: number;
   nomeMeta: string;
-  valorMeta: number | null;
+  valorMeta: number;
+  valorDedicado: number;
   status: StatusMeta;
   tipo: TipoMeta | null;
   categoria: CategoriaMeta | null;
-  dataLimite: string | null;
+  dataLimite: string;
   recompensa: string | null;
   motivacaoMeta: string | null;
   progresso: number | null;

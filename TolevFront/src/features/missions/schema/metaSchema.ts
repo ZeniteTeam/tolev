@@ -20,9 +20,16 @@ export const metaFormSchema = z.object({
     .min(1, "Informe o valor total")
     .refine((v) => parseCurrencyToNumber(v) > 0, "Valor inválido"),
   dataLimite: z
+    .date({error: "Insira uma data valida"})
+    .refine(
+      (v) => isValidBrDate(v.toLocaleDateString("pt-BR")), 
+      "Use o formato DD/MM/AAAA"
+    )
+    .min(new Date(), "A data deve ser futura"),
+  valorDedicado: z
     .string()
-    .optional()
-    .refine((v) => !v || isValidBrDate(v), "Use o formato DD/MM/AAAA"),
+    .min(1, "Informe o valor total")
+    .refine((v) => parseCurrencyToNumber(v) > 0, "Valor inválido"),
   recompensa: z.string().trim().max(255, "Texto muito longo").optional(),
   commitment: z.number().int().min(1).max(5),
 });
