@@ -21,9 +21,9 @@ export function GoalCard({ title, pct, valorAtual, valorFinal, icon: Icon, onPre
           <Icon size={18} color={colors.primary[700]} strokeWidth={2} />
         </View>
         <Text className="flex-1 font-semibold text-[16px] text-ink">{title}</Text>
-        <Pressable onPress={onMore} hitSlop={10}>
-          <MoreVertical size={18} color={colors.text.secondary} strokeWidth={2} />
-        </Pressable>
+        <View className="w-100% h-100% p-2 rounded-md bg-primary-100 items-center justify-center">
+          <Text className="text-green-800 font-semibold">No prazo</Text>
+        </View>
       </View>
 
       <View>
