@@ -1,13 +1,13 @@
 package com.br.startup.tolevBack.progression.application.usecase.queries.Progression;
 
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressionGraphsResponse;
-import com.br.startup.tolevBack.progression.application.dto.response.ProgressionGraphsResponse.MetaProgressPoint;
-import com.br.startup.tolevBack.progression.internal.entity.Meta;
+import com.br.startup.tolevBack.progression.application.dto.response.ProgressionGraphsResponse.DividaProgressPoint;
+import com.br.startup.tolevBack.progression.internal.entity.Divida;
 import com.br.startup.tolevBack.progression.internal.entity.ModuloProgressaoUsuario;
-import com.br.startup.tolevBack.progression.internal.entity.ProgressoMeta;
-import com.br.startup.tolevBack.progression.internal.repository.IMetaRepository;
+import com.br.startup.tolevBack.progression.internal.entity.ProgressoDivida;
+import com.br.startup.tolevBack.progression.internal.repository.IDividaRepository;
 import com.br.startup.tolevBack.progression.internal.repository.IModuloProgressaoUsuarioRepository;
-import com.br.startup.tolevBack.progression.internal.repository.IProgressoMetaRepository;
+import com.br.startup.tolevBack.progression.internal.repository.IProgressoDividaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,15 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class GetProgressionGraphsService {
 
     private final IModuloProgressaoUsuarioRepository moduloRepository;
-    private final IMetaRepository metaRepository;
-    private final IProgressoMetaRepository progressoMetaRepository;
+    private final IDividaRepository dividaRepository;
+    private final IProgressoDividaRepository progressoDividaRepository;
 
     @Transactional(readOnly = true)
     public ProgressionGraphsResponse execute(Long idUsuario) {
@@ -32,7 +31,7 @@ public class GetProgressionGraphsService {
         BigDecimal progressaoMedia = modulos.isEmpty() ? BigDecimal.ZERO
                 : modulos.stream()
                         .map(ModuloProgressaoUsuario::getProgressao)
-                        .filter(Objects::nonNull)
+                        .filter(java.util.Objects::nonNull)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .divide(new BigDecimal(modulos.size()), 2, RoundingMode.HALF_UP);
 
@@ -41,19 +40,19 @@ public class GetProgressionGraphsService {
                 .count();
         int emProgresso = modulos.size() - concluidos;
 
-        List<Meta> metas = metaRepository.findByIdUsuario(idUsuario);
-        List<MetaProgressPoint> metasProgresso = metas.stream()
-                .map(meta -> {
-                    ProgressoMeta progresso = progressoMetaRepository.findByMeta(meta).orElse(null);
-                    return new MetaProgressPoint(
-                            meta.getId(),
-                            meta.getNomeMeta(),
+        List<Divida> dividas = dividaRepository.findByIdUsuario(idUsuario);
+        List<DividaProgressPoint> dividasProgresso = dividas.stream()
+                .map(divida -> {
+                    ProgressoDivida progresso = progressoDividaRepository.findByDivida(divida).orElse(null);
+                    return new DividaProgressPoint(
+                            divida.getId(),
+                            divida.getNomeDivida(),
                             progresso != null ? progresso.getProgresso() : BigDecimal.ZERO,
-                            meta.getStatus() != null ? meta.getStatus().name() : null
+                            divida.getStatus() != null ? divida.getStatus().name() : null
                     );
                 })
                 .toList();
 
-        return new ProgressionGraphsResponse(idUsuario, progressaoMedia, concluidos, emProgresso, metasProgresso);
+        return new ProgressionGraphsResponse(idUsuario, progressaoMedia, concluidos, emProgresso, dividasProgresso);
     }
 }

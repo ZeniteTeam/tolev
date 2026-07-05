@@ -4,10 +4,6 @@ import java.math.BigDecimal;
 
 public record ProgressionStatsResponse(
     Long idUsuario,
-    Integer totalMetas,
-    Integer metasAtivas,
-    Integer metasConcluidas,
-    Integer metasCanceladas,
     Integer totalDividas,
     Integer dividasAtivas,
     Integer dividasPagas,

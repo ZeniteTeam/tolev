@@ -2,12 +2,9 @@ package com.br.startup.tolevBack.progression.application.usecase.queries.Progres
 
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressionOverviewResponse;
 import com.br.startup.tolevBack.progression.internal.entity.Divida;
-import com.br.startup.tolevBack.progression.internal.entity.Meta;
 import com.br.startup.tolevBack.progression.internal.entity.ModuloProgressaoUsuario;
 import com.br.startup.tolevBack.progression.internal.enums.StatusDivida;
-import com.br.startup.tolevBack.progression.internal.enums.StatusMeta;
 import com.br.startup.tolevBack.progression.internal.repository.IDividaRepository;
-import com.br.startup.tolevBack.progression.internal.repository.IMetaRepository;
 import com.br.startup.tolevBack.progression.internal.repository.IModuloProgressaoUsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,17 +19,14 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class GetProgressionOverviewService {
 
-    private final IMetaRepository metaRepository;
     private final IDividaRepository dividaRepository;
     private final IModuloProgressaoUsuarioRepository moduloRepository;
 
     @Transactional(readOnly = true)
     public ProgressionOverviewResponse execute(Long idUsuario) {
-        List<Meta> metas = metaRepository.findByIdUsuario(idUsuario);
         List<Divida> dividas = dividaRepository.findByIdUsuario(idUsuario);
         List<ModuloProgressaoUsuario> modulos = moduloRepository.findByIdUsuario(idUsuario);
 
-        int metasAtivas = (int) metas.stream().filter(m -> StatusMeta.ATIVA.equals(m.getStatus())).count();
         int dividasAtivas = (int) dividas.stream().filter(d -> StatusDivida.ATIVA.equals(d.getStatus())).count();
         int dividasAtrasadas = (int) dividas.stream().filter(d -> StatusDivida.ATRASADA.equals(d.getStatus())).count();
 
@@ -47,8 +41,6 @@ public class GetProgressionOverviewService {
                 idUsuario,
                 modulos.size(),
                 progressaoMedia,
-                metas.size(),
-                metasAtivas,
                 dividas.size(),
                 dividasAtivas,
                 dividasAtrasadas

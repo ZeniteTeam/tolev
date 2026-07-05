@@ -2,12 +2,9 @@ package com.br.startup.tolevBack.progression.application.usecase.queries.Progres
 
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressionStatsResponse;
 import com.br.startup.tolevBack.progression.internal.entity.Divida;
-import com.br.startup.tolevBack.progression.internal.entity.Meta;
 import com.br.startup.tolevBack.progression.internal.entity.ModuloProgressaoUsuario;
 import com.br.startup.tolevBack.progression.internal.enums.StatusDivida;
-import com.br.startup.tolevBack.progression.internal.enums.StatusMeta;
 import com.br.startup.tolevBack.progression.internal.repository.IDividaRepository;
-import com.br.startup.tolevBack.progression.internal.repository.IMetaRepository;
 import com.br.startup.tolevBack.progression.internal.repository.IModuloProgressaoUsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,19 +19,13 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class GetProgressionStatsService {
 
-    private final IMetaRepository metaRepository;
     private final IDividaRepository dividaRepository;
     private final IModuloProgressaoUsuarioRepository moduloRepository;
 
     @Transactional(readOnly = true)
     public ProgressionStatsResponse execute(Long idUsuario) {
-        List<Meta> metas = metaRepository.findByIdUsuario(idUsuario);
         List<Divida> dividas = dividaRepository.findByIdUsuario(idUsuario);
         List<ModuloProgressaoUsuario> modulos = moduloRepository.findByIdUsuario(idUsuario);
-
-        int metasAtivas = (int) metas.stream().filter(m -> StatusMeta.ATIVA.equals(m.getStatus())).count();
-        int metasConcluidas = (int) metas.stream().filter(m -> StatusMeta.CONCLUIDA.equals(m.getStatus())).count();
-        int metasCanceladas = (int) metas.stream().filter(m -> StatusMeta.CANCELADA.equals(m.getStatus())).count();
 
         int dividasAtivas = (int) dividas.stream().filter(d -> StatusDivida.ATIVA.equals(d.getStatus())).count();
         int dividasPagas = (int) dividas.stream().filter(d -> StatusDivida.PAGA.equals(d.getStatus())).count();
@@ -54,7 +45,6 @@ public class GetProgressionStatsService {
 
         return new ProgressionStatsResponse(
                 idUsuario,
-                metas.size(), metasAtivas, metasConcluidas, metasCanceladas,
                 dividas.size(), dividasAtivas, dividasPagas, dividasAtrasadas,
                 valorTotalDividas,
                 modulos.size(), progressaoMedia

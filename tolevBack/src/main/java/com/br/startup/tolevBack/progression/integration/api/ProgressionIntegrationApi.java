@@ -8,7 +8,7 @@ public interface ProgressionIntegrationApi {
     List<DebtProjectionResponse> getDebtProjection(Long idUsuario);
     DebtProjectionResponse getDebtById(Long idDivida);
     DebtPayoffEstimateResponse getDebtPayoffEstimate(Long idUsuario);
-    List<MetaResponse> getMetasByUser(Long idUsuario);
-    MetaResponse getMetaById(Long idMeta);
+    List<DividaResponse> getDividasByUser(Long idUsuario);
+    DividaResponse getDividaById(Long idDivida);
     List<ProgressaoModuloResponse> getProgressaoModulos(Long idUsuario);
 }

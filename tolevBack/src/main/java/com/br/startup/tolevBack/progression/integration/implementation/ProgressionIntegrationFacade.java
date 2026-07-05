@@ -4,8 +4,8 @@ import com.br.startup.tolevBack.progression.application.dto.response.*;
 import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDebtPayoffEstimateService;
 import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDebtProjectionService;
 import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDividaByIdService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMetaByIdService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMetasByUserService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDividaResponseByIdService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Debts.GetDividasByUserService;
 import com.br.startup.tolevBack.progression.application.usecase.queries.Progression.GetProgressaoModulosService;
 import com.br.startup.tolevBack.progression.integration.api.ProgressionIntegrationApi;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ public class ProgressionIntegrationFacade implements ProgressionIntegrationApi {
     private final GetDebtProjectionService getDebtProjection;
     private final GetDividaByIdService getDividaById;
     private final GetDebtPayoffEstimateService getDebtPayoffEstimate;
-    private final GetMetasByUserService getMetasByUser;
-    private final GetMetaByIdService getMetaById;
+    private final GetDividasByUserService getDividasByUser;
+    private final GetDividaResponseByIdService getDividaResponseById;
     private final GetProgressaoModulosService getProgressaoModulos;
 
     @Override
@@ -40,13 +40,13 @@ public class ProgressionIntegrationFacade implements ProgressionIntegrationApi {
     }
 
     @Override
-    public List<MetaResponse> getMetasByUser(Long idUsuario) {
-        return getMetasByUser.execute(idUsuario);
+    public List<DividaResponse> getDividasByUser(Long idUsuario) {
+        return getDividasByUser.execute(idUsuario);
     }
 
     @Override
-    public MetaResponse getMetaById(Long idMeta) {
-        return getMetaById.execute(idMeta);
+    public DividaResponse getDividaById(Long idDivida) {
+        return getDividaResponseById.execute(idDivida);
     }
 
     @Override
