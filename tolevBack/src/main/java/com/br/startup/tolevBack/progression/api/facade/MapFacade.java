@@ -2,9 +2,9 @@ package com.br.startup.tolevBack.progression.api.facade;
 
 import com.br.startup.tolevBack.progression.application.dto.response.MapaModuloResponse;
 import com.br.startup.tolevBack.progression.application.dto.response.MapaProgressaoResponse;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetMapByIdService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetMapModulesService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetMapsService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMapByIdService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMapModulesService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Goals.GetMapsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

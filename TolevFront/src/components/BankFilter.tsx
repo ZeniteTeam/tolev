@@ -18,6 +18,11 @@ const BANKS: { id: BankId; name: string; short: string; color: string; textColor
   { id: "picpay", name: "PicPay", short: "P", color: "#11C76F", textColor: "#fff" },
 ];
 
+/** Human-readable bank name for a given id (used when persisting a debt). */
+export function bankName(id: BankId): string {
+  return BANKS.find((b) => b.id === id)?.name ?? "Outros";
+}
+
 type Props = {
   active: BankId;
   onChange: (b: BankId) => void;

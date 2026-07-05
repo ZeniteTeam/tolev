@@ -29,11 +29,6 @@ public class SimulationController {
         return ResponseEntity.ok(simulationFacade.purchaseImpact(request));
     }
 
-    @PostMapping("/meta-projection")
-    public ResponseEntity<MetaProjectionSimulationResponse> metaProjection(@RequestBody MetaProjectionSimulationRequest request) {
-        return ResponseEntity.ok(simulationFacade.metaProjection(request));
-    }
-
     @PostMapping("/financial-future")
     public ResponseEntity<FinancialFutureSimulationResponse> financialFuture(@RequestBody FinancialFutureSimulationRequest request) {
         return ResponseEntity.ok(simulationFacade.financialFuture(request));
