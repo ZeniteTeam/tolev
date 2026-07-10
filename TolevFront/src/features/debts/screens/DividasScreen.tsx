@@ -71,7 +71,6 @@ function DividasLista() {
         <DebtCard
           key={d.id}
           divida={d}
-          totalDivida={total}
           onPress={() => navigation.navigate("DividaDetalhe", { id: d.id })}
         />
       ))}

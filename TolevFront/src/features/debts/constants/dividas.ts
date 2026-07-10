@@ -54,6 +54,17 @@ export function bankColor(banco: string): string {
 
 export const brl = (n: number) => "R$ " + n.toLocaleString("pt-BR");
 
+/** Percentual quitado (ascendente) com base nas parcelas pagas. 0..100. */
+export function pctQuitado(d: DividaView): number {
+  if (d.parcelas <= 0) return d.saldo <= 0 ? 100 : 0;
+  return Math.min(100, Math.round((d.parcelasPagas.length / d.parcelas) * 100));
+}
+
+/** Uma dívida está quitada quando não há saldo ou todas as parcelas foram pagas. */
+export function isQuitada(d: DividaView): boolean {
+  return d.saldo <= 0 || (d.parcelas > 0 && d.parcelasPagas.length >= d.parcelas);
+}
+
 /**
  * Seed used until the /dividas backend exists. Also feeds the Projeções and
  * Planejamento method-ordering previews. Total = R$ 30.000.
