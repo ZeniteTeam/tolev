@@ -2,16 +2,16 @@ import { ChevronRight } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 import { Progress } from "../../../components";
 import { colors, shadows } from "../../../theme";
-import { brl, type DividaView } from "../constants/dividas";
+import { brl, isQuitada, pctQuitado, type DividaView } from "../constants/dividas";
 
 type Props = {
   divida: DividaView;
-  totalDivida: number;
   onPress?: () => void;
 };
 
-export default function DebtCard({ divida: d, totalDivida, onPress }: Props) {
-  const share = totalDivida > 0 ? Math.round((d.saldo / totalDivida) * 100) : 0;
+export default function DebtCard({ divida: d, onPress }: Props) {
+  const quitada = isQuitada(d);
+  const pctPago = quitada ? 100 : pctQuitado(d);
   const Icon = d.icon;
 
   return (
@@ -58,10 +58,12 @@ export default function DebtCard({ divida: d, totalDivida, onPress }: Props) {
 
       <View>
         <View className="flex-row justify-between mb-1.5">
-          <Text className="text-[11px] text-muted font-regular">Peso na dívida total</Text>
-          <Text className="text-[12px] text-teal-500 font-bold">{share}%</Text>
+          <Text className="text-[11px] text-muted font-regular">
+            {quitada ? "Dívida quitada" : "Progresso de quitação"}
+          </Text>
+          <Text className="text-[12px] text-teal-500 font-bold">{pctPago}%</Text>
         </View>
-        <Progress pct={share} height={6} />
+        <Progress pct={pctPago} height={6} />
       </View>
     </Pressable>
   );
