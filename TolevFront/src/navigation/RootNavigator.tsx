@@ -5,7 +5,7 @@ import { View } from "react-native";
 import { setOnUnauthorized } from "../api/axios";
 import { SlimHeader } from "../components";
 import LoginScreen from "../features/auth/screens/LoginScreen";
-import RegisterScreen from "../features/auth/screens/RegisterScreen";
+import OnboardingFlow from "../features/onboarding/screens/OnboardingFlow";
 import AdicionarDividaScreen from "../features/debts/screens/AdicionarDividaScreen";
 import DividaDetalheScreen from "../features/debts/screens/DividaDetalheScreen";
 import NotificacoesScreen from "../features/notifications/screens/NotificacoesScreen";
@@ -92,7 +92,16 @@ export default function RootNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {/*
+        Key the navigator on auth state so it fully remounts when the user logs
+        in / out. Without this, swapping the conditional groups while a pushed
+        (non-initial) route like "Register" is focused can leave the navigator
+        pointing at a route that no longer exists — a blank/white screen.
+      */}
+      <Stack.Navigator
+        key={isAuthenticated ? "app" : "guest"}
+        screenOptions={{ headerShown: false }}
+      >
         {isAuthenticated ? (
           <Stack.Group>
             <Stack.Screen name="Main" component={MainTabs} />
@@ -117,7 +126,7 @@ export default function RootNavigator() {
             </Stack.Screen>
             <Stack.Screen name="Register">
               {({ navigation }) => (
-                <RegisterScreen
+                <OnboardingFlow
                   onAuthenticated={() => {}}
                   onGoToLogin={() => navigation.goBack()}
                 />

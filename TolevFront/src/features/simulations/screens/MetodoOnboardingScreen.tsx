@@ -13,7 +13,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, shadows } from "../../../theme";
 import { brl, DIVIDAS_SEED } from "../../debts/constants/dividas";
 import { metodoById } from "../constants/metodos";
-import { usePlanStore } from "../store/planStore";
+import { useUpdatePreferencias } from "../hooks/useUpdatePreferencias";
+import { quitacaoFromMetodoId } from "../../../types/preferencias";
 
 const STEPS = ["Visão geral", "Prós e projeções", "Resumo"];
 
@@ -21,7 +22,7 @@ export default function MetodoOnboardingScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
-  const setMetodo = usePlanStore((s) => s.setMetodo);
+  const updatePreferencias = useUpdatePreferencias();
 
   const metodo = metodoById(route.params?.id);
   const [step, setStep] = useState(0);
@@ -38,7 +39,7 @@ export default function MetodoOnboardingScreen() {
 
   const close = () => navigation.goBack();
   const apply = () => {
-    setMetodo(metodo.id);
+    updatePreferencias.mutate({ metodoQuitacao: quitacaoFromMetodoId(metodo.id) });
     navigation.goBack();
   };
 

@@ -4,9 +4,12 @@ import com.br.startup.tolevBack.config.security.JwtService;
 import com.br.startup.tolevBack.users.application.dto.request.RegisterRequest;
 import com.br.startup.tolevBack.users.application.dto.response.AuthResponse;
 import com.br.startup.tolevBack.users.exceptions.EmailAlreadyExistsException;
+import com.br.startup.tolevBack.users.internal.entity.PreferenciaFinanceira;
 import com.br.startup.tolevBack.users.internal.entity.Usuario;
 import com.br.startup.tolevBack.users.internal.enums.PapelUsuario;
+import com.br.startup.tolevBack.users.internal.mapper.PreferenciaFinanceiraMapper;
 import com.br.startup.tolevBack.users.internal.mapper.UserMapper;
+import com.br.startup.tolevBack.users.internal.repository.IPreferenciaFinanceiraRepository;
 import com.br.startup.tolevBack.users.internal.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +25,7 @@ import java.util.List;
 public class RegisterUserService {
 
     private final IUserRepository userRepository;
+    private final IPreferenciaFinanceiraRepository preferenciaRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
@@ -38,6 +42,9 @@ public class RegisterUserService {
                 .nome(request.nome())
                 .genero(request.genero())
                 .dataNascimento(request.dataNascimento())
+                .objetivoPrincipal(request.objetivoPrincipal())
+                .situacaoFinanceira(request.situacaoFinanceira())
+                .ocupacao(request.ocupacao())
                 .nomeUsuario(request.nomeUsuario())
                 .email(request.email())
                 .senha(passwordEncoder.encode(request.senha()))
@@ -46,6 +53,13 @@ public class RegisterUserService {
                 .build();
 
         Usuario salvo = userRepository.save(usuario);
+
+        // Cria as preferências financeiras já com a renda informada no onboarding.
+        PreferenciaFinanceira preferencia = PreferenciaFinanceiraMapper.defaults(salvo.getId());
+        if (request.rendaMensal() != null) {
+            preferencia.setRendaMensal(request.rendaMensal());
+        }
+        preferenciaRepository.save(preferencia);
 
         String token = jwtService.generateToken(
                 User.builder()
