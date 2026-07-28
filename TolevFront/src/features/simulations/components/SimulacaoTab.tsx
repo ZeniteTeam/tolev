@@ -27,8 +27,6 @@ export default function SimulacaoTab({ onSubmit }: Props) {
 
   return (
     <View className="pt-[18px]">
-      <Text className="text-sm text-muted mb-[18px] font-regular leading-[18px]">Configure filtros para prever impactos financeiros</Text>
-
       <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
         <Text className="font-bold text-[15px] text-primary-700 mb-1">Categoria</Text>
         <Text className="text-[12px] text-muted mb-3.5 font-regular">Qual área deseja simular?</Text>

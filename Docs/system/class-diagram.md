@@ -12,6 +12,9 @@ class Usuario {
     +String nome
     +String genero
     +Date dataNascimento
+    +ObjetivoPrincipal objetivoPrincipal
+    +SituacaoFinanceira situacaoFinanceira
+    +TipoEmprego ocupacao
     +String nomeUsuario
     +String senha
     +String email
@@ -63,12 +66,29 @@ class Assinatura {
     +String modeloAssinatura
 }
 
+class PreferenciaFinanceira {
+    +Long id
+    +Long idUsuario
+    +MetodoQuitacao metodoQuitacao
+    +Decimal aporteExtraMensal
+    +MetodoOrcamento metodoOrcamento
+    +Decimal rendaMensal
+    +Integer percFixos
+    +Integer percDividas
+    +Integer percLazer
+    +Decimal reservaEmergenciaMeta
+    +Date criadoEm
+    +Date atualizadoEm
+}
+
 Usuario "1" --> "*" Ticket
 Usuario "1" --> "*" FeedbackUsuario
 Feedback "1" --> "*" FeedbackUsuario
 
 Usuario "1" --> "*" UsuarioAssinatura
 Assinatura "1" --> "*" UsuarioAssinatura
+
+Usuario "1" --> "1" PreferenciaFinanceira
 
 %% =====================================================
 %% PROGRESSAO
@@ -96,8 +116,20 @@ class ProgressoMeta {
 
 class Divida {
     +Long id
+    +Long idUsuario
+    +String nomeDivida
+    +String credor
+    +String banco
     +Decimal valorDivida
+    +Decimal taxaJuros
+    +Decimal parcelaMinima
+    +Integer pesoEmocional
+    +Integer quantidadeParcelas
+    +Date dataInicio
+    +Date dataVencimentoFinal
+    +TipoDivida tipo
     +StatusDivida status
+    +NivelComprometimento nivelComprometimento
 
     +isDividaQuitada()
 }
@@ -368,6 +400,73 @@ class StatusDivida {
     ATIVA
     PAGA
     ATRASADA
+}
+
+class TipoDivida {
+    <<enumeration>>
+    CARTAO
+    EMPRESTIMO
+    FINANCIAMENTO
+    CHEQUE_ESPECIAL
+    CARNE
+    OUTROS
+}
+
+class NivelComprometimento {
+    <<enumeration>>
+    BAIXO
+    MEDIO
+    ALTO
+    EXTREMO
+}
+
+%% Estratégia de quitação de dívidas escolhida pelo usuário
+class MetodoQuitacao {
+    <<enumeration>>
+    AVALANCHE
+    SNOWBALL
+    TSUNAMI
+}
+
+%% Método de orçamento escolhido pelo usuário
+class MetodoOrcamento {
+    <<enumeration>>
+    REGRA_50_30_20
+    BASE_ZERO
+    ENVELOPES
+}
+
+%% Objetivo principal do usuário (onboarding)
+class ObjetivoPrincipal {
+    <<enumeration>>
+    QUITAR_DIVIDAS
+    ORGANIZAR_ORCAMENTO
+    CRIAR_RESERVA
+    CONTROLAR_GASTOS
+    INVESTIR
+    EDUCACAO_FINANCEIRA
+}
+
+%% Situação financeira atual declarada no onboarding
+class SituacaoFinanceira {
+    <<enumeration>>
+    ENDIVIDADO
+    NO_LIMITE
+    EQUILIBRADO
+    INVESTINDO
+}
+
+%% Ocupação / fonte de renda (onboarding)
+class TipoEmprego {
+    <<enumeration>>
+    CLT
+    AUTONOMO
+    EMPRESARIO
+    SERVIDOR_PUBLICO
+    ESTUDANTE
+    APOSENTADO
+    DESEMPREGADO
+    OUTRO
 }
 
 class TipoModulo {

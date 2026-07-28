@@ -2,6 +2,7 @@ package com.br.startup.tolevBack.progression.internal.entity;
 
 import com.br.startup.tolevBack.progression.internal.enums.NivelComprometimento;
 import com.br.startup.tolevBack.progression.internal.enums.StatusDivida;
+import com.br.startup.tolevBack.progression.internal.enums.TipoDivida;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -24,10 +25,17 @@ public class Divida {
     private Long idUsuario;
     private String nomeDivida;
     private String credor;
+    private String banco;
     private BigDecimal valorDivida;
     private BigDecimal taxaJuros;
+    private BigDecimal parcelaMinima;
+    private Integer pesoEmocional;
+    private Integer quantidadeParcelas;
     private LocalDate dataInicio;
     private LocalDate dataVencimentoFinal;
+
+    @Enumerated(EnumType.STRING)
+    private TipoDivida tipo;
 
     @Enumerated(EnumType.STRING)
     private StatusDivida status;

@@ -8,7 +8,7 @@ public record ProgressionGraphsResponse(
     BigDecimal progressaoMediaModulos,
     Integer totalModulosConcluidos,
     Integer totalModulosEmProgresso,
-    List<MetaProgressPoint> metasProgresso
+    List<DividaProgressPoint> dividasProgresso
 ) {
-    public record MetaProgressPoint(Long idMeta, String nomeMeta, BigDecimal progresso, String status) {}
+    public record DividaProgressPoint(Long idDivida, String nomeDivida, BigDecimal progresso, String status) {}
 }

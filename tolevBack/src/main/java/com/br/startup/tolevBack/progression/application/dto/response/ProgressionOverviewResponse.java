@@ -6,8 +6,6 @@ public record ProgressionOverviewResponse(
     Long idUsuario,
     Integer totalModulos,
     BigDecimal progressaoMedia,
-    Integer totalMetas,
-    Integer metasAtivas,
     Integer totalDividas,
     Integer dividasAtivas,
     Integer dividasAtrasadas

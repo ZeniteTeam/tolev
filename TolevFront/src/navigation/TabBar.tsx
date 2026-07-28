@@ -1,18 +1,18 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { BarChart2, Home, PieChart, Target, type LucideIcon } from "lucide-react-native";
+import { BarChart2, Home, Landmark, PieChart, type LucideIcon } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ICONS: Record<string, LucideIcon> = {
   Menu: Home,
-  Metas: Target,
+  Dividas: Landmark,
   Financas: PieChart,
   Progresso: BarChart2,
 };
 
 const LABELS: Record<string, string> = {
   Menu: "Menu",
-  Metas: "Metas",
+  Dividas: "Dívidas",
   Financas: "Finanças",
   Progresso: "Progresso",
 };

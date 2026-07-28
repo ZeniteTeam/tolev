@@ -13,7 +13,6 @@ public class SimulationFacade {
     private final SimulateDebtPayoffService simulateDebtPayoff;
     private final SimulateFutureBalanceService simulateFutureBalance;
     private final SimulatePurchaseImpactService simulatePurchaseImpact;
-    private final SimulateMetaProjectionService simulateMetaProjection;
     private final SimulateFinancialFutureService simulateFinancialFuture;
 
     public DebtPayoffSimulationResponse debtPayoff(DebtPayoffSimulationRequest request) {
@@ -26,10 +25,6 @@ public class SimulationFacade {
 
     public PurchaseImpactSimulationResponse purchaseImpact(PurchaseImpactSimulationRequest request) {
         return simulatePurchaseImpact.execute(request);
-    }
-
-    public MetaProjectionSimulationResponse metaProjection(MetaProjectionSimulationRequest request) {
-        return simulateMetaProjection.execute(request);
     }
 
     public FinancialFutureSimulationResponse financialFuture(FinancialFutureSimulationRequest request) {
