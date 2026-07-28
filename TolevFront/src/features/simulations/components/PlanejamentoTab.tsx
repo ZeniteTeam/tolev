@@ -13,17 +13,25 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react-native";
-import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Progress } from "../../../components";
 import { colors, shadows } from "../../../theme";
 import { METODOS, metodoById, type Metodo, type MetodoId } from "../constants/metodos";
-import { usePlanStore } from "../store/planStore";
+import { usePreferencias } from "../hooks/usePreferencias";
+import { useUpdatePreferencias } from "../hooks/useUpdatePreferencias";
+import {
+  metodoIdFromQuitacao,
+  metodoOrcamentoFromId,
+  orcamentoIdFromMetodo,
+  type OrcamentoId,
+  type PreferenciaFinanceiraResponse,
+} from "../../../types/preferencias";
 
 type Props = { onOpenMetodo?: (id: MetodoId) => void };
 
 export default function PlanejamentoTab({ onOpenMetodo }: Props) {
-  const aplicado = usePlanStore((s) => s.metodoAplicado);
+  const { data: prefs } = usePreferencias();
+  const aplicado: MetodoId = prefs ? metodoIdFromQuitacao(prefs.metodoQuitacao) : "avalanche";
 
   return (
     <View className="pt-[18px]">
@@ -55,7 +63,7 @@ export default function PlanejamentoTab({ onOpenMetodo }: Props) {
         sub="Escolha como distribuir sua renda"
         className="mt-7"
       />
-      <Orcamento />
+      <Orcamento prefs={prefs} />
 
       <PlanSection
         title="Seus planos ativos"
@@ -140,13 +148,21 @@ function FluxoCaixa() {
   );
 }
 
-function Orcamento() {
-  const [sel, setSel] = useState("503020");
-  const metodos: { id: string; nome: string; icon: LucideIcon; desc: string }[] = [
+function Orcamento({ prefs }: { prefs?: PreferenciaFinanceiraResponse }) {
+  const updatePreferencias = useUpdatePreferencias();
+  const sel: OrcamentoId = prefs ? orcamentoIdFromMetodo(prefs.metodoOrcamento) : "503020";
+
+  const metodos: { id: OrcamentoId; nome: string; icon: LucideIcon; desc: string }[] = [
     { id: "503020", nome: "Regra 50/30/20", icon: PieChart, desc: "Divide a renda em três fatias: fixos, quitação de dívidas e lazer. Aceita variações conforme seu momento." },
     { id: "zero", nome: "Orçamento base zero", icon: Equal, desc: "Cada real da renda recebe uma função. Receita menos despesas alocadas deve dar exatamente zero." },
     { id: "envelope", nome: "Envelopes", icon: Wallet, desc: "Separe o dinheiro em envelopes digitais por categoria. Ideal para gastos que costumam estourar." },
   ];
+
+  const escolher = (id: OrcamentoId) => {
+    if (id === sel) return;
+    updatePreferencias.mutate({ metodoOrcamento: metodoOrcamentoFromId(id) });
+  };
+
   return (
     <View className="gap-3">
       {metodos.map((m) => {
@@ -155,7 +171,7 @@ function Orcamento() {
         return (
           <Pressable
             key={m.id}
-            onPress={() => setSel(m.id)}
+            onPress={() => escolher(m.id)}
             className="bg-surface rounded-[16px] p-[18px]"
             style={[shadows.card, active && { borderWidth: 2, borderColor: colors.primary[700] }]}
           >
@@ -181,7 +197,13 @@ function Orcamento() {
             {active && (
               <>
                 <Text className="text-[13px] text-muted leading-[20px] mt-3 font-regular">{m.desc}</Text>
-                {m.id === "503020" && <Bar503020 />}
+                {m.id === "503020" && (
+                  <Bar503020
+                    fixos={prefs?.percFixos ?? 50}
+                    dividas={prefs?.percDividas ?? 30}
+                    lazer={prefs?.percLazer ?? 20}
+                  />
+                )}
               </>
             )}
           </Pressable>
@@ -191,11 +213,11 @@ function Orcamento() {
   );
 }
 
-function Bar503020() {
+function Bar503020({ fixos, dividas, lazer }: { fixos: number; dividas: number; lazer: number }) {
   const seg = [
-    { pct: 50, label: "Fixos", color: "#03643F" },
-    { pct: 30, label: "Dívidas", color: "#30BCB3" },
-    { pct: 20, label: "Lazer", color: "#FE6F50" },
+    { pct: fixos, label: "Fixos", color: "#03643F" },
+    { pct: dividas, label: "Dívidas", color: "#30BCB3" },
+    { pct: lazer, label: "Lazer", color: "#FE6F50" },
   ];
   return (
     <View className="mt-3.5">

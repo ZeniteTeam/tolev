@@ -14,6 +14,9 @@ public class UserMapper {
                 usuario.getNome(),
                 usuario.getGenero(),
                 usuario.getDataNascimento(),
+                usuario.getObjetivoPrincipal(),
+                usuario.getSituacaoFinanceira(),
+                usuario.getOcupacao(),
                 usuario.getNomeUsuario(),
                 usuario.getEmail()
         );
