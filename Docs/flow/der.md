@@ -9,6 +9,12 @@ erDiagram
         VARCHAR nome
         VARCHAR genero
         DATE data_nascimento
+        %% enum: QUITAR_DIVIDAS - ORGANIZAR_ORCAMENTO - CRIAR_RESERVA - CONTROLAR_GASTOS - INVESTIR - EDUCACAO_FINANCEIRA
+        VARCHAR objetivo_principal
+        %% enum: ENDIVIDADO - NO_LIMITE - EQUILIBRADO - INVESTINDO
+        VARCHAR situacao_financeira
+        %% enum: CLT - AUTONOMO - EMPRESARIO - SERVIDOR_PUBLICO - ESTUDANTE - APOSENTADO - DESEMPREGADO - OUTRO
+        VARCHAR ocupacao
         VARCHAR nome_usuario
         VARCHAR senha
         VARCHAR email
@@ -19,6 +25,26 @@ erDiagram
     USUARIO ||--o{ CONTA_BANCARIA : "possui"
     USUARIO ||--o{ USUARIO_ASSINATURAS : "faz"
     USUARIO ||--o{ FEEDBACK_USUARIO : "faz"
+    USUARIO ||--|| PREFERENCIA_FINANCEIRA : "configura"
+
+    PREFERENCIA_FINANCEIRA {
+        BIGINT id PK
+        BIGINT id_usuario FK
+        %% enum: AVALANCHE - SNOWBALL - TSUNAMI
+        VARCHAR metodo_quitacao
+        %% aporte extra mensal para a quitação de dívidas
+        NUMERIC aporte_extra_mensal
+        %% enum: REGRA_50_30_20 - BASE_ZERO - ENVELOPES
+        VARCHAR metodo_orcamento
+        NUMERIC renda_mensal
+        %% divisão do orçamento (fixos + dividas + lazer = 100)
+        INTEGER perc_fixos
+        INTEGER perc_dividas
+        INTEGER perc_lazer
+        NUMERIC reserva_emergencia_meta
+        DATE criado_em
+        DATE atualizado_em
+    }
 
     METAS {
         BIGINT id PK
@@ -43,9 +69,24 @@ erDiagram
     DIVIDAS {
         BIGINT id PK
         BIGINT id_usuario
+        VARCHAR nome_divida
+        VARCHAR credor
+        VARCHAR banco
         NUMERIC valor_divida
+        %% taxa de juros mensal (%) - usada no método Avalanche
+        NUMERIC taxa_juros
+        NUMERIC parcela_minima
+        %% 1..5 - usado no método Tsunami
+        INTEGER peso_emocional
+        INTEGER quantidade_parcelas
+        DATE data_inicio
+        DATE data_vencimento_final
+        %% enum: CARTAO - EMPRESTIMO - FINANCIAMENTO - CHEQUE_ESPECIAL - CARNE - OUTROS
+        VARCHAR tipo
+        %% enum: ATIVA - PAGA - ATRASADA
+        VARCHAR status
         %% enum
-        NUMERIC status_meta
+        VARCHAR nivel_comprometimento
     }
 
 	DIVIDAS||--||PROGRESSO_DIVIDA : "possui"

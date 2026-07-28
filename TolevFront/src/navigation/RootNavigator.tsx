@@ -5,12 +5,15 @@ import { View } from "react-native";
 import { setOnUnauthorized } from "../api/axios";
 import { SlimHeader } from "../components";
 import LoginScreen from "../features/auth/screens/LoginScreen";
-import RegisterScreen from "../features/auth/screens/RegisterScreen";
-import CriarMetaScreen from "../features/missions/screens/CriarMetaScreen";
-import MetaExpandidaScreen from "../features/missions/screens/MetaExpandidaScreen";
+import OnboardingFlow from "../features/onboarding/screens/OnboardingFlow";
+import AdicionarDividaScreen from "../features/debts/screens/AdicionarDividaScreen";
+import DividaDetalheScreen from "../features/debts/screens/DividaDetalheScreen";
 import NotificacoesScreen from "../features/notifications/screens/NotificacoesScreen";
 import PerfilScreen from "../features/profile/screens/PerfilScreen";
+import CategoriasScreen from "../features/simulations/screens/CategoriasScreen";
+import MetodoOnboardingScreen from "../features/simulations/screens/MetodoOnboardingScreen";
 import SimulacaoResultadoScreen from "../features/simulations/screens/SimulacaoResultadoScreen";
+import SimulacaoScreen from "../features/simulations/screens/SimulacaoScreen";
 import { useAuthStore } from "../store/authStore";
 import MainTabs from "./MainTabs";
 
@@ -29,11 +32,17 @@ function ModalShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-const MetaExpandida = () => (
-  <ModalShell><MetaExpandidaScreen /></ModalShell>
+const DividaDetalhe = () => (
+  <ModalShell><DividaDetalheScreen /></ModalShell>
 );
-const CriarMeta = () => (
-  <ModalShell><CriarMetaScreen /></ModalShell>
+const AdicionarDivida = () => (
+  <ModalShell><AdicionarDividaScreen /></ModalShell>
+);
+const Categorias = () => (
+  <ModalShell><CategoriasScreen /></ModalShell>
+);
+const Simulacao = () => (
+  <ModalShell><SimulacaoScreen /></ModalShell>
 );
 const SimulacaoResultado = () => (
   <ModalShell><SimulacaoResultadoScreen /></ModalShell>
@@ -83,12 +92,24 @@ export default function RootNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {/*
+        Key the navigator on auth state so it fully remounts when the user logs
+        in / out. Without this, swapping the conditional groups while a pushed
+        (non-initial) route like "Register" is focused can leave the navigator
+        pointing at a route that no longer exists — a blank/white screen.
+      */}
+      <Stack.Navigator
+        key={isAuthenticated ? "app" : "guest"}
+        screenOptions={{ headerShown: false }}
+      >
         {isAuthenticated ? (
           <Stack.Group>
             <Stack.Screen name="Main" component={MainTabs} />
-            <Stack.Screen name="MetaExpandida" component={MetaExpandida} />
-            <Stack.Screen name="CriarMeta" component={CriarMeta} />
+            <Stack.Screen name="DividaDetalhe" component={DividaDetalhe} />
+            <Stack.Screen name="AdicionarDivida" component={AdicionarDivida} />
+            <Stack.Screen name="Categorias" component={Categorias} />
+            <Stack.Screen name="Simulacao" component={Simulacao} />
+            <Stack.Screen name="MetodoOnboarding" component={MetodoOnboardingScreen} />
             <Stack.Screen name="SimulacaoResultado" component={SimulacaoResultado} />
             <Stack.Screen name="Perfil" component={Perfil} />
             <Stack.Screen name="Notificacoes" component={Notificacoes} />
@@ -105,7 +126,7 @@ export default function RootNavigator() {
             </Stack.Screen>
             <Stack.Screen name="Register">
               {({ navigation }) => (
-                <RegisterScreen
+                <OnboardingFlow
                   onAuthenticated={() => {}}
                   onGoToLogin={() => navigation.goBack()}
                 />

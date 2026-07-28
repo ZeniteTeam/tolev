@@ -1,6 +1,6 @@
 import { Film, Home, LucideIcon, MoreHorizontal, ShoppingCart, Truck } from "lucide-react-native";
 import { Text, View } from "react-native";
-import { Donut } from "../../../components";
+import { Donut, GiftedDonut } from "../../../components";
 
 type Categoria = {
   label: string;
@@ -50,12 +50,16 @@ export function CategoriaGastosDetailed() {
   return (
     <View className="gap-4">
       <View className="items-center">
-        <Donut
-          segments={GASTOS.map((c) => ({ value: c.value, color: c.color }))}
+        <GiftedDonut
+          data={GASTOS.map((c) => ({ value: c.value, color: c.color }))}
           size={140}
           stroke={14}
-          centerLabel="Total"
-          centerValue={`R$ ${(total / 1000).toFixed(1)}k`}
+          center={
+            <View className="items-center">
+              <Text className="text-[11px] text-muted font-medium">Total</Text>
+              <Text className="text-[16px] text-ink font-bold">R$ {(total / 1000).toFixed(1)}k</Text>
+            </View>
+          }
         />
       </View>
       <View className="gap-3">

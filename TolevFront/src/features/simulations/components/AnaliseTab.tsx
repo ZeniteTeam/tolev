@@ -1,150 +1,306 @@
+import {
+  Book,
+  ChevronUp,
+  Dumbbell,
+  Edit3,
+  Film,
+  Heart,
+  Home,
+  Lightbulb,
+  Plus,
+  ShoppingCart,
+  Shield,
+  Tag,
+  Tags,
+  Truck,
+  Tv,
+  Wifi,
+  ChevronRight,
+  type LucideIcon,
+} from "lucide-react-native";
 import { useState } from "react";
-import { Text, View } from "react-native";
-import { BankFilter, DotPagination, Donut, LineChart, PeriodFilter } from "../../../components";
+import { Pressable, Text, View } from "react-native";
+import { BankFilter, GiftedDonut, Ring } from "../../../components";
 import type { BankId } from "../../../components/BankFilter";
 import { colors, shadows } from "../../../theme";
 import { CategoriaGastosDetailed } from "../../menu/components/CategoriaGastos";
 
-export default function AnaliseTab() {
+type Cat = { label: string; icon: LucideIcon; color: string };
+
+const ANALISE_CATS: Cat[] = [
+  { label: "Moradia", icon: Home, color: "#03643F" },
+  { label: "Alimentação", icon: ShoppingCart, color: "#1CA474" },
+  { label: "Transporte", icon: Truck, color: "#30BCB3" },
+  { label: "Lazer", icon: Film, color: "#FE6F50" },
+  { label: "Pets", icon: Heart, color: "#9B6BDF" },
+  { label: "Educação", icon: Book, color: "#3E7BFA" },
+];
+
+type Props = { onOpenCategorias?: () => void };
+
+export default function AnaliseTab({ onOpenCategorias }: Props) {
   const [bank, setBank] = useState<BankId>("all");
-  const [chartIdx, setChartIdx] = useState(0);
-  const [pieIdx, setPieIdx] = useState(0);
-  const [periodo, setPeriodo] = useState("6m");
 
   return (
     <View className="pt-[18px]">
-      <Text className="text-sm text-ink font-semibold mb-2 pl-1">Filtrar por banco</Text>
+      <Text className="text-[13px] text-ink font-semibold mb-2 pl-1">Filtrar por banco</Text>
       <BankFilter active={bank} onChange={setBank} />
 
-      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
-        <Text className="font-bold text-[16px] text-ink">
-          {pieIdx === 0 ? "Distribuição de gastos" : "Receitas vs. Despesas"}
-        </Text>
-        <Text className="text-[12px] text-muted mt-0.5 font-regular">Último mês</Text>
+      <DistribuicaoCard />
+      <SuasCategoriasButton onOpen={onOpenCategorias} />
+      <GastosFixosCard />
+      <DicaTolevCard />
+      <ClassificacaoCard cats={ANALISE_CATS} />
+    </View>
+  );
+}
 
-        <View className="mt-4">
-          {pieIdx === 0 && <CategoriaGastosDetailed />}
-          {pieIdx === 1 && (
-            <PieView segments={[
-              { label: "Receitas", value: 4500, color: colors.primary[500] },
-              { label: "Despesas", value: 3260, color: colors.coral[500] },
-            ]} />
-          )}
+function DistribuicaoCard() {
+  return (
+    <View className="bg-surface rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+      <View className="flex-row justify-between items-start mb-4">
+        <View>
+          <Text className="font-bold text-[16px] text-ink">Distribuição de gastos</Text>
+          <Text className="text-[12px] text-muted mt-0.5 font-regular">
+            Agrupado por categoria · último mês
+          </Text>
         </View>
-
-        <DotPagination count={2} active={pieIdx} onChange={setPieIdx} />
+        <View className="flex-row items-center gap-1.5">
+          <Edit3 size={14} color={colors.teal[500]} strokeWidth={2} />
+          <Text className="text-[12px] font-bold text-teal-500">Recategorizar</Text>
+        </View>
       </View>
+      <CategoriaGastosDetailed />
+    </View>
+  );
+}
 
-      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
-        <View className="flex-row justify-between">
-          <View>
-            <Text className="font-bold text-[16px] text-ink">Progresso de dívidas</Text>
-            <Text className="text-[12px] text-muted mt-0.5 font-regular">
-              {chartIdx === 0 ? "Linha do tempo" : "Comparativo mensal"}
+function SuasCategoriasButton({ onOpen }: { onOpen?: () => void }) {
+  return (
+    <Pressable
+      onPress={onOpen}
+      className="bg-surface rounded-[18px] p-[18px] mb-3.5 flex-row items-center gap-3.5 active:opacity-90"
+      style={shadows.card}
+    >
+      <View className="w-11 h-11 rounded-[12px] bg-primary-100 items-center justify-center">
+        <Tags size={21} color={colors.primary[700]} strokeWidth={2} />
+      </View>
+      <View className="flex-1">
+        <Text className="font-bold text-[15px] text-ink">Suas categorias</Text>
+        <Text className="text-[12px] text-muted mt-0.5 font-regular">
+          Criar, editar ou remover categorias
+        </Text>
+      </View>
+      <ChevronRight size={20} color={colors.text.secondary} strokeWidth={2} />
+    </Pressable>
+  );
+}
+
+function GastosFixosCard() {
+  const fixos = [
+    { label: "Aluguel", valor: 1200, icon: Home },
+    { label: "Internet", valor: 120, icon: Wifi },
+    { label: "Academia", valor: 90, icon: Dumbbell },
+    { label: "Streaming", valor: 50, icon: Tv },
+    { label: "Seguro auto", valor: 180, icon: Shield },
+  ];
+  const total = fixos.reduce((s, f) => s + f.valor, 0);
+  return (
+    <View className="bg-surface rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+      <View className="flex-row justify-between items-start mb-4">
+        <View>
+          <Text className="font-bold text-[16px] text-ink">Gastos fixos</Text>
+          <Text className="text-[12px] text-muted mt-0.5 font-regular">Recorrentes todo mês</Text>
+        </View>
+        <View className="items-end">
+          <Text className="text-[11px] text-muted font-regular">Total</Text>
+          <Text className="font-bold text-[16px] text-primary-700">
+            R$ {total.toLocaleString("pt-BR")}
+          </Text>
+        </View>
+      </View>
+      {fixos.map((f, i) => {
+        const Icon = f.icon;
+        return (
+          <View
+            key={f.label}
+            className="flex-row items-center gap-3 py-[11px]"
+            style={i !== fixos.length - 1 ? { borderBottomWidth: 1, borderBottomColor: "#F1F5F3" } : undefined}
+          >
+            <View className="w-[34px] h-[34px] rounded-[9px] bg-primary-100 items-center justify-center">
+              <Icon size={16} color={colors.primary[700]} strokeWidth={2} />
+            </View>
+            <Text className="flex-1 text-[14px] font-medium text-ink">{f.label}</Text>
+            <Text className="text-[14px] font-bold text-ink">
+              R$ {f.valor.toLocaleString("pt-BR")}
             </Text>
           </View>
-          <Text className="font-bold text-[18px] text-teal-500">65%</Text>
-        </View>
+        );
+      })}
+    </View>
+  );
+}
 
-        <View className="mt-3">
-          {chartIdx === 0 && (
-            <LineChart values={[15, 22, 30, 38, 50, 58, 65]} color={colors.teal[500]} />
-          )}
-          {chartIdx === 1 && <DebtBars />}
-        </View>
-
-        <DotPagination count={2} active={chartIdx} onChange={setChartIdx} />
-        <View className="mt-2">
-          <PeriodFilter active={periodo} onChange={setPeriodo} />
-        </View>
-      </View>
-
-      <View className="bg-white rounded-[18px] p-5 mb-3.5" style={shadows.card}>
-        <Text className="font-bold text-[16px] text-ink">Vazamentos financeiros</Text>
-        <Text className="text-[12px] text-muted mt-0.5 font-regular">Gastos categorizados</Text>
-        <View className="mt-3 gap-2.5">
-          {[
-            ["Mercado", 100, 0.86],
-            ["Streaming", 50, 0.42],
-            ["Entretenimento", 105, 0.9],
-            ["Transporte", 33, 0.28],
-            ["Outros", 45, 0.38],
-          ].map(([label, value, w]) => (
-            <View key={label as string} className="flex-row items-center gap-3">
-              <Text className="w-[100px] font-semibold text-sm text-ink text-right">{label}</Text>
-              <View className="flex-1 h-[22px] bg-[#F1F5F3] rounded-sm overflow-hidden">
-                <View
-                  className="h-full bg-primary-500 rounded-sm justify-center items-end px-2.5"
-                  style={{ width: `${(w as number) * 100}%` }}
-                >
-                  <Text className="text-white font-bold text-[12px]">R$ {value}</Text>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
+function DicaTolevCard() {
+  return (
+    <View className="bg-primary-25 rounded-[18px] px-5 py-[18px] mb-3.5 flex-row gap-3.5 items-start">
+      <Ring style={{ backgroundColor: "#fff" }}>
+        <Lightbulb size={22} color={colors.primary[700]} strokeWidth={2} />
+      </Ring>
+      <View className="flex-1">
+        <Text className="text-[12px] text-primary-700 font-bold tracking-[0.4px]">DICA TOLEV</Text>
+        <Text className="text-[14px] text-ink leading-5 mt-1.5 font-regular">
+          Seus gastos com <Text className="text-coral-500 font-bold">Lazer</Text> subiram 18% neste
+          mês. Classificar as transações pendentes deixa sua análise mais precisa.
+        </Text>
       </View>
     </View>
   );
 }
 
-function DebtBars() {
-  const months = [
-    { m: "Nov", v: 0.22 },
-    { m: "Dez", v: 0.30 },
-    { m: "Jan", v: 0.38 },
-    { m: "Fev", v: 0.45 },
-    { m: "Mar", v: 0.52 },
-    { m: "Abr", v: 0.60 },
-    { m: "Mai", v: 0.65 },
+function ClassificacaoCard({ cats }: { cats: Cat[] }) {
+  const [open, setOpen] = useState(false);
+  const [picker, setPicker] = useState<number | null>(null);
+  const [assigned, setAssigned] = useState<Record<number, string>>({});
+  const pct = 82;
+
+  const transacoes = [
+    { desc: "PIX recebido — João", valor: "R$ 120,00" },
+    { desc: "Compra — 4412****", valor: "R$ 78,90" },
+    { desc: "Débito automático", valor: "R$ 45,00" },
   ];
-  return (
-    <View>
-      <View className="flex-row items-end h-[160px] gap-2">
-        {months.map(({ m, v }, i) => (
-          <View key={m} className="flex-1 items-center justify-end">
-            <View
-              className="w-[70%] rounded-t-md"
-              style={{
-                height: `${v * 100}%`,
-                backgroundColor: i === months.length - 1 ? colors.teal[500] : colors.teal[300],
-              }}
-            />
-          </View>
-        ))}
-      </View>
-      <View className="flex-row mt-2 gap-2">
-        {months.map(({ m }) => (
-          <Text key={m} className="flex-1 text-center text-[10px] text-muted">{m}</Text>
-        ))}
-      </View>
-    </View>
-  );
-}
+  const catBy = (label: string) => cats.find((c) => c.label === label);
+  const assign = (idx: number, label: string) => {
+    setAssigned((a) => ({ ...a, [idx]: label }));
+    setPicker(null);
+  };
 
-function PieView({ segments }: { segments: { label: string; value: number; color: string }[] }) {
-  const total = segments.reduce((s, x) => s + x.value, 0);
   return (
-    <View className="flex-row gap-[18px] items-center">
-      <Donut
-        segments={segments.map(s => ({ value: s.value, color: s.color }))}
-        size={140}
-        stroke={20}
-        centerLabel="Total"
-        centerValue={`R$ ${total}`}
-      />
-      <View className="flex-1 gap-2">
-        {segments.map(s => {
-          const pct = Math.round((s.value / total) * 100);
-          return (
-            <View key={s.label} className="flex-row items-center gap-2.5">
-              <View className="w-2.5 h-2.5 rounded-[3px]" style={{ backgroundColor: s.color }} />
-              <Text className="flex-1 text-[12px] text-ink font-regular">{s.label}</Text>
-              <Text className="text-[12px] text-muted font-bold">{pct}%</Text>
+    <View className="bg-surface rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+      <Text className="font-bold text-[16px] text-ink mb-4">Classificação de gastos</Text>
+
+      <View className="flex-row items-center gap-5">
+        <GiftedDonut
+          data={[
+            { value: pct, color: colors.teal[500] },
+            { value: 100 - pct, color: "#FEC9BB" },
+          ]}
+          size={108}
+          stroke={12}
+          center={
+            <View className="items-center">
+              <Text className="text-[22px] font-bold text-ink">{pct}%</Text>
+              <Text className="text-[10px] text-muted font-regular">classificado</Text>
             </View>
-          );
-        })}
+          }
+        />
+        <View className="flex-1 gap-3">
+          <View className="flex-row items-center gap-2.5">
+            <View className="w-2.5 h-2.5 rounded-[3px] bg-teal-500" />
+            <Text className="flex-1 text-[13px] text-ink font-regular">Classificados</Text>
+            <Text className="text-[13px] font-bold text-teal-500">82%</Text>
+          </View>
+          <View className="flex-row items-center gap-2.5">
+            <View className="w-2.5 h-2.5 rounded-[3px]" style={{ backgroundColor: "#FEC9BB" }} />
+            <Text className="flex-1 text-[13px] text-ink font-regular">Não classificados</Text>
+            <Text className="text-[13px] font-bold text-coral-500">18%</Text>
+          </View>
+          <Text className="text-[11px] text-muted leading-[15px] font-regular">
+            18 transações precisam da sua ajuda para serem categorizadas.
+          </Text>
+        </View>
       </View>
+
+      <Pressable
+        onPress={() => setOpen((o) => !o)}
+        className="mt-4 h-11 rounded-pill bg-primary-100 flex-row items-center justify-center gap-2 active:opacity-90"
+      >
+        {open ? (
+          <ChevronUp size={16} color={colors.primary[700]} strokeWidth={2} />
+        ) : (
+          <Tag size={16} color={colors.primary[700]} strokeWidth={2} />
+        )}
+        <Text className="font-bold text-[14px] text-primary-700">
+          {open ? "Ocultar pendentes" : "Classificar manualmente"}
+        </Text>
+      </Pressable>
+
+      {open && (
+        <View className="mt-3.5 gap-2.5">
+          {transacoes.map((t, i) => {
+            const cat = assigned[i] ? catBy(assigned[i]) : null;
+            const CatIcon = cat?.icon;
+            return (
+              <View key={i} className="bg-primary-50 rounded-[12px] px-3.5 py-3">
+                <View className="flex-row items-center gap-3">
+                  <View className="flex-1">
+                    <Text className="text-[13px] font-semibold text-ink" numberOfLines={1}>
+                      {t.desc}
+                    </Text>
+                    <Text className="text-[12px] text-muted mt-0.5 font-regular">{t.valor}</Text>
+                  </View>
+                  {cat && CatIcon ? (
+                    <Pressable
+                      onPress={() => setPicker(picker === i ? null : i)}
+                      className="flex-row items-center gap-1.5 px-3 py-1.5 rounded-pill"
+                      style={{ backgroundColor: cat.color }}
+                    >
+                      <CatIcon size={13} color="#fff" strokeWidth={2} />
+                      <Text className="text-[12px] font-bold text-white">{cat.label}</Text>
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      onPress={() => setPicker(picker === i ? null : i)}
+                      className="flex-row items-center gap-1.5 px-3 py-1.5 rounded-pill bg-coral-500"
+                    >
+                      {picker === i ? (
+                        <ChevronUp size={13} color="#fff" strokeWidth={2} />
+                      ) : (
+                        <Plus size={13} color="#fff" strokeWidth={2} />
+                      )}
+                      <Text className="text-[12px] font-bold text-white">Categoria</Text>
+                    </Pressable>
+                  )}
+                </View>
+
+                {picker === i && (
+                  <View
+                    className="flex-row flex-wrap gap-2 mt-3 pt-3"
+                    style={{ borderTopWidth: 1, borderTopColor: "#E1EAE5" }}
+                  >
+                    {cats.map((c) => {
+                      const active = assigned[i] === c.label;
+                      return (
+                        <Pressable
+                          key={c.label}
+                          onPress={() => assign(i, c.label)}
+                          className="flex-row items-center gap-1.5 px-3 py-1.5 rounded-pill"
+                          style={{
+                            backgroundColor: active ? c.color : "#fff",
+                            borderWidth: 1.5,
+                            borderColor: c.color,
+                          }}
+                        >
+                          <View
+                            className="w-2 h-2 rounded-[3px]"
+                            style={{ backgroundColor: active ? "#fff" : c.color }}
+                          />
+                          <Text
+                            className="text-[12px] font-semibold"
+                            style={{ color: active ? "#fff" : colors.text.primary }}
+                          >
+                            {c.label}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }

@@ -2,8 +2,8 @@ package com.br.startup.tolevBack.progression.api.facade;
 
 import com.br.startup.tolevBack.progression.application.dto.response.MapaModuloResponse;
 import com.br.startup.tolevBack.progression.application.dto.response.ProgressaoModuloResponse;
-import com.br.startup.tolevBack.progression.application.usecase.commands.CompleteModuleService;
-import com.br.startup.tolevBack.progression.application.usecase.queries.GetModuleByIdService;
+import com.br.startup.tolevBack.progression.application.usecase.commands.Progression.CompleteModuleService;
+import com.br.startup.tolevBack.progression.application.usecase.queries.Progression.GetModuleByIdService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

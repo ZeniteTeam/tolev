@@ -4,11 +4,13 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Award,
+  CalendarClock,
+  CheckCircle,
   ChevronRight,
   Eye,
+  Layers,
   Lightbulb,
-  Monitor,
-  Target,
+  PauseCircle,
   Thermometer,
   TrendingUp,
   type LucideIcon,
@@ -68,10 +70,16 @@ export default function HomeScreen() {
         <CategoriaGastosCompact />
       </SectionLink>
 
-      <SectionLink title="Suas metas" sub="3 ativas" onPress={() => navigation.navigate("Metas")}>
-        <View className="gap-3.5">
-          <MetaPreview icon={Target} title="Comprar um carro" pct={60} />
-          <MetaPreview icon={Monitor} title="Montar meu computador" pct={10} />
+      <SectionLink
+        title="Visão geral das dívidas"
+        sub="4 ativas · R$ 30.000"
+        onPress={() => navigation.navigate("Dividas")}
+      >
+        <View className="flex-row flex-wrap gap-2.5">
+          <DebtStat icon={Layers} tint="green" value="4" label="Dívidas ativas" />
+          <DebtStat icon={CheckCircle} tint="green" value="3 em dia" label="Situação" sub="1 atrasada" subTint="coral" />
+          <DebtStat icon={PauseCircle} tint="coral" value="1" label="Em negociação" />
+          <DebtStat icon={CalendarClock} tint="green" value="7 meses" label="Para zerar" />
         </View>
       </SectionLink>
 
@@ -89,7 +97,7 @@ export default function HomeScreen() {
         </View>
       </SectionLink>
 
-      <SectionLink title="Termômetro da dívida" sub="40% do caminho" onPress={() => navigation.navigate("Financas")}>
+      <SectionLink title="Termômetro da dívida" sub="40% do caminho" onPress={() => navigation.navigate("Dividas")}>
         <View className="flex-row items-center gap-3.5">
           <Ring size="lg"><Thermometer size={26} color={colors.primary[700]} strokeWidth={2} /></Ring>
           <View className="flex-1">
@@ -142,19 +150,36 @@ function SectionLink({
   );
 }
 
-function MetaPreview({ icon: Icon, title, pct }: { icon: LucideIcon; title: string; pct: number }) {
+function DebtStat({
+  icon: Icon,
+  tint = "green",
+  value,
+  label,
+  sub,
+  subTint = "muted",
+}: {
+  icon: LucideIcon;
+  tint?: "green" | "coral";
+  value: string;
+  label: string;
+  sub?: string;
+  subTint?: "coral" | "muted";
+}) {
+  const iconColor = tint === "coral" ? colors.coral[500] : colors.primary[700];
+  const iconBg = tint === "coral" ? "rgba(254,111,80,0.12)" : colors.primary[100];
+  const subColor = subTint === "coral" ? colors.coral[500] : colors.text.secondary;
   return (
-    <View className="flex-row items-center gap-3">
-      <Ring style={{ width: 38, height: 38, borderRadius: 19 }}>
-        <Icon size={18} color={colors.primary[700]} strokeWidth={2} />
-      </Ring>
-      <View className="flex-1">
-        <View className="flex-row justify-between mb-1.5">
-          <Text className="text-sm font-semibold text-ink flex-1 mr-2" numberOfLines={1}>{title}</Text>
-          <Text className="text-[12px] text-teal-500 font-bold">{pct}%</Text>
-        </View>
-        <Progress pct={pct} height={6} />
+    <View className="bg-primary-50 rounded-[14px] px-[15px] py-3.5" style={{ width: "48%" }}>
+      <View className="w-[30px] h-[30px] rounded-[9px] items-center justify-center mb-2.5" style={{ backgroundColor: iconBg }}>
+        <Icon size={16} color={iconColor} strokeWidth={2} />
       </View>
+      <Text className="font-bold text-[18px] text-ink leading-5">{value}</Text>
+      <Text className="text-[12px] text-muted mt-1 font-regular">{label}</Text>
+      {sub && (
+        <Text className="text-[11px] font-semibold mt-0.5" style={{ color: subColor }}>
+          {sub}
+        </Text>
+      )}
     </View>
   );
 }
