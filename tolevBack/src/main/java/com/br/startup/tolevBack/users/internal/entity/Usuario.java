@@ -29,6 +29,8 @@ public class Usuario {
     private String nomeUsuario;
     private String senha;
     private String email;
+    @Column(name = "receber_email")
+    private Boolean receberEmail;
 
     // ----- Perfil financeiro (coletado no onboarding) -----
 

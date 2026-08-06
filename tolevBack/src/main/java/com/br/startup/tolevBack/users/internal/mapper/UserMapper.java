@@ -1,6 +1,7 @@
 package com.br.startup.tolevBack.users.internal.mapper;
 
 import com.br.startup.tolevBack.users.application.dto.request.UsuarioRequest;
+import com.br.startup.tolevBack.users.application.dto.request.UsuarioResendDTO;
 import com.br.startup.tolevBack.users.application.dto.response.UsuarioAssinaturaResponse;
 import com.br.startup.tolevBack.users.application.dto.response.UsuarioResponse;
 import com.br.startup.tolevBack.users.internal.entity.Usuario;
@@ -44,4 +45,12 @@ public class UserMapper {
                 usuarioAssinatura.getStatus()
         );
     }
+
+    public static UsuarioResendDTO toResendResponse(Usuario usuario) {
+        return new UsuarioResendDTO(
+                usuario.getNome(),
+                usuario.getEmail()
+        );
+    }
+
 }
