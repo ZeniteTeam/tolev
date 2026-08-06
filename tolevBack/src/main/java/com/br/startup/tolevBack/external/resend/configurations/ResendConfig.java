@@ -1,4 +1,4 @@
-package com.br.startup.tolevBack.external.resend;
+package com.br.startup.tolevBack.external.resend.configurations;
 
 import com.resend.Resend;
 import org.springframework.beans.factory.annotation.Value;
