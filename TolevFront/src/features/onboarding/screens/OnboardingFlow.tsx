@@ -3,7 +3,7 @@ import { User } from "lucide-react-native";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
-import { Field } from "../../../components";
+import { Field, StepScaffold } from "../../../components";
 import type { RegisterRequest } from "../../../types/auth";
 import { getApiErrorMessage } from "../../../util/apiError";
 import { useRegister } from "../../auth/hooks/useRegister";
@@ -11,7 +11,6 @@ import AccountStep from "../components/AccountStep";
 import CurrencyInput from "../components/CurrencyInput";
 import IntroStep from "../components/IntroStep";
 import OptionCard from "../components/OptionCard";
-import StepScaffold from "../components/StepScaffold";
 import {
   OBJETIVO_OPTIONS,
   OCUPACAO_OPTIONS,

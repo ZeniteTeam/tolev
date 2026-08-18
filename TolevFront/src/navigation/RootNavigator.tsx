@@ -8,6 +8,7 @@ import LoginScreen from "../features/auth/screens/LoginScreen";
 import OnboardingFlow from "../features/onboarding/screens/OnboardingFlow";
 import AdicionarDividaScreen from "../features/debts/screens/AdicionarDividaScreen";
 import DividaDetalheScreen from "../features/debts/screens/DividaDetalheScreen";
+import AdicionarTransacaoScreen from "../features/transactions/screens/AdicionarTransacaoScreen";
 import NotificacoesScreen from "../features/notifications/screens/NotificacoesScreen";
 import PerfilScreen from "../features/profile/screens/PerfilScreen";
 import CategoriasScreen from "../features/simulations/screens/CategoriasScreen";
@@ -34,9 +35,6 @@ function ModalShell({ children }: { children: React.ReactNode }) {
 
 const DividaDetalhe = () => (
   <ModalShell><DividaDetalheScreen /></ModalShell>
-);
-const AdicionarDivida = () => (
-  <ModalShell><AdicionarDividaScreen /></ModalShell>
 );
 const Categorias = () => (
   <ModalShell><CategoriasScreen /></ModalShell>
@@ -106,7 +104,9 @@ export default function RootNavigator() {
           <Stack.Group>
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="DividaDetalhe" component={DividaDetalhe} />
-            <Stack.Screen name="AdicionarDivida" component={AdicionarDivida} />
+            {/* Fluxo em etapas: traz o próprio cabeçalho com voltar + progresso. */}
+            <Stack.Screen name="AdicionarDivida" component={AdicionarDividaScreen} />
+            <Stack.Screen name="AdicionarTransacao" component={AdicionarTransacaoScreen} />
             <Stack.Screen name="Categorias" component={Categorias} />
             <Stack.Screen name="Simulacao" component={Simulacao} />
             <Stack.Screen name="MetodoOnboarding" component={MetodoOnboardingScreen} />

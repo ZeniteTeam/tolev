@@ -1,5 +1,5 @@
 import { AnimatePresence, MotiView } from "moti";
-import { CreditCard, Plus, Sparkles, X } from "lucide-react-native";
+import { CreditCard, Plus, Receipt, Sparkles, X } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { shadows } from "../theme";
@@ -7,14 +7,22 @@ import { shadows } from "../theme";
 type Props = {
   onSimular?: () => void;
   onAddDivida?: () => void;
+  onAddTransacao?: () => void;
   bottom?: number;
 };
 
 /**
- * Speed-dial FAB shown on the main tabs. Expands to "Simular" and
- * "Adicionar dívida" actions, matching the design's global action button.
+ * Speed-dial FAB shown on the main tabs. Expands to "Simular", "Adicionar
+ * dívida" and "Adicionar transação", matching the design's global action
+ * button. A transação fica por último porque é a ação mais frequente: encosta
+ * no botão principal e vira o menor alvo de toque.
  */
-export default function GlobalFab({ onSimular, onAddDivida, bottom = 78 }: Props) {
+export default function GlobalFab({
+  onSimular,
+  onAddDivida,
+  onAddTransacao,
+  bottom = 78,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   const act = (fn?: () => void) => {
@@ -42,6 +50,11 @@ export default function GlobalFab({ onSimular, onAddDivida, bottom = 78 }: Props
             >
               <Action label="Simular" icon={Sparkles} onPress={() => act(onSimular)} />
               <Action label="Adicionar dívida" icon={CreditCard} onPress={() => act(onAddDivida)} />
+              <Action
+                label="Adicionar transação"
+                icon={Receipt}
+                onPress={() => act(onAddTransacao)}
+              />
             </MotiView>
           )}
         </AnimatePresence>
