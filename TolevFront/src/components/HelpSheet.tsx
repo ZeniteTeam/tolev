@@ -4,14 +4,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../theme";
 
 export type HelpContent = {
-  /** Bold link rendered above the primary button. */
+  /** Link em negrito acima do botão principal. */
   label?: string;
   title: string;
-  /** Opening paragraph — what the field means, in plain words. */
+  /** Primeiro parágrafo — o que o campo significa, em palavras simples. */
   body: string;
-  /** Concrete places to look for the number, one per line. */
+  /** Onde procurar o número, um lugar por linha. */
   ondeEncontrar?: string[];
-  /** Closing reassurance, e.g. "Não achou? Dá pra ajustar depois." */
+  /** Fecho tranquilizador, ex.: "Não achou? Dá pra ajustar depois." */
   footer?: string;
 };
 
@@ -21,14 +21,13 @@ type Props = {
   onClose: () => void;
 };
 
-/** Bottom sheet that explains where a piece of information comes from. */
 export default function HelpSheet({ content, visible, onClose }: Props) {
   const insets = useSafeAreaInsets();
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable className="flex-1 justify-end" style={{ backgroundColor: "rgba(30,42,37,0.45)" }} onPress={onClose}>
-        {/* Stop taps inside the sheet from closing it. */}
+        {/* Impede que um toque dentro da folha feche a folha. */}
         <Pressable
           className="bg-surface rounded-t-sheet px-6 pt-3"
           style={{ paddingBottom: insets.bottom + 22, maxHeight: "80%" }}

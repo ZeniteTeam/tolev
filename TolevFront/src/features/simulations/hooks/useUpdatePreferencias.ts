@@ -8,9 +8,8 @@ import type {
 import { preferenciasKeys } from "./preferenciasKeys";
 
 /**
- * Persists a change to the user's financial preferences. Optimistically updates
- * the cached preferences so the UI reflects the choice immediately, then rolls
- * back if the request fails.
+ * Atualiza o cache de forma otimista para a escolha aparecer na hora, e desfaz
+ * se a requisição falhar.
  */
 export function useUpdatePreferencias() {
   const queryClient = useQueryClient();

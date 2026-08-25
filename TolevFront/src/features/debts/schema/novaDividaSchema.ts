@@ -4,9 +4,9 @@ import { isValidBrDate } from "../../../util/date";
 import { digitsToDecimal } from "../../../util/masks";
 
 /**
- * Money and percentage fields hold the digits the user typed (see
- * `util/masks`), so "12050" is R$ 120,50 / 120,50%. Dates hold the masked
- * DD/MM/AAAA text. Everything is converted to numbers/ISO only at submit.
+ * Campos de dinheiro e percentual guardam os dígitos digitados (ver
+ * `util/masks`), então "12050" é R$ 120,50 / 120,50%. Data guarda o texto
+ * mascarado DD/MM/AAAA. A conversão para número/ISO só acontece no submit.
  */
 const dataOpcional = z
   .string()
@@ -43,7 +43,7 @@ export const novaDividaSchema = z.object({
 
 export type NovaDividaValues = z.infer<typeof novaDividaSchema>;
 
-/** Fields validated when leaving each step (index = step - 1). */
+/** Campos validados ao sair de cada etapa (índice = etapa - 1). */
 export const STEP_FIELDS: (keyof NovaDividaValues)[][] = [
   ["nome", "tipo", "banco", "pesoEmocional"],
   ["valor", "parcelas", "dataLiberacao", "dataPrimeiroVencimento"],

@@ -5,7 +5,6 @@ import {
 } from "../../../api/divida/add-value-to-divida";
 import { dividaKeys } from "./dividaKeys";
 
-/** Registers a payment against a debt and refreshes the debt data. */
 export function useAddValueToDivida() {
   const queryClient = useQueryClient();
   return useMutation({

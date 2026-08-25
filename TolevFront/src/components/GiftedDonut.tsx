@@ -9,14 +9,10 @@ type Props = {
   size?: number;
   stroke?: number;
   center?: ReactNode;
-  /** Color of the donut hole (defaults to the card surface). */
+  /** Cor do furo do donut (por padrão, a superfície do card). */
   holeColor?: string;
 };
 
-/**
- * Donut chart built on react-native-gifted-charts' PieChart. Recreates the
- * SVG donuts from the design (spending distribution, classification, etc.).
- */
 export default function GiftedDonut({ data, size = 140, stroke = 14, center, holeColor = "#FFFFFF" }: Props) {
   const radius = size / 2;
   const innerRadius = radius - stroke;

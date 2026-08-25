@@ -264,7 +264,7 @@
 <div class="wrap">
 
   <header class="masthead">
-    <p class="eyebrow">Tolev Backend · feature/tolev-006 · Review Document · v2 expandida</p>
+    <p class="eyebrow">Tolev Backend · feature/tolev-006 · Review Document · v3 verificada</p>
     <h1>Motor de Análise: geração de análises, recomendações e gráficos por evento</h1>
     <p class="standfirst">
       A leitura de análises já existia e sempre devolvia lista vazia — nada no sistema escrevia em
@@ -278,7 +278,8 @@
       <span>Arquivos alterados <b>24</b></span>
       <span>Migration <b>V13</b></span>
       <span>Build <b>SUCCESS</b></span>
-      <span>Testes <b>31/31</b></span>
+      <span>Testes <b>33/33</b></span>
+      <span>Contexto Spring <b>carrega</b></span>
     </div>
   </header>
 
@@ -756,7 +757,7 @@ N = {100, 88,  68,  40,   0}
         <table>
           <thead><tr><th>Variável</th><th>Origem</th><th>Unidade</th><th>Observação</th></tr></thead>
           <tbody>
-            <tr><td><code>rendaDeclarada</code></td><td><code>PreferenciaFinanceira.rendaMensal</code></td><td><span class="u">R$/mês</span></td><td>Default 0 na V9</td></tr>
+            <tr><td><code>rendaDeclarada</code></td><td><code>PreferenciaFinanceira.rendaMensal</code></td><td><span class="u">R$/mês</span></td><td><b>Obrigatória no cadastro</b> — sempre presente</td></tr>
             <tr><td><code>aporteExtraMensal</code></td><td><code>PreferenciaFinanceira</code></td><td><span class="u">R$/mês</span></td><td>Usado em <code>mesesParaQuitar</code></td></tr>
             <tr><td><code>percFixos / percDividas / percLazer</code></td><td><code>PreferenciaFinanceira</code></td><td><span class="u">pp</span></td><td>Somam 100, validado no update</td></tr>
             <tr><td><code>metodoQuitacao</code></td><td><code>PreferenciaFinanceira</code></td><td><span class="u">enum</span></td><td>AVALANCHE / SNOWBALL / TSUNAMI</td></tr>
@@ -773,8 +774,8 @@ N = {100, 88,  68,  40,   0}
         <table>
           <thead><tr><th>Variável</th><th>Fórmula</th><th>Unidade</th><th>Consumida por</th></tr></thead>
           <tbody>
-            <tr><td><code>rendaObservada</code></td><td>média das receitas por mês fechado</td><td><span class="u">R$/mês</span></td><td>fallback de <code>rendaMensal</code></td></tr>
-            <tr><td><code>rendaMensal</code></td><td>declarada &gt; 0 ? declarada : observada</td><td><span class="u">R$/mês</span></td><td><b>quase tudo</b></td></tr>
+            <tr><td><code>rendaObservada</code></td><td>média das receitas por mês fechado</td><td><span class="u">R$/mês</span></td><td>rede de segurança de <code>rendaMensal</code> (renda declarada = 0)</td></tr>
+            <tr><td><code>rendaMensal</code></td><td>declarada &gt; 0 ? declarada : observada</td><td><span class="u">R$/mês</span></td><td><b>quase tudo</b> — na prática, sempre a declarada</td></tr>
             <tr><td><code>despesaMensal</code></td><td>média das despesas por mês fechado</td><td><span class="u">R$/mês</span></td><td>Consumo, Saúde, Previsão</td></tr>
             <tr><td><code>despesaMesCorrente</code></td><td>Σ despesas do mês atual</td><td><span class="u">R$</span></td><td><code>VARIACAO_MENSAL</code></td></tr>
             <tr><td><code>receitaMesCorrente</code></td><td>Σ receitas do mês atual</td><td><span class="u">R$</span></td><td><code>receitaAReceber</code></td></tr>
@@ -845,6 +846,15 @@ N = {100, 88,  68,  40,   0}
 
       <h3>Renda: por que a declarada manda</h3>
 
+      <p>
+        <b>A renda declarada existe sempre.</b> Não há como criar conta sem informá-la: o onboarding
+        exige o passo "Quanto você recebe por mês?" e <code>RegisterRequest.rendaMensal</code> é
+        <code>@NotNull</code> — o <code>POST /auth/register</code> devolve 400 sem ela, e
+        <code>RegisterUserService</code> grava o valor em <code>PreferenciaFinanceira</code> na mesma
+        transação do cadastro. Toda análise, inclusive a primeira, roda sobre renda informada pelo
+        usuário.
+      </p>
+
       <div class="fx">
         <div class="expr">rendaObservada = Σ (receitas de cada mês <b>fechado</b> com ≥1 lançamento)
                  ─────────────────────────────────────────────
@@ -859,7 +869,10 @@ rendaMensal = rendaDeclarada &gt; 0 ? rendaDeclarada : rendaObservada</div>
           <code>percFixos / percDividas / percLazer</code> são percentuais <em>dela</em>. Usar a
           observada quebraria a coerência entre o teto que ele definiu e o teto que a análise cobra.<br>
           <b>Por que só meses fechados:</b> comparar um mês pela metade com meses completos sempre
-          acusaria "ganhando menos". No dia 5, um mês parcial arrastaria a média para baixo em ~85%.
+          acusaria "ganhando menos". No dia 5, um mês parcial arrastaria a média para baixo em ~85%.<br>
+          <b>Quando a observada entra:</b> só se a declarada for zero — o que hoje significa um
+          usuário que declarou renda 0 (desempregado, por exemplo) ou uma conta anterior à V10, antes
+          de a renda ser coletada no onboarding. Não é o caminho normal: é rede de segurança.
         </p>
       </div>
 
@@ -899,8 +912,12 @@ rendaMensal = rendaDeclarada &gt; 0 ? rendaDeclarada : rendaObservada</div>
       <p>
         <code>temDadosSuficientes()</code> exige renda &gt; 0 <b>ou</b> alguma transação <b>ou</b>
         alguma dívida. Abaixo disso o motor sai sem gravar nada — análise sobre zero é pior que
-        análise nenhuma. Cada analisador tem ainda sua própria guarda: consumo exige transações,
-        inadimplência exige dívidas.
+        análise nenhuma. Como a renda é obrigatória no cadastro, essa guarda passa desde o primeiro
+        dia da conta: o portão real é o de cada analisador — consumo exige transações,
+        inadimplência exige dívidas —, então um usuário recém-criado já recebe
+        <code>SAUDE_FINANCEIRA</code>, <code>PREVISAO</code> e o <code>RISCO</code> consolidado, e
+        passa a receber <code>CONSUMO</code> e <code>INADIMPLENCIA</code> conforme lança transações e
+        dívidas.
       </p>
     </section>
 
@@ -2298,14 +2315,38 @@ percentual = 100 × impactoAnual / Σ impactoAnual</div>
       <h2><span class="num">22</span>Problemas conhecidos</h2>
 
       <div class="call risk">
-        <span class="lbl">Não verificado — o mais importante</span>
+        <span class="lbl">O que falta verificar — atualizado</span>
         <p>
-          <b>O contexto Spring nunca foi carregado contra um banco real.</b> Compilei e rodei os
-          testes unitários (31/31 passando), mas não subi a aplicação. Duas coisas seguem sem prova:
-          as duas consultas <code>@Query</code> em <code>IAnaliseImpactoRepository</code>, que o
-          Hibernate valida na <b>inicialização</b> e não na compilação; e se a V13 aplica limpo.
-          Rode <code>contextLoads</code> contra o Postgres antes de confiar.
+          A versão anterior deste documento dizia que o contexto Spring nunca tinha sido carregado.
+          <b>Isso foi resolvido</b>: o contexto sobe (perfil <code>test</code>, H2), o que valida a
+          fiação completa de beans e as duas consultas <code>@Query</code> de
+          <code>IAnaliseImpactoRepository</code> — o Hibernate as analisa na inicialização dos
+          repositórios, não na compilação. Ver o teste ponta a ponta na caixa abaixo.
         </p>
+        <p>
+          <b>Continua sem prova apenas o Postgres:</b> a V13 nunca foi aplicada por Flyway num banco
+          real, e <code>ddl-auto=validate</code> nunca conferiu as entidades contra o schema
+          migrado — o perfil de teste usa <code>create-drop</code> e Flyway desligado, então ele
+          gera o schema a partir das entidades em vez de conferir contra ele. Subir o
+          <code>docker-compose</code> e rodar a aplicação uma vez fecha esse último ponto.
+        </p>
+      </div>
+
+      <div class="call">
+        <span class="lbl">Verificado — pipeline ponta a ponta</span>
+        <p>
+          <code>AnalysisPipelineTest</code> exercita o caminho real, com commit de verdade em cada
+          passo (nada de rollback de teste, senão o <code>AFTER_COMMIT</code> nunca dispararia):
+        </p>
+        <ul>
+          <li><code>POST /auth/register</code> com renda 4.000 → grava <code>PreferenciaFinanceira</code>;</li>
+          <li>criar dívida de R$ 3.000 em 10 parcelas → <b>4 análises gravadas</b>
+            (<code>SAUDE_FINANCEIRA</code>, <code>PREVISAO</code>, <code>INADIMPLENCIA</code>,
+            <code>RISCO</code>). Sem <code>CONSUMO</code>, correto: o usuário ainda não tem transação;</li>
+          <li>pagar a parcela 1 → as <b>mesmas 4</b> análises recalculadas e recarimbadas, com 19
+            linhas em <code>tb_analise_resultado_variavel</code>. Continuam 4 no total: o upsert por
+            tipo por dia funciona, não duplica.</li>
+        </ul>
       </div>
 
       <div class="call risk">

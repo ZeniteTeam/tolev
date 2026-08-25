@@ -5,9 +5,9 @@ import type { TipoCategoriaGasto } from "../../../types/transacao";
 import { categoriaKeys } from "./transacaoKeys";
 
 /**
- * Categories available to the user. `tipo` filters the list to the side the
- * person is lançando — categoria de despesa não aparece ao registrar receita.
- * O catálogo muda muito pouco, então fica em cache por bastante tempo.
+ * `tipo` filtra a lista para o lado que a pessoa está lançando — categoria de
+ * despesa não aparece ao registrar receita. O catálogo muda muito pouco, então
+ * fica em cache por bastante tempo.
  */
 export function useCategorias(tipo?: TipoCategoriaGasto) {
   const userId = useAuthStore((s) => s.userId);

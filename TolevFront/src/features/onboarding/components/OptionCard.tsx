@@ -8,11 +8,10 @@ type Props = {
   subtitle?: string;
   selected: boolean;
   onPress: () => void;
-  /** `compact` is denser — use it for long lists (e.g. occupation). */
+  /** `compact` é mais denso — use em listas longas (ex.: ocupação). */
   compact?: boolean;
 };
 
-/** A single selectable option, Duolingo-style: soft card, green when picked. */
 export default function OptionCard({
   icon: Icon,
   title,

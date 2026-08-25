@@ -61,7 +61,7 @@ export const novaTransacaoSchema = z
 
 export type NovaTransacaoValues = z.infer<typeof novaTransacaoSchema>;
 
-/** Fields validated when leaving each step (index = step - 1). */
+/** Campos validados ao sair de cada etapa (índice = etapa - 1). */
 export const STEP_FIELDS: (keyof NovaTransacaoValues)[][] = [
   ["tipo", "valor"],
   ["categoriaId", "categoriaOrigem"],

@@ -1,4 +1,3 @@
-/** Centralised React Query keys for the Dívida (debt) feature. */
 export const dividaKeys = {
   all: ["dividas"] as const,
   lists: () => [...dividaKeys.all, "list"] as const,

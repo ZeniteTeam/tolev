@@ -23,7 +23,6 @@ import type {
   TipoEmprego,
 } from "../../../types/auth";
 
-/** A selectable option rendered as a card/row in the onboarding steps. */
 export type Option<T extends string> = {
   value: T;
   title: string;

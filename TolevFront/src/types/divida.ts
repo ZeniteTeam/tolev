@@ -1,6 +1,6 @@
 /**
- * Shared Dívida (debt) domain types. Mirrors the backend `progression` debt
- * module (DividaRequest / DividaResponse).
+ * Espelha o módulo de dívida do backend `progression`
+ * (DividaRequest / DividaResponse).
  */
 
 export const TIPO_DIVIDA = [
@@ -24,7 +24,7 @@ export type SistemaAmortizacao = (typeof SISTEMA_AMORTIZACAO)[number];
 export const REGIME_JUROS = ["SIMPLES", "COMPOSTO"] as const;
 export type RegimeJuros = (typeof REGIME_JUROS)[number];
 
-/** One installment of a debt, as returned inside DividaResponse. */
+/** Uma parcela, como vem dentro de DividaResponse. */
 export interface ParcelaResponse {
   id: number;
   numeroParcela: number;
@@ -39,9 +39,9 @@ export interface ParcelaResponse {
 }
 
 /**
- * POST /dividas/pagamento — pays specific installments (any order, many at once).
- * Cada parcela leva o próprio valor: num SAC elas têm valores diferentes, e no
- * PRICE a última absorve o arredondamento.
+ * POST /dividas/pagamento — paga parcelas específicas, fora de ordem e várias
+ * de uma vez. Cada parcela leva o próprio valor: num SAC elas têm valores
+ * diferentes, e no PRICE a última absorve o arredondamento.
  */
 export interface RegistrarPagamentoRequest {
   idDivida: number;

@@ -18,6 +18,9 @@ public class GraphFacade {
     private final GetScoreDriversGraphService getScoreDriversGraph;
     private final GetImpactRankingGraphService getImpactRankingGraph;
 
+    private final GetSpendingByCategory getSpendingByCategory;
+
+
     public SpendingGraphResponse getSpending(Long idUsuario) {
         return getSpendingGraph.execute(idUsuario);
     }
@@ -44,5 +47,9 @@ public class GraphFacade {
 
     public ImpactRankingGraphResponse getImpactRanking(Long idUsuario) {
         return getImpactRankingGraph.execute(idUsuario);
+    }
+
+    public SpendingByCategoryGraphResponse getSpendingByCategory(Long idUsuario, int meses) {
+        return getSpendingByCategory.execute(idUsuario, meses);
     }
 }

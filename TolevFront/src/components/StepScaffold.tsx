@@ -13,7 +13,7 @@ import { colors } from "../theme";
 import HelpSheet, { type HelpContent } from "./HelpSheet";
 
 type Props = {
-  /** 1-based index of the current step, for the progress bar. */
+  /** Índice da etapa atual começando em 1 (e não em 0), para a barra. */
   step: number;
   total: number;
   onBack: () => void;
@@ -23,17 +23,12 @@ type Props = {
   onContinue: () => void;
   continueLabel?: string;
   continueDisabled?: boolean;
-  /** Error message shown just above the Continuar button. */
+  /** Mensagem de erro logo acima do botão Continuar. */
   error?: string;
-  /** Opens a "Onde encontro isso?" sheet from just above the button. */
+  /** Abre a folha "Onde encontro isso?" logo acima do botão. */
   help?: HelpContent;
 };
 
-/**
- * Full-screen shell shared by every stepped flow (onboarding, nova dívida): a
- * back arrow + progress bar on top, a scrollable title/content area, and a
- * pinned "Continuar" button with an optional help link above it.
- */
 export default function StepScaffold({
   step,
   total,
@@ -53,7 +48,6 @@ export default function StepScaffold({
 
   return (
     <View className="flex-1 bg-bg">
-      {/* Header: back + progress */}
       <View
         className="flex-row items-center gap-3 px-5 pb-2"
         style={{ paddingTop: insets.top + 8 }}
@@ -94,7 +88,6 @@ export default function StepScaffold({
           <View className="mt-7">{children}</View>
         </ScrollView>
 
-        {/* Footer: help link + pinned Continuar */}
         <View
           className="px-6 pt-3 bg-bg"
           style={{

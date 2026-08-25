@@ -7,10 +7,9 @@ export type StepCopy = {
 };
 
 /**
- * Copy for each step of "Adicionar dívida". The title speaks to how the person
- * is probably feeling, the subtitle says what we're going to do with the
- * number, and the help sheet says exactly where to find it — no one decorates
- * a debt form from memory.
+ * O título fala com o que a pessoa provavelmente está sentindo, o subtítulo diz
+ * o que vamos fazer com o número e a folha de ajuda diz onde achar ele —
+ * ninguém sabe os dados de uma dívida de cabeça.
  */
 export const STEPS: StepCopy[] = [
   {

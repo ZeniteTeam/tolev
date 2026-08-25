@@ -7,10 +7,9 @@ export type StepCopy = {
 };
 
 /**
- * Copy for each step of "Adicionar transação". Diferente da dívida, aqui nada
- * mora num contrato: a pessoa acabou de gastar e lembra de tudo. Por isso são
- * 4 passos curtos e o texto de ajuda explica *por que* pedimos cada coisa, não
- * onde encontrá-la.
+ * Diferente da dívida, aqui nada mora num contrato: a pessoa acabou de gastar e
+ * lembra de tudo. Por isso são 4 passos curtos e o texto de ajuda explica *por
+ * que* pedimos cada coisa, não onde encontrá-la.
  */
 export const STEPS: StepCopy[] = [
   {

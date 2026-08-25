@@ -26,7 +26,7 @@ type Props = {
 
 const TOTAL = 6;
 
-/** Fields validated when leaving each input step (screen index = position + 1). */
+/** Campos validados ao sair de cada etapa (índice da tela = posição + 1). */
 const STEP_FIELDS: (keyof OnboardingValues)[][] = [
   ["nome"],
   ["objetivoPrincipal"],
@@ -47,7 +47,7 @@ const TITLES: { title: string; subtitle: string }[] = [
 
 export default function OnboardingFlow({ onAuthenticated, onGoToLogin }: Props) {
   const register = useRegister();
-  const [screen, setScreen] = useState(0); // 0 = intro, 1..6 = input steps
+  const [screen, setScreen] = useState(0); // 0 = intro, 1..6 = etapas de entrada
 
   const {
     control,
@@ -78,7 +78,7 @@ export default function OnboardingFlow({ onAuthenticated, onGoToLogin }: Props) 
       objetivoPrincipal: v.objetivoPrincipal,
       situacaoFinanceira: v.situacaoFinanceira,
       ocupacao: v.ocupacao,
-      rendaMensal: v.rendaMensal ? Number(v.rendaMensal) : null,
+      rendaMensal: Number(v.rendaMensal),
       nomeUsuario: v.nomeUsuario.trim(),
       email: v.email.trim(),
       senha: v.senha,

@@ -1,25 +1,41 @@
 import { Check, TriangleAlert, X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { colors, shadows } from "../../../theme";
 import { isoToBrDate } from "../../../util/date";
-import { digitsToDecimal, decimalToDigits, maskCurrency } from "../../../util/masks";
-import { brl, parcelasEmAberto, type DividaView, type ParcelaView } from "../constants/dividas";
+import {
+  decimalToDigits,
+  digitsToDecimal,
+  maskCurrency,
+} from "../../../util/masks";
+import {
+  brl,
+  parcelasEmAberto,
+  type DividaView,
+  type ParcelaView,
+} from "../constants/dividas";
 
 type Props = {
   visible: boolean;
   divida: DividaView;
   submitting?: boolean;
   onClose: () => void;
-  /** Called with the exact amount paid for each selected installment. */
+  /** Recebe o valor exato pago em cada parcela selecionada. */
   onConfirm: (pagamentos: { numero: number; valorPago: number }[]) => void;
 };
 
 /**
- * Bottom sheet to register paid installments. Each row shows the installment's
- * real value and due date as returned by the backend — with SAC (or a PRICE
- * table whose last installment absorbs the rounding) they are not all equal, so
- * a single "valor da parcela" field cannot describe the payment.
+ * Cada linha mostra o valor e o vencimento reais que vieram do backend: num SAC
+ * (ou num PRICE cuja última parcela absorve o arredondamento) elas não são
+ * todas iguais, então um único campo "valor da parcela" não descreve o
+ * pagamento.
  */
 export default function RegistrarPagamentoModal({
   visible,
@@ -31,7 +47,7 @@ export default function RegistrarPagamentoModal({
   const abertas = useMemo(() => parcelasEmAberto(divida), [divida]);
 
   const [selected, setSelected] = useState<number[]>([]);
-  /** Digits of the total actually paid; empty means "o valor previsto". */
+  /** Dígitos do total realmente pago; vazio significa "o valor previsto". */
   const [totalDigits, setTotalDigits] = useState("");
   const [editandoTotal, setEditandoTotal] = useState(false);
 
@@ -45,13 +61,17 @@ export default function RegistrarPagamentoModal({
 
   const escolhidas = abertas.filter((p) => selected.includes(p.numero));
   const previsto = escolhidas.reduce((s, p) => s + p.valor, 0);
-  const totalInformado = editandoTotal ? digitsToDecimal(totalDigits) : previsto;
+  const totalInformado = editandoTotal
+    ? digitsToDecimal(totalDigits)
+    : previsto;
   const diferenca = Number((totalInformado - previsto).toFixed(2));
 
   const canConfirm = escolhidas.length > 0 && totalInformado > 0 && !submitting;
 
   function toggle(n: number) {
-    setSelected((cur) => (cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n]));
+    setSelected((cur) =>
+      cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n],
+    );
   }
 
   /**
@@ -62,7 +82,9 @@ export default function RegistrarPagamentoModal({
   function confirmar() {
     if (!canConfirm) return;
     if (!editandoTotal || diferenca === 0) {
-      onConfirm(escolhidas.map((p) => ({ numero: p.numero, valorPago: p.valor })));
+      onConfirm(
+        escolhidas.map((p) => ({ numero: p.numero, valorPago: p.valor })),
+      );
       return;
     }
 
@@ -84,19 +106,34 @@ export default function RegistrarPagamentoModal({
   }
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.35)" }}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View
+        className="flex-1 justify-end"
+        style={{ backgroundColor: "rgba(0,0,0,0.35)" }}
+      >
         <Pressable className="absolute inset-0" onPress={onClose} />
 
-        <View className="bg-bg rounded-t-sheet px-5 pt-5 pb-8" style={shadows.card}>
+        <View
+          className="bg-bg rounded-t-sheet px-5 pt-5 pb-8"
+          style={shadows.card}
+        >
           <View className="items-center mb-3">
             <View className="w-10 h-1 rounded-pill bg-line-soft" />
           </View>
 
           <View className="flex-row items-start justify-between mb-1">
             <View className="flex-1 pr-3">
-              <Text className="font-bold text-lg text-ink">Registrar pagamento</Text>
-              <Text className="text-xs text-muted mt-0.5 font-regular">{divida.nome}</Text>
+              <Text className="font-bold text-lg text-ink">
+                Registrar pagamento
+              </Text>
+              <Text className="text-xs text-muted mt-0.5 font-regular">
+                {divida.nome}
+              </Text>
             </View>
             <Pressable
               onPress={onClose}
@@ -111,13 +148,19 @@ export default function RegistrarPagamentoModal({
           </Text>
 
           {abertas.length === 0 ? (
-            <View className="bg-surface rounded-lg px-4 py-5 items-center" style={shadows.card}>
+            <View
+              className="bg-surface rounded-lg px-4 py-5 items-center"
+              style={shadows.card}
+            >
               <Text className="text-sm text-muted font-regular text-center">
                 Não há parcelas em aberto nessa dívida.
               </Text>
             </View>
           ) : (
-            <ScrollView style={{ maxHeight: 240 }} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              style={{ maxHeight: 240 }}
+              showsVerticalScrollIndicator={false}
+            >
               <View className="gap-2">
                 {abertas.map((p) => (
                   <ParcelaRow
@@ -131,10 +174,14 @@ export default function RegistrarPagamentoModal({
             </ScrollView>
           )}
 
-          <View className="bg-surface rounded-lg px-4 py-4 mt-5" style={shadows.card}>
+          <View
+            className="bg-surface rounded-lg px-4 py-4 mt-5"
+            style={shadows.card}
+          >
             <View className="flex-row justify-between items-center">
               <Text className="text-sm text-muted font-regular">
-                {escolhidas.length} {escolhidas.length === 1 ? "parcela" : "parcelas"}
+                {escolhidas.length}{" "}
+                {escolhidas.length === 1 ? "parcela" : "parcelas"}
               </Text>
               {editandoTotal ? (
                 <TextInput
@@ -147,14 +194,22 @@ export default function RegistrarPagamentoModal({
                   autoFocus
                 />
               ) : (
-                <Text className="font-bold text-lg text-primary-700">{brl(previsto)}</Text>
+                <Text className="font-bold text-lg text-primary-700">
+                  {brl(previsto)}
+                </Text>
               )}
             </View>
 
             {escolhidas.length > 0 && (
-              <Pressable onPress={comecarAEditarTotal} hitSlop={6} className="mt-2 active:opacity-60">
+              <Pressable
+                onPress={comecarAEditarTotal}
+                hitSlop={6}
+                className="mt-2 active:opacity-60"
+              >
                 <Text className="text-xs text-primary-700 font-semibold">
-                  {editandoTotal ? "Valor previsto: " + brl(previsto) : "Paguei um valor diferente"}
+                  {editandoTotal
+                    ? "Valor previsto: " + brl(previsto)
+                    : "Paguei um valor diferente"}
                 </Text>
               </Pressable>
             )}
@@ -163,12 +218,17 @@ export default function RegistrarPagamentoModal({
               <View className="flex-row items-start gap-2 mt-2.5">
                 <TriangleAlert
                   size={14}
-                  color={diferenca < 0 ? colors.coral[500] : colors.primary[700]}
+                  color={
+                    diferenca < 0 ? colors.coral[500] : colors.primary[700]
+                  }
                   strokeWidth={2.2}
                 />
                 <Text
                   className="flex-1 text-[11px] font-regular leading-[15px]"
-                  style={{ color: diferenca < 0 ? colors.coral[500] : colors.text.secondary }}
+                  style={{
+                    color:
+                      diferenca < 0 ? colors.coral[500] : colors.text.secondary,
+                  }}
                 >
                   {diferenca > 0
                     ? `${brl(diferenca)} acima do previsto — o excedente abate o saldo devedor.`
@@ -181,10 +241,19 @@ export default function RegistrarPagamentoModal({
           <Pressable
             onPress={confirmar}
             className="h-12 rounded-pill flex-row items-center justify-center gap-2 mt-4"
-            style={{ backgroundColor: canConfirm ? colors.coral[500] : colors.border.soft }}
+            style={{
+              backgroundColor: canConfirm
+                ? colors.coral[500]
+                : colors.border.soft,
+            }}
           >
-            {!submitting && <Check size={18} color={colors.surface} strokeWidth={2.5} />}
-            <Text className="font-bold text-base" style={{ color: colors.surface }}>
+            {!submitting && (
+              <Check size={18} color={colors.surface} strokeWidth={2.5} />
+            )}
+            <Text
+              className="font-bold text-base"
+              style={{ color: colors.surface }}
+            >
               {submitting ? "Registrando..." : "Registrar pagamento"}
             </Text>
           </Pressable>
@@ -230,10 +299,14 @@ function ParcelaRow({
       </View>
 
       <View className="flex-1">
-        <Text className="text-sm font-semibold text-ink">Parcela {parcela.numero}</Text>
+        <Text className="text-sm font-semibold text-ink">
+          Parcela {parcela.numero}
+        </Text>
         <Text
           className="text-[11px] mt-0.5 font-regular"
-          style={{ color: atrasada ? colors.coral[500] : colors.text.secondary }}
+          style={{
+            color: atrasada ? colors.coral[500] : colors.text.secondary,
+          }}
         >
           {atrasada ? "Em atraso · " : "Vence "}
           {isoToBrDate(parcela.vencimento) || "sem data"}

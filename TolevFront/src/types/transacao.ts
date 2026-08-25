@@ -1,5 +1,5 @@
 /**
- * Shared Transação domain types. Mirrors the backend `finance` module
+ * Espelha o módulo `finance` do backend
  * (TransactionRequest / TransactionResponse / CategoryResponse).
  */
 

@@ -41,9 +41,8 @@ const TIPOS: { id: TipoDivida; name: string; icon: LucideIcon }[] = [
 ];
 
 /**
- * Stepped "nova dívida" flow: one idea per screen, a progress bar that grows as
- * you go and a "Onde encontro isso?" sheet on every step, because most of these
- * numbers live in a contract the person has to go dig up.
+ * Uma ideia por tela e uma folha "Onde encontro isso?" em toda etapa, porque a
+ * maior parte desses números mora num contrato que a pessoa vai ter que caçar.
  */
 export default function AdicionarDividaScreen() {
   const navigation = useNavigation<any>();
@@ -128,7 +127,7 @@ export default function AdicionarDividaScreen() {
   const isLast = step === TOTAL_STEPS;
   const meta = STEPS[step - 1];
 
-  // Only the fields of the current step can block the button.
+  // Só os campos da etapa atual podem travar o botão.
   const canContinue =
     step === 1
       ? !!values.nome?.trim() && values.banco !== "all"

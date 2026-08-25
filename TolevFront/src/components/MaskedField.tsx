@@ -7,12 +7,12 @@ export type MaskType = "currency" | "percent" | "integer" | "date" | "text";
 
 type Props = {
   label: string;
-  /** Raw state: digits for currency/percent/integer, "DD/MM/AAAA" for date. */
+  /** Estado cru: dígitos para moeda/percentual/inteiro, "DD/MM/AAAA" para data. */
   value: string;
   onChange: (raw: string) => void;
   type: MaskType;
   placeholder?: string;
-  /** Small note under the input, e.g. "por mês" or an example. */
+  /** Nota curta abaixo do campo, ex.: "por mês" ou um exemplo. */
   hint?: string;
   icon?: LucideIcon;
   autoFocus?: boolean;
@@ -26,7 +26,6 @@ const KEYBOARD: Record<MaskType, "number-pad" | "default"> = {
   text: "default",
 };
 
-/** Formats the stored raw value for display. */
 function format(value: string, type: MaskType): string {
   switch (type) {
     case "currency":
@@ -38,7 +37,6 @@ function format(value: string, type: MaskType): string {
   }
 }
 
-/** Turns whatever the user typed back into the raw value we store. */
 function toRaw(text: string, type: MaskType): string {
   switch (type) {
     case "currency":
@@ -54,9 +52,9 @@ function toRaw(text: string, type: MaskType): string {
 }
 
 /**
- * One labelled input card. Money and percentages fill from the right (the last
- * two digits are always the cents/decimals); dates fill from the left into
- * DD/MM/AAAA. See {@link ../util/masks}.
+ * Dinheiro e percentual preenchem da direita (os dois últimos dígitos são
+ * sempre os centavos); data preenche da esquerda em DD/MM/AAAA.
+ * Ver {@link ../util/masks}.
  */
 export default function MaskedField({
   label,

@@ -14,7 +14,6 @@ import type {
   TipoDivida,
 } from "../../../types/divida";
 
-/** One installment, as the screens consume it. */
 export type ParcelaView = {
   numero: number;
   valor: number;
@@ -25,7 +24,6 @@ export type ParcelaView = {
   pagamento: string | null; // ISO
 };
 
-/** View-model for a debt as consumed by the Dívidas screens. */
 export type DividaView = {
   id: number | string;
   nome: string;
@@ -68,7 +66,7 @@ export const TIPO_ICON: Record<TipoDivida, LucideIcon> = {
   OUTROS: MoreHorizontal,
 };
 
-/** Brand colors keyed by (lowercased) bank name, matching BankFilter. */
+/** Cor da marca por nome de banco em minúsculas, igual ao BankFilter. */
 export const BANK_COLOR: Record<string, string> = {
   nubank: "#820AD1",
   itau: "#EC7000",
@@ -147,8 +145,8 @@ function seedDivida(s: SeedInput): DividaView {
 }
 
 /**
- * Seed used until the /dividas backend exists. Also feeds the Projeções and
- * Planejamento method-ordering previews. Total = R$ 30.000.
+ * Semente usada até o /dividas existir. Também alimenta as prévias de ordenação
+ * de Projeções e Planejamento. Total = R$ 30.000.
  */
 export const DIVIDAS_SEED: DividaView[] = ([
   { id: "cartao", nome: "Cartão Nubank", banco: "Nubank", saldo: 8400, juros: 13.9, min: 620, emocional: 5, parcelas: 14, icon: CreditCard, tipo: "CARTAO" },

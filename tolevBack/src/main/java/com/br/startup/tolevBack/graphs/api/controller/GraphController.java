@@ -34,6 +34,14 @@ public class GraphController {
         return ResponseEntity.ok(graphFacade.getRisk(idUsuario));
     }
 
+    /** Despesas do periodo agrupadas por categoria, do maior gasto para o menor. */
+    @GetMapping("/spending-by-category")
+    public ResponseEntity<SpendingByCategoryGraphResponse> getSpendingByCategory(
+            @RequestParam Long idUsuario,
+            @RequestParam(defaultValue = "1") Integer meses) {
+        return ResponseEntity.ok(graphFacade.getSpendingByCategory(idUsuario, meses));
+    }
+
     /** Evolução da nota no tempo — um ponto por dia analisado. */
     @GetMapping("/score-evolution")
     public ResponseEntity<ScoreEvolutionGraphResponse> getScoreEvolution(

@@ -12,16 +12,16 @@ const W = 92;
 const H = 62;
 
 /**
- * Small drawings that show what each option does to your money — flat bars for
- * PRICE, shrinking bars for SAC, a straight line for juros simples and a curve
- * that takes off for compostos. Easier to read than any label.
+ * Desenhos do que cada opção faz com o seu dinheiro — barras iguais no PRICE,
+ * decrescentes no SAC, reta para juros simples e curva que dispara para
+ * compostos. Entra pelos olhos mais rápido que qualquer rótulo.
  */
 export default function ChoiceArt({ kind, active }: Props) {
   const strong = active ? colors.primary[700] : colors.text.secondary;
   const soft = active ? colors.primary[300] : colors.border.soft;
 
   if (kind === "price" || kind === "sac") {
-    // Bar heights as a fraction of the drawing: PRICE stays flat, SAC steps down.
+    // Altura das barras como fração do desenho: PRICE fica reto, SAC desce.
     const heights = kind === "price" ? [0.72, 0.72, 0.72, 0.72, 0.72] : [0.9, 0.75, 0.6, 0.45, 0.3];
     const barW = 12;
     const gap = 5;
@@ -48,7 +48,7 @@ export default function ChoiceArt({ kind, active }: Props) {
     );
   }
 
-  // Both curves start and end at the same points; only the path between differs.
+  // As duas curvas começam e terminam no mesmo ponto; só o meio muda.
   const start = { x: 8, y: H - 10 };
   const end = { x: W - 8, y: 10 };
   const d =

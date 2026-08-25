@@ -11,7 +11,6 @@ type Props = {
   onPress: () => void;
 };
 
-/** One of the two big cards used to pick PRICE/SAC and juros simples/composto. */
 export default function ChoiceCard({ art, title, subtitle, selected, onPress }: Props) {
   return (
     <Pressable

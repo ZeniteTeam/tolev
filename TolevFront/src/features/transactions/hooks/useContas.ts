@@ -4,9 +4,9 @@ import { useAuthStore } from "../../../store/authStore";
 import { contaKeys } from "./transacaoKeys";
 
 /**
- * The user's connected accounts. Hoje quase ninguém tem uma — o app ainda não
- * conecta bancos — por isso a tela sempre oferece "Dinheiro / carteira" e
- * trata a lista vazia como caso normal, não como erro.
+ * Hoje quase ninguém tem uma conta conectada — o app ainda não conecta bancos —
+ * por isso a tela sempre oferece "Dinheiro / carteira" e trata a lista vazia
+ * como caso normal, não como erro.
  */
 export function useContas() {
   const userId = useAuthStore((s) => s.userId);

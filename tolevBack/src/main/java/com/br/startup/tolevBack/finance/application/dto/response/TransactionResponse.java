@@ -7,9 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Uma transação como o app a exibe. Nome do vendedor e nome/cor da categoria
- * vêm resolvidos para a lista não precisar de uma segunda chamada.
- */
+ * Uma transação como o app a exibe
+ * */
 public record TransactionResponse(
     Long id,
     Long idUsuario,

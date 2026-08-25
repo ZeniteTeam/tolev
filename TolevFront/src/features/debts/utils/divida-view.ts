@@ -2,7 +2,6 @@ import type { DividaResponse, ParcelaResponse } from "../../../types/divida";
 import { bankColor, TIPO_ICON, type DividaView, type ParcelaView } from "../constants/dividas";
 import { MoreHorizontal } from "lucide-react-native";
 
-/** Maps a backend installment into the view-model used by the screens. */
 function toParcelaView(p: ParcelaResponse): ParcelaView {
   const valor = p.valorTotal ?? 0;
   return {
@@ -18,7 +17,6 @@ function toParcelaView(p: ParcelaResponse): ParcelaView {
   };
 }
 
-/** Maps a backend debt into the view-model used by the screens. */
 export function toDividaView(d: DividaResponse): DividaView {
   const cronograma = (d.parcelas ?? []).map(toParcelaView);
   const somaParcelas = cronograma.reduce((s, p) => s + p.valor, 0);

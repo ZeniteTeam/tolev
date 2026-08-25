@@ -62,8 +62,8 @@ export default function RootNavigator() {
     () => useAuthStore.persist?.hasHydrated() ?? true,
   );
 
-  // Wait for the persisted token to be restored before deciding which stack to
-  // show, so a logged-in user doesn't briefly see the login screen.
+  // Espera o token persistido ser restaurado antes de escolher a stack, senão
+  // quem já está logado vê a tela de login piscar.
   useEffect(() => {
     const persist = useAuthStore.persist;
     if (!persist) {
@@ -77,13 +77,13 @@ export default function RootNavigator() {
     return unsub;
   }, []);
 
-  // Log the user out automatically when the API rejects the token.
+  // Desloga sozinho quando a API recusa o token.
   useEffect(() => {
     setOnUnauthorized(() => clearUser());
     return () => setOnUnauthorized(null);
   }, [clearUser]);
 
-  // Avoid flashing the login screen before the persisted token is restored.
+  // Evita o flash da tela de login antes do token ser restaurado.
   if (!hydrated) {
     return <View className="flex-1 bg-primary-700" />;
   }
@@ -91,10 +91,10 @@ export default function RootNavigator() {
   return (
     <NavigationContainer>
       {/*
-        Key the navigator on auth state so it fully remounts when the user logs
-        in / out. Without this, swapping the conditional groups while a pushed
-        (non-initial) route like "Register" is focused can leave the navigator
-        pointing at a route that no longer exists — a blank/white screen.
+        A `key` por estado de auth força o navigator a remontar inteiro no
+        login/logout. Sem ela, trocar os grupos condicionais com uma rota
+        empilhada em foco (ex.: "Register") deixa o navigator apontando para
+        uma rota que não existe mais — tela branca.
       */}
       <Stack.Navigator
         key={isAuthenticated ? "app" : "guest"}
