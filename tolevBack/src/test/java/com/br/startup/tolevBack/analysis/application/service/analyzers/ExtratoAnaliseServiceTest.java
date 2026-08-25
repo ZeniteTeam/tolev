@@ -4,6 +4,7 @@ import com.br.startup.tolevBack.common.gemini.GeminiClient;
 import com.br.startup.tolevBack.common.gemini.GeminiException;
 import com.br.startup.tolevBack.common.gemini.GeminiProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,7 +35,7 @@ class ExtratoAnaliseServiceTest {
         RestClient.Builder builder = RestClient.builder().baseUrl(BASE_URL);
         server = MockRestServiceServer.bindTo(builder).build();
         GeminiClient client = new GeminiClient(props, builder.build());
-        service = new ExtratoAnaliseService(client, new ObjectMapper());
+        service = new ExtratoAnaliseService(client, new ObjectMapper().registerModule(new JavaTimeModule()));
     }
 
     @Test
@@ -43,8 +45,11 @@ class ExtratoAnaliseServiceTest {
                 .andExpect(jsonPath("$.contents[0].parts[1].text").exists())
                 .andExpect(jsonPath("$.systemInstruction.parts[0].text").exists())
                 .andExpect(jsonPath("$.generationConfig.responseMimeType").value("application/json"))
+                .andExpect(jsonPath("$.generationConfig.responseSchema.type").value("OBJECT"))
+                .andExpect(jsonPath("$.generationConfig.responseSchema.properties.tipoTransacaoMaisFrequente.enum")
+                        .value(org.hamcrest.Matchers.containsInAnyOrder("PIX", "CREDITO", "DEBITO")))
                 .andRespond(withSuccess("""
-                        {"candidates":[{"content":{"parts":[{"text":"{\\"transacoes\\":[{\\"tipo\\":\\"ENTRADA\\",\\"valor\\":100.00,\\"descricao\\":\\"salario\\"}],\\"totalEntradas\\":100.00,\\"totalSaidas\\":0.00,\\"tipoMaisFrequente\\":\\"ENTRADA\\",\\"transacaoMaiorValor\\":{\\"tipo\\":\\"ENTRADA\\",\\"valor\\":100.00,\\"descricao\\":\\"salario\\"}}"}]},"finishReason":"STOP"}]}
+                        {"candidates":[{"content":{"parts":[{"text":"{\\"transacoes\\":[{\\"tipo\\":\\"ENTRADA\\",\\"valor\\":100.00,\\"descricao\\":\\"salario\\",\\"dataTransacao\\":\\"2024-01-15\\"}],\\"totalEntradas\\":100.00,\\"totalSaidas\\":0.00,\\"tipoMaisFrequente\\":\\"ENTRADA\\",\\"tipoTransacaoMaisFrequente\\":\\"PIX\\",\\"transacaoMaiorValor\\":{\\"tipo\\":\\"ENTRADA\\",\\"valor\\":100.00,\\"descricao\\":\\"salario\\",\\"dataTransacao\\":\\"2024-01-15\\"}}"}]},"finishReason":"STOP"}]}
                         """, MediaType.APPLICATION_JSON));
 
         ExtratoAnaliseService.ExtratoExtraido resultado = service.analisar(PDF_FALSO);
@@ -52,6 +57,8 @@ class ExtratoAnaliseServiceTest {
         assertThat(resultado.transacoes()).hasSize(1);
         assertThat(resultado.totalEntradas()).isEqualByComparingTo(BigDecimal.valueOf(100.00));
         assertThat(resultado.tipoMaisFrequente()).isEqualTo(ExtratoAnaliseService.TipoLancamento.ENTRADA);
+        assertThat(resultado.tipoTransacaoMaisFrequente()).isEqualTo(ExtratoAnaliseService.TipoTransacaoMaisFrequente.PIX);
+        assertThat(resultado.transacoes().get(0).dataTransacao()).isEqualTo(LocalDate.of(2024, 1, 15));
         server.verify();
     }
 

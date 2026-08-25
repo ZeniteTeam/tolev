@@ -3,6 +3,8 @@ package com.br.startup.tolevBack.analysis.application.service.analyzers;
 import com.br.startup.tolevBack.common.gemini.GeminiClient;
 import com.br.startup.tolevBack.common.gemini.GeminiProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
@@ -35,7 +37,9 @@ class ExtratoAnaliseManualCheck {
                 apiKey, System.getenv("GEMINI_MODEL"), System.getenv("GEMINI_BASE_URL"), null);
         GeminiClient client = new GeminiClient(
                 properties, RestClient.builder().baseUrl(properties.baseUrl()).build());
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         ExtratoAnaliseService service = new ExtratoAnaliseService(client, mapper);
 
         byte[] pdf = Files.readAllBytes(PDF);
