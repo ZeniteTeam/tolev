@@ -3,7 +3,6 @@ import { login } from "../../../api/auth/login";
 import { useAuthStore } from "../../../store/authStore";
 import type { LoginRequest } from "../../../types/auth";
 
-/** Authenticates the user and stores the returned token + profile. */
 export function useLogin() {
   const setAuth = useAuthStore((s) => s.setAuth);
   return useMutation({

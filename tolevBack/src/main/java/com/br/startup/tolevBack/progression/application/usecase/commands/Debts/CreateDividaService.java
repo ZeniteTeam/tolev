@@ -2,21 +2,27 @@ package com.br.startup.tolevBack.progression.application.usecase.commands.Debts;
 
 import com.br.startup.tolevBack.progression.application.dto.request.DividaRequest;
 import com.br.startup.tolevBack.progression.application.dto.response.DividaResponse;
+import com.br.startup.tolevBack.progression.application.service.AmortizacaoService;
+import com.br.startup.tolevBack.progression.application.service.AmortizacaoService.ParcelaCalculada;
 import com.br.startup.tolevBack.progression.internal.entity.Divida;
 import com.br.startup.tolevBack.progression.internal.entity.ParcelaDivida;
 import com.br.startup.tolevBack.progression.internal.entity.ProgressoDivida;
+import com.br.startup.tolevBack.progression.internal.enums.RegimeJuros;
+import com.br.startup.tolevBack.progression.internal.enums.SistemaAmortizacao;
 import com.br.startup.tolevBack.progression.internal.enums.StatusDivida;
 import com.br.startup.tolevBack.progression.internal.enums.StatusParcela;
 import com.br.startup.tolevBack.progression.internal.mapper.DividaMapper;
 import com.br.startup.tolevBack.progression.internal.repository.IDividaRepository;
 import com.br.startup.tolevBack.progression.internal.repository.IParcelaDividaRepository;
 import com.br.startup.tolevBack.progression.internal.repository.IProgressoDividaRepository;
+import com.br.startup.tolevBack.shared.events.DadosFinanceirosAlteradosEvent;
+import com.br.startup.tolevBack.shared.events.OrigemAlteracao;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,17 +34,32 @@ public class CreateDividaService {
     private final IDividaRepository dividaRepository;
     private final IProgressoDividaRepository progressoDividaRepository;
     private final IParcelaDividaRepository parcelaDividaRepository;
+    private final AmortizacaoService amortizacaoService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public DividaResponse execute(DividaRequest request) {
         int quantidade = request.quantidadeParcelas() != null ? request.quantidadeParcelas() : 0;
         BigDecimal saldo = request.saldo() != null ? request.saldo() : BigDecimal.ZERO;
 
-        // A parcela mínima é derivada: saldo ÷ quantidade de parcelas. Assim
-        // quantidade × parcela mínima bate exatamente com o saldo da dívida.
-        BigDecimal parcelaMinima = quantidade > 0
-                ? saldo.divide(BigDecimal.valueOf(quantidade), 2, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
+        SistemaAmortizacao sistema = request.sistemaAmortizacao() != null
+                ? request.sistemaAmortizacao()
+                : SistemaAmortizacao.PRICE;
+
+        RegimeJuros regime = request.regimeJuros() != null
+                ? request.regimeJuros()
+                : RegimeJuros.COMPOSTO;
+
+        LocalDate primeiroVencimento = request.dataPrimeiroVencimento() != null
+                ? request.dataPrimeiroVencimento()
+                : LocalDate.now().plusMonths(1);
+
+        // A tabela de parcelas é a fonte da verdade: dela saem os valores, os
+        // vencimentos, a parcela mínima e o vencimento final da dívida.
+
+        List<ParcelaCalculada> tabela = amortizacaoService.calcular(
+                saldo, quantidade, request.juros(), sistema, regime,
+                request.dataLiberacao(), primeiroVencimento);
 
         Divida divida = Divida.builder()
                 .idUsuario(request.idUsuario())
@@ -47,9 +68,16 @@ public class CreateDividaService {
                 .tipo(request.tipo())
                 .valorDivida(saldo)
                 .taxaJuros(request.juros())
-                .parcelaMinima(parcelaMinima)
+                .multaAtraso(request.multaAtraso())
+                .jurosMora(request.jurosMora())
+                .parcelaMinima(primeiraParcela(tabela))
                 .pesoEmocional(request.pesoEmocional())
-                .quantidadeParcelas(request.quantidadeParcelas())
+                .quantidadeParcelas(quantidade > 0 ? quantidade : null)
+                .dataLiberacao(request.dataLiberacao())
+                .dataPrimeiroVencimento(tabela.isEmpty() ? null : primeiroVencimento)
+                .dataVencimentoFinal(ultimoVencimento(tabela))
+                .sistemaAmortizacao(sistema)
+                .regimeJuros(regime)
                 .status(StatusDivida.ATIVA)
                 .build();
 
@@ -60,40 +88,39 @@ public class CreateDividaService {
         progresso.setProgresso(BigDecimal.ZERO);
         progressoDividaRepository.save(progresso);
 
-        divida.setParcelas(gerarParcelas(divida, saldo, quantidade, parcelaMinima));
+        divida.setParcelas(persistirParcelas(divida, tabela));
+
+        eventPublisher.publishEvent(DadosFinanceirosAlteradosEvent.de(
+                divida.getIdUsuario(), OrigemAlteracao.DIVIDA_CRIADA, "DIVIDA", divida.getId()));
 
         return DividaMapper.toResponse(divida);
     }
 
-    /**
-     * Generates the debt's installments (one row per parcela), all PENDENTE. Every
-     * parcela is worth {@code parcelaMinima}, except the last, which absorbs the
-     * rounding remainder so the sum matches the saldo to the cent.
-     */
-    private List<ParcelaDivida> gerarParcelas(Divida divida, BigDecimal saldo, int quantidade, BigDecimal parcelaMinima) {
-        if (quantidade <= 0) {
+    private List<ParcelaDivida> persistirParcelas(Divida divida, List<ParcelaCalculada> tabela) {
+        if (tabela.isEmpty()) {
             return new ArrayList<>();
         }
 
-        LocalDate base = LocalDate.now();
-        BigDecimal acumulado = BigDecimal.ZERO;
+        List<ParcelaDivida> parcelas = tabela.stream()
+                .map(p -> ParcelaDivida.builder()
+                        .divida(divida)
+                        .numeroParcela(p.numero())
+                        .valorTotal(p.valorTotal())
+                        .valorPrincipal(p.amortizacao())
+                        .valorJuros(p.juros())
+                        .status(StatusParcela.PENDENTE)
+                        .dataVencimento(p.vencimento())
+                        .build())
+                .toList();
 
-        List<ParcelaDivida> parcelas = new ArrayList<>();
-        for (int numero = 1; numero <= quantidade; numero++) {
-            BigDecimal valor = numero < quantidade
-                    ? parcelaMinima
-                    : saldo.subtract(acumulado); // última parcela fecha o saldo
-            acumulado = acumulado.add(valor);
-
-            parcelas.add(ParcelaDivida.builder()
-                    .divida(divida)
-                    .numeroParcela(numero)
-                    .valorTotal(valor)
-                    .valorPrincipal(valor)
-                    .status(StatusParcela.PENDENTE)
-                    .dataVencimento(base.plusMonths(numero))
-                    .build());
-        }
         return parcelaDividaRepository.saveAll(parcelas);
+    }
+
+    private BigDecimal primeiraParcela(List<ParcelaCalculada> tabela) {
+        return tabela.isEmpty() ? BigDecimal.ZERO : tabela.get(0).valorTotal();
+    }
+
+    private LocalDate ultimoVencimento(List<ParcelaCalculada> tabela) {
+        return tabela.isEmpty() ? null : tabela.get(tabela.size() - 1).vencimento();
     }
 }

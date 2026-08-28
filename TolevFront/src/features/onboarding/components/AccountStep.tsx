@@ -9,7 +9,6 @@ type Props = {
   errors: FieldErrors<OnboardingValues>;
 };
 
-/** The correlated credential fields — grouped on a single screen. */
 export default function AccountStep({ control, errors }: Props) {
   return (
     <View className="gap-3.5">

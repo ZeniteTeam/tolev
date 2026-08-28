@@ -3,18 +3,18 @@ import { Text, View } from "react-native";
 import { colors, shadows } from "../../../theme";
 
 type Props = {
-  /** Diameter of the logo mark in px. */
+  /** Diâmetro da marca em px. */
   size?: number;
-  /** `mark` renders only the badge; `full` adds the "Tolev" wordmark. */
+  /** `mark` desenha só o símbolo; `full` acrescenta o texto "Tolev". */
   variant?: "mark" | "full";
-  /** Use on dark/gradient backgrounds. */
+  /** Para fundos escuros ou com gradiente. */
   onDark?: boolean;
 };
 
 /**
- * Placeholder Tolev logo. Swap the inner mark for the final brand asset
- * (e.g. an <Image source={require("../../../assets/logo.png")} />) once it
- * exists — the surrounding layout stays the same.
+ * Logo provisória. Quando a arte final existir, troque só a marca de dentro
+ * (ex.: <Image source={require("../../../assets/logo.png")} />) — o layout em
+ * volta continua igual.
  */
 export default function BrandLogo({ size = 64, variant = "full", onDark = false }: Props) {
   return (

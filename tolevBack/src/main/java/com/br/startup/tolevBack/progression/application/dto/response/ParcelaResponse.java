@@ -9,6 +9,10 @@ public record ParcelaResponse(
     Long id,
     Integer numeroParcela,
     BigDecimal valorTotal,
+    /** Parte da parcela que abate o saldo devedor. */
+    BigDecimal valorPrincipal,
+    /** Parte da parcela que é juros. */
+    BigDecimal valorJuros,
     StatusParcela status,
     LocalDate dataVencimento,
     LocalDate dataPagamento

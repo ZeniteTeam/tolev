@@ -31,6 +31,12 @@ public class Recomendacao {
     @Enumerated(EnumType.STRING)
     private TipoRecomendacao tipo;
 
+    /**
+     * Regra que originou a recomendação. Usada para não recriar a mesma
+     * recomendação toda vez que o achado é redetectado.
+     */
+    private String regra;
+
     private String titulo;
     private String descricao;
     private BigDecimal dificuldade;

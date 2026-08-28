@@ -3,7 +3,6 @@ import { registrarPagamento } from "../../../api/divida/registrar-pagamento";
 import type { RegistrarPagamentoRequest } from "../../../types/divida";
 import { dividaKeys } from "./dividaKeys";
 
-/** Registers an installment payment for a debt and refreshes the debt data. */
 export function useRegistrarPagamento() {
   const queryClient = useQueryClient();
   return useMutation({

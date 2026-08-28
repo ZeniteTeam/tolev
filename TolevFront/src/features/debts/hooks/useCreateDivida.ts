@@ -3,7 +3,6 @@ import { createDivida } from "../../../api/divida/create-divida";
 import type { DividaRequest } from "../../../types/divida";
 import { dividaKeys } from "./dividaKeys";
 
-/** Creates a debt and refreshes the debt list. */
 export function useCreateDivida() {
   const queryClient = useQueryClient();
   return useMutation({

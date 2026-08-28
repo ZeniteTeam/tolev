@@ -1,5 +1,5 @@
 import { ArrowLeft } from "lucide-react-native";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -9,10 +9,11 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors } from "../../../theme";
+import { colors } from "../theme";
+import HelpSheet, { type HelpContent } from "./HelpSheet";
 
 type Props = {
-  /** 1-based index of the current step, for the progress bar. */
+  /** Índice da etapa atual começando em 1 (e não em 0), para a barra. */
   step: number;
   total: number;
   onBack: () => void;
@@ -22,14 +23,12 @@ type Props = {
   onContinue: () => void;
   continueLabel?: string;
   continueDisabled?: boolean;
-  /** Error message shown just above the Continuar button. */
+  /** Mensagem de erro logo acima do botão Continuar. */
   error?: string;
+  /** Abre a folha "Onde encontro isso?" logo acima do botão. */
+  help?: HelpContent;
 };
 
-/**
- * Full-screen shell shared by every onboarding step: a back arrow + progress
- * bar on top, a scrollable title/content area, and a pinned "Continuar" button.
- */
 export default function StepScaffold({
   step,
   total,
@@ -41,13 +40,14 @@ export default function StepScaffold({
   continueLabel = "Continuar",
   continueDisabled = false,
   error,
+  help,
 }: Props) {
   const insets = useSafeAreaInsets();
+  const [helpOpen, setHelpOpen] = useState(false);
   const pct = Math.max(0, Math.min(100, (step / total) * 100));
 
   return (
     <View className="flex-1 bg-bg">
-      {/* Header: back + progress */}
       <View
         className="flex-row items-center gap-3 px-5 pb-2"
         style={{ paddingTop: insets.top + 8 }}
@@ -88,7 +88,6 @@ export default function StepScaffold({
           <View className="mt-7">{children}</View>
         </ScrollView>
 
-        {/* Footer: pinned Continuar */}
         <View
           className="px-6 pt-3 bg-bg"
           style={{
@@ -97,11 +96,24 @@ export default function StepScaffold({
             paddingBottom: insets.bottom + 14,
           }}
         >
+          {help ? (
+            <Pressable
+              onPress={() => setHelpOpen(true)}
+              hitSlop={8}
+              className="self-center mb-3 active:opacity-60"
+            >
+              <Text className="text-[15px] font-bold text-primary-700 underline">
+                {help.label ?? "Onde encontro isso?"}
+              </Text>
+            </Pressable>
+          ) : null}
+
           {error ? (
             <Text className="text-[13px] text-coral-500 font-medium text-center mb-2.5">
               {error}
             </Text>
           ) : null}
+
           <Pressable
             onPress={continueDisabled ? undefined : onContinue}
             className="h-[54px] rounded-pill items-center justify-center active:scale-[0.99]"
@@ -118,6 +130,10 @@ export default function StepScaffold({
           </Pressable>
         </View>
       </KeyboardAvoidingView>
+
+      {help ? (
+        <HelpSheet content={help} visible={helpOpen} onClose={() => setHelpOpen(false)} />
+      ) : null}
     </View>
   );
 }

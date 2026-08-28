@@ -19,7 +19,17 @@ public class Vendedor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Procedência: quem digitou esse estabelecimento primeiro. NULL = semeado
+     * pelo sistema. Não é posse — o vendedor é compartilhado por toda a base.
+     */
+    private Long criadoPorUsuario;
+
     private String nomeEmpresa;
+
+    /** nomeEmpresa sem acento/caixa. Chave de deduplicação global. */
+    private String nomeNormalizado;
+
     private String cpfCnpj;
 
     @Enumerated(EnumType.STRING)

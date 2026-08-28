@@ -14,10 +14,9 @@ interface AuthState {
   clearUser: () => void;
 }
 
-// SecureStore is unavailable on web, so fall back to localStorage there.
-// (Passing `storage: undefined` is NOT an option: in zustand v5 it overrides
-// the default storage and makes the persist middleware skip attaching the
-// `.persist` API entirely.)
+// SecureStore não existe na web, então lá caímos no localStorage.
+// (Passar `storage: undefined` NÃO resolve: no zustand v5 isso sobrescreve o
+// storage padrão e faz o middleware persist não anexar a API `.persist`.)
 const secureStorage = createJSONStorage(() =>
   Platform.OS === "web"
     ? window.localStorage
@@ -54,11 +53,11 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
       }),
       onRehydrateStorage: () => (state) => {
-        // Re-arm the axios interceptor with the persisted token on app start.
-        // Note: must NOT reference `useAuthStore` here — on web this callback
-        // runs synchronously during store creation (localStorage), before the
-        // export is assigned (temporal dead zone). Hydration completion is
-        // tracked in the component via `persist.onFinishHydration`.
+        // Rearma o interceptor do axios com o token persistido na abertura.
+        // NÃO referencie `useAuthStore` aqui: na web este callback roda de
+        // forma síncrona durante a criação da store (localStorage), antes de o
+        // export existir (temporal dead zone). O fim da hidratação é
+        // acompanhado no componente via `persist.onFinishHydration`.
         setAuthToken(state?.token ?? null);
       },
     },

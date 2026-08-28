@@ -14,8 +14,8 @@ type Props = {
 };
 
 /**
- * Stacked monthly bars — remaining debt (green) on the bottom, the month's
- * payment (orange) on top with a rounded cap. Measures its own width.
+ * Barras empilhadas: dívida restante (verde) embaixo, pagamento do mês
+ * (laranja) em cima. Mede a própria largura.
  */
 export default function ProjectionBarChart({
   months,

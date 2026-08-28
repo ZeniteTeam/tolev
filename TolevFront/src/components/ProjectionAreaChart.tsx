@@ -6,14 +6,11 @@ type Props = {
   values: number[];
   height?: number;
   color?: string;
-  /** Fill color at the top of the area gradient. */
+  /** Cor do topo do gradiente da área. */
   fillColor?: string;
 };
 
-/**
- * Smooth area/line chart used on the projections hero. Measures its own
- * container so it always spans the full available width.
- */
+/** Mede o próprio container, então sempre ocupa a largura disponível. */
 export default function ProjectionAreaChart({
   values,
   height = 64,

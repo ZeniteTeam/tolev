@@ -1,5 +1,5 @@
 import { AnimatePresence, MotiView } from "moti";
-import { CreditCard, Plus, Sparkles, X } from "lucide-react-native";
+import { CreditCard, Plus, Receipt, Sparkles, X } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { shadows } from "../theme";
@@ -7,14 +7,20 @@ import { shadows } from "../theme";
 type Props = {
   onSimular?: () => void;
   onAddDivida?: () => void;
+  onAddTransacao?: () => void;
   bottom?: number;
 };
 
 /**
- * Speed-dial FAB shown on the main tabs. Expands to "Simular" and
- * "Adicionar dívida" actions, matching the design's global action button.
+ * A transação fica por último porque é a ação mais frequente: encosta no botão
+ * principal e vira o menor alvo de toque.
  */
-export default function GlobalFab({ onSimular, onAddDivida, bottom = 78 }: Props) {
+export default function GlobalFab({
+  onSimular,
+  onAddDivida,
+  onAddTransacao,
+  bottom = 78,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   const act = (fn?: () => void) => {
@@ -42,6 +48,11 @@ export default function GlobalFab({ onSimular, onAddDivida, bottom = 78 }: Props
             >
               <Action label="Simular" icon={Sparkles} onPress={() => act(onSimular)} />
               <Action label="Adicionar dívida" icon={CreditCard} onPress={() => act(onAddDivida)} />
+              <Action
+                label="Adicionar transação"
+                icon={Receipt}
+                onPress={() => act(onAddTransacao)}
+              />
             </MotiView>
           )}
         </AnimatePresence>
@@ -76,7 +87,7 @@ function Action({
       <View className="bg-surface px-3.5 py-2 rounded-pill" style={shadows.card}>
         <Text className="text-[13px] font-bold text-ink">{label}</Text>
       </View>
-      {/* 56px box centers the 48px icon under the 56px main FAB */}
+      {/* A caixa de 56px centraliza o ícone de 48px sob o FAB de 56px. */}
       <View className="w-14 items-center">
         <View className="w-12 h-12 rounded-full bg-primary-700 items-center justify-center" style={shadows.card}>
           <Icon size={20} color="#fff" strokeWidth={2} />

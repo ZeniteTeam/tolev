@@ -1,20 +1,42 @@
-import { Check, X } from "lucide-react-native";
+import { Check, TriangleAlert, X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { colors, shadows } from "../../../theme";
-import { formatCurrencyBRL, parseCurrencyToNumber } from "../../../util/currency";
-import { brl, type DividaView } from "../constants/dividas";
+import { isoToBrDate } from "../../../util/date";
+import {
+  decimalToDigits,
+  digitsToDecimal,
+  maskCurrency,
+} from "../../../util/masks";
+import {
+  brl,
+  parcelasEmAberto,
+  type DividaView,
+  type ParcelaView,
+} from "../constants/dividas";
 
 type Props = {
   visible: boolean;
   divida: DividaView;
   submitting?: boolean;
   onClose: () => void;
-  /** Called with the total value (value-per-parcela × selected parcelas). */
-  onConfirm: (total: number, parcelas: number[]) => void;
+  /** Recebe o valor exato pago em cada parcela selecionada. */
+  onConfirm: (pagamentos: { numero: number; valorPago: number }[]) => void;
 };
 
-/** Bottom-sheet modal to register one or more paid installments for a debt. */
+/**
+ * Cada linha mostra o valor e o vencimento reais que vieram do backend: num SAC
+ * (ou num PRICE cuja última parcela absorve o arredondamento) elas não são
+ * todas iguais, então um único campo "valor da parcela" não descreve o
+ * pagamento.
+ */
 export default function RegistrarPagamentoModal({
   visible,
   divida,
@@ -22,139 +44,283 @@ export default function RegistrarPagamentoModal({
   onClose,
   onConfirm,
 }: Props) {
-  const min = divida.min;
-  // Total installments of the debt, capped for rendering.
-  const totalParcelas = Math.min(60, Math.max(1, divida.parcelas));
+  const abertas = useMemo(() => parcelasEmAberto(divida), [divida]);
 
   const [selected, setSelected] = useState<number[]>([]);
-  const [valueStr, setValueStr] = useState(String(min));
+  /** Dígitos do total realmente pago; vazio significa "o valor previsto". */
+  const [totalDigits, setTotalDigits] = useState("");
+  const [editandoTotal, setEditandoTotal] = useState(false);
 
-  // Reset the form whenever the sheet is (re)opened for a debt.
   useEffect(() => {
     if (visible) {
       setSelected([]);
-      setValueStr(String(min));
+      setTotalDigits("");
+      setEditandoTotal(false);
     }
-  }, [visible, min]);
+  }, [visible]);
 
-  const valueNum = parseCurrencyToNumber(valueStr);
-  const belowMin = valueNum < min;
-  const total = useMemo(() => valueNum * selected.length, [valueNum, selected.length]);
-  const canConfirm = selected.length > 0 && !belowMin && !submitting;
+  const escolhidas = abertas.filter((p) => selected.includes(p.numero));
+  const previsto = escolhidas.reduce((s, p) => s + p.valor, 0);
+  const totalInformado = editandoTotal
+    ? digitsToDecimal(totalDigits)
+    : previsto;
+  const diferenca = Number((totalInformado - previsto).toFixed(2));
 
-  const toggle = (n: number) =>
-    setSelected((cur) => (cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n]));
+  const canConfirm = escolhidas.length > 0 && totalInformado > 0 && !submitting;
+
+  function toggle(n: number) {
+    setSelected((cur) =>
+      cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n],
+    );
+  }
+
+  /**
+   * Rateia o total informado entre as parcelas em proporção ao valor de cada
+   * uma, para que a soma feche exatamente com o que a pessoa digitou. A última
+   * leva a diferença de arredondamento.
+   */
+  function confirmar() {
+    if (!canConfirm) return;
+    if (!editandoTotal || diferenca === 0) {
+      onConfirm(
+        escolhidas.map((p) => ({ numero: p.numero, valorPago: p.valor })),
+      );
+      return;
+    }
+
+    let acumulado = 0;
+    const pagamentos = escolhidas.map((p, i) => {
+      const ultimo = i === escolhidas.length - 1;
+      const valorPago = ultimo
+        ? Number((totalInformado - acumulado).toFixed(2))
+        : Number(((p.valor / previsto) * totalInformado).toFixed(2));
+      acumulado = Number((acumulado + valorPago).toFixed(2));
+      return { numero: p.numero, valorPago };
+    });
+    onConfirm(pagamentos);
+  }
+
+  function comecarAEditarTotal() {
+    setEditandoTotal(true);
+    setTotalDigits(decimalToDigits(previsto));
+  }
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.35)" }}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View
+        className="flex-1 justify-end"
+        style={{ backgroundColor: "rgba(0,0,0,0.35)" }}
+      >
         <Pressable className="absolute inset-0" onPress={onClose} />
 
-        <View className="bg-bg rounded-t-[28px] px-5 pt-5 pb-8" style={shadows.card}>
+        <View
+          className="bg-bg rounded-t-sheet px-5 pt-5 pb-8"
+          style={shadows.card}
+        >
           <View className="items-center mb-3">
             <View className="w-10 h-1 rounded-pill bg-line-soft" />
           </View>
 
           <View className="flex-row items-start justify-between mb-1">
             <View className="flex-1 pr-3">
-              <Text className="font-bold text-[18px] text-ink">Registrar pagamento</Text>
-              <Text className="text-[12px] text-muted mt-0.5 font-regular">{divida.nome}</Text>
+              <Text className="font-bold text-lg text-ink">
+                Registrar pagamento
+              </Text>
+              <Text className="text-xs text-muted mt-0.5 font-regular">
+                {divida.nome}
+              </Text>
             </View>
-            <Pressable onPress={onClose} className="w-8 h-8 rounded-full bg-primary-50 items-center justify-center">
+            <Pressable
+              onPress={onClose}
+              className="w-8 h-8 rounded-full bg-primary-50 items-center justify-center"
+            >
               <X size={18} color={colors.text.secondary} strokeWidth={2} />
             </Pressable>
           </View>
 
-          <Text className="text-[11px] text-muted font-bold tracking-[0.5px] mt-4 mb-2.5">
-            PARCELAS PAGAS
-          </Text>
-          <ScrollView style={{ maxHeight: 168 }} showsVerticalScrollIndicator={false}>
-            <View className="flex-row flex-wrap gap-2.5">
-              {Array.from({ length: totalParcelas }, (_, i) => i + 1).map((n) => {
-                const paid = divida.parcelasPagas.includes(n);
-                const active = selected.includes(n);
-                if (paid) {
-                  return (
-                    <View
-                      key={n}
-                      className="w-11 h-11 rounded-[12px] items-center justify-center"
-                      style={{ backgroundColor: colors.primary[100] }}
-                    >
-                      <Check size={16} color={colors.primary[700]} strokeWidth={2.5} />
-                    </View>
-                  );
-                }
-                return (
-                  <Pressable
-                    key={n}
-                    onPress={() => toggle(n)}
-                    className="w-11 h-11 rounded-[12px] items-center justify-center"
-                    style={
-                      active
-                        ? { backgroundColor: colors.primary[700] }
-                        : { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.primary[100] }
-                    }
-                  >
-                    <Text
-                      className="font-bold text-[14px]"
-                      style={{ color: active ? "#fff" : colors.text.primary }}
-                    >
-                      {n}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
-
-          <Text className="text-[11px] text-muted font-bold tracking-[0.5px] mt-5 mb-2.5">
-            VALOR DA PARCELA
-          </Text>
-          <View
-            className="h-12 rounded-pill bg-surface flex-row items-center px-[18px] gap-2"
-            style={[shadows.card, belowMin && { borderWidth: 1.5, borderColor: colors.coral[500] }]}
-          >
-            <Text className="text-muted font-semibold text-base">R$</Text>
-            <TextInput
-              className="flex-1 font-regular text-base text-ink py-0"
-              value={valueStr}
-              onChangeText={setValueStr}
-              keyboardType="numeric"
-              placeholder={String(min)}
-              placeholderTextColor={colors.text.secondary}
-            />
-          </View>
-          <Text
-            className="text-[11px] mt-1.5 pl-1 font-regular"
-            style={{ color: belowMin ? colors.coral[500] : colors.text.secondary }}
-          >
-            {belowMin ? `Valor mínimo: ${brl(min)}` : `Mínimo ${brl(min)} · você pode pagar mais`}
+          <Text className="text-xs text-muted font-bold tracking-[0.5px] mt-4 mb-2.5">
+            QUAIS PARCELAS VOCÊ PAGOU?
           </Text>
 
-          <View className="flex-row justify-between items-center mt-5 mb-4 px-1">
-            <Text className="text-[13px] text-muted font-regular">
-              {selected.length} {selected.length === 1 ? "parcela" : "parcelas"}
-            </Text>
-            <View className="flex-row items-baseline gap-1.5">
-              <Text className="text-[12px] text-muted font-regular">Total</Text>
-              <Text className="font-bold text-[20px] text-primary-700">
-                {formatCurrencyBRL(total)}
+          {abertas.length === 0 ? (
+            <View
+              className="bg-surface rounded-lg px-4 py-5 items-center"
+              style={shadows.card}
+            >
+              <Text className="text-sm text-muted font-regular text-center">
+                Não há parcelas em aberto nessa dívida.
               </Text>
             </View>
+          ) : (
+            <ScrollView
+              style={{ maxHeight: 240 }}
+              showsVerticalScrollIndicator={false}
+            >
+              <View className="gap-2">
+                {abertas.map((p) => (
+                  <ParcelaRow
+                    key={p.numero}
+                    parcela={p}
+                    selected={selected.includes(p.numero)}
+                    onPress={() => toggle(p.numero)}
+                  />
+                ))}
+              </View>
+            </ScrollView>
+          )}
+
+          <View
+            className="bg-surface rounded-lg px-4 py-4 mt-5"
+            style={shadows.card}
+          >
+            <View className="flex-row justify-between items-center">
+              <Text className="text-sm text-muted font-regular">
+                {escolhidas.length}{" "}
+                {escolhidas.length === 1 ? "parcela" : "parcelas"}
+              </Text>
+              {editandoTotal ? (
+                <TextInput
+                  className="font-bold text-lg text-primary-700 text-right min-w-[130px] py-0"
+                  value={maskCurrency(totalDigits)}
+                  onChangeText={(t) => setTotalDigits(t.replace(/\D/g, ""))}
+                  keyboardType="number-pad"
+                  placeholder="R$ 0,00"
+                  placeholderTextColor={colors.border.soft}
+                  autoFocus
+                />
+              ) : (
+                <Text className="font-bold text-lg text-primary-700">
+                  {brl(previsto)}
+                </Text>
+              )}
+            </View>
+
+            {escolhidas.length > 0 && (
+              <Pressable
+                onPress={comecarAEditarTotal}
+                hitSlop={6}
+                className="mt-2 active:opacity-60"
+              >
+                <Text className="text-xs text-primary-700 font-semibold">
+                  {editandoTotal
+                    ? "Valor previsto: " + brl(previsto)
+                    : "Paguei um valor diferente"}
+                </Text>
+              </Pressable>
+            )}
+
+            {editandoTotal && diferenca !== 0 && (
+              <View className="flex-row items-start gap-2 mt-2.5">
+                <TriangleAlert
+                  size={14}
+                  color={
+                    diferenca < 0 ? colors.coral[500] : colors.primary[700]
+                  }
+                  strokeWidth={2.2}
+                />
+                <Text
+                  className="flex-1 text-[11px] font-regular leading-[15px]"
+                  style={{
+                    color:
+                      diferenca < 0 ? colors.coral[500] : colors.text.secondary,
+                  }}
+                >
+                  {diferenca > 0
+                    ? `${brl(diferenca)} acima do previsto — o excedente abate o saldo devedor.`
+                    : `${brl(Math.abs(diferenca))} abaixo do previsto. As parcelas serão marcadas como pagas mesmo assim.`}
+                </Text>
+              </View>
+            )}
           </View>
 
           <Pressable
-            onPress={() => canConfirm && onConfirm(total, selected)}
-            className="h-12 rounded-[36px] flex-row items-center justify-center gap-2"
-            style={{ backgroundColor: canConfirm ? colors.coral[500] : colors.border.soft }}
+            onPress={confirmar}
+            className="h-12 rounded-pill flex-row items-center justify-center gap-2 mt-4"
+            style={{
+              backgroundColor: canConfirm
+                ? colors.coral[500]
+                : colors.border.soft,
+            }}
           >
-            {!submitting && <Check size={18} color="#fff" strokeWidth={2.5} />}
-            <Text className="font-bold text-[16px] text-white">
+            {!submitting && (
+              <Check size={18} color={colors.surface} strokeWidth={2.5} />
+            )}
+            <Text
+              className="font-bold text-base"
+              style={{ color: colors.surface }}
+            >
               {submitting ? "Registrando..." : "Registrar pagamento"}
             </Text>
           </Pressable>
         </View>
       </View>
     </Modal>
+  );
+}
+
+function ParcelaRow({
+  parcela,
+  selected,
+  onPress,
+}: {
+  parcela: ParcelaView;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  const atrasada = parcela.status === "ATRASADA";
+
+  return (
+    <Pressable
+      onPress={onPress}
+      className="flex-row items-center gap-3 rounded-lg px-3.5 py-3"
+      style={[
+        shadows.card,
+        {
+          backgroundColor: selected ? colors.primary[25] : colors.surface,
+          borderWidth: 2,
+          borderColor: selected ? colors.primary[700] : "transparent",
+        },
+      ]}
+    >
+      <View
+        className="w-6 h-6 rounded-full items-center justify-center"
+        style={{
+          backgroundColor: selected ? colors.primary[700] : "transparent",
+          borderWidth: selected ? 0 : 2,
+          borderColor: colors.border.soft,
+        }}
+      >
+        {selected && <Check size={14} color={colors.surface} strokeWidth={3} />}
+      </View>
+
+      <View className="flex-1">
+        <Text className="text-sm font-semibold text-ink">
+          Parcela {parcela.numero}
+        </Text>
+        <Text
+          className="text-[11px] mt-0.5 font-regular"
+          style={{
+            color: atrasada ? colors.coral[500] : colors.text.secondary,
+          }}
+        >
+          {atrasada ? "Em atraso · " : "Vence "}
+          {isoToBrDate(parcela.vencimento) || "sem data"}
+        </Text>
+      </View>
+
+      <View className="items-end">
+        <Text className="text-sm font-bold text-ink">{brl(parcela.valor)}</Text>
+        {parcela.juros > 0 && (
+          <Text className="text-[10px] text-muted mt-0.5 font-regular">
+            {brl(parcela.juros)} de juros
+          </Text>
+        )}
+      </View>
+    </Pressable>
   );
 }
