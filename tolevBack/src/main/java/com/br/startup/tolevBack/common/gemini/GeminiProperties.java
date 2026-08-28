@@ -22,7 +22,7 @@ public record GeminiProperties(
         Duration timeout
 ) {
     public GeminiProperties {
-        model = (model == null || model.isBlank()) ? "gemini-2.5-flash" : model;
+        model = (model == null || model.isBlank()) ? "gemini-3.5-flash" : model;
         baseUrl = (baseUrl == null || baseUrl.isBlank())
                 ? "https://generativelanguage.googleapis.com/v1beta"
                 : baseUrl;
