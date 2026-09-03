@@ -1,4 +1,4 @@
-/** Parses a BRL-formatted string ("R$ 40.000,50") into a number (40000.5). */
+/** "R$ 40.000,50" → 40000.5. */
 export function parseCurrencyToNumber(value: string): number {
   if (!value) return 0;
   const cleaned = value

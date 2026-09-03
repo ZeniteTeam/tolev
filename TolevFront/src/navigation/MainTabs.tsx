@@ -31,6 +31,7 @@ function withHeader(Component: React.ComponentType<any>, variant: "home" | "slim
         <GlobalFab
           onSimular={() => parent()?.navigate("Simulacao")}
           onAddDivida={() => parent()?.navigate("AdicionarDivida")}
+          onAddTransacao={() => parent()?.navigate("AdicionarTransacao")}
         />
       </View>
     );

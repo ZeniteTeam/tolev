@@ -1,10 +1,7 @@
 import api from "../axios";
 import type { DividaResponse, RegistrarPagamentoRequest } from "../../types/divida";
 
-/**
- * Registers a payment for one or more installments of a debt. Installments may
- * be paid in any order and several at once. POST /dividas/pagamento
- */
+/** As parcelas podem ser pagas fora de ordem e várias de uma vez. */
 export async function registrarPagamento(
   payload: RegistrarPagamentoRequest,
 ): Promise<DividaResponse> {

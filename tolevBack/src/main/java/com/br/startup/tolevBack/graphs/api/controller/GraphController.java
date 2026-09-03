@@ -1,5 +1,6 @@
 package com.br.startup.tolevBack.graphs.api.controller;
 
+import com.br.startup.tolevBack.analysis.internal.enums.TipoAnalise;
 import com.br.startup.tolevBack.graphs.api.facade.GraphFacade;
 import com.br.startup.tolevBack.graphs.application.dto.response.*;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,35 @@ public class GraphController {
     @GetMapping("/risk")
     public ResponseEntity<RiskGraphResponse> getRisk(@RequestParam Long idUsuario) {
         return ResponseEntity.ok(graphFacade.getRisk(idUsuario));
+    }
+
+    /** Despesas do periodo agrupadas por categoria, do maior gasto para o menor. */
+    @GetMapping("/spending-by-category")
+    public ResponseEntity<SpendingByCategoryGraphResponse> getSpendingByCategory(
+            @RequestParam Long idUsuario,
+            @RequestParam(defaultValue = "1") Integer meses) {
+        return ResponseEntity.ok(graphFacade.getSpendingByCategory(idUsuario, meses));
+    }
+
+    /** Evolução da nota no tempo — um ponto por dia analisado. */
+    @GetMapping("/score-evolution")
+    public ResponseEntity<ScoreEvolutionGraphResponse> getScoreEvolution(
+            @RequestParam Long idUsuario,
+            @RequestParam(defaultValue = "SAUDE_FINANCEIRA") TipoAnalise tipo) {
+        return ResponseEntity.ok(graphFacade.getScoreEvolution(idUsuario, tipo));
+    }
+
+    /** O que compõe a nota atual: contribuição de cada indicador. */
+    @GetMapping("/score-drivers")
+    public ResponseEntity<ScoreDriversGraphResponse> getScoreDrivers(
+            @RequestParam Long idUsuario,
+            @RequestParam(defaultValue = "SAUDE_FINANCEIRA") TipoAnalise tipo) {
+        return ResponseEntity.ok(graphFacade.getScoreDrivers(idUsuario, tipo));
+    }
+
+    /** Quanto cada problema detectado custa por ano, do mais caro ao mais barato. */
+    @GetMapping("/impact-ranking")
+    public ResponseEntity<ImpactRankingGraphResponse> getImpactRanking(@RequestParam Long idUsuario) {
+        return ResponseEntity.ok(graphFacade.getImpactRanking(idUsuario));
     }
 }

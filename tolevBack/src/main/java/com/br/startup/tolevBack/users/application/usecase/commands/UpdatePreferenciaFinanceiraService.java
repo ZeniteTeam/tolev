@@ -1,5 +1,7 @@
 package com.br.startup.tolevBack.users.application.usecase.commands;
 
+import com.br.startup.tolevBack.shared.events.DadosFinanceirosAlteradosEvent;
+import com.br.startup.tolevBack.shared.events.OrigemAlteracao;
 import com.br.startup.tolevBack.shared.exceptions.NotFoundException;
 import com.br.startup.tolevBack.users.application.dto.request.PreferenciaFinanceiraRequest;
 import com.br.startup.tolevBack.users.application.dto.response.PreferenciaFinanceiraResponse;
@@ -8,6 +10,7 @@ import com.br.startup.tolevBack.users.internal.mapper.PreferenciaFinanceiraMappe
 import com.br.startup.tolevBack.users.internal.repository.IPreferenciaFinanceiraRepository;
 import com.br.startup.tolevBack.users.internal.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ public class UpdatePreferenciaFinanceiraService {
 
     private final IPreferenciaFinanceiraRepository preferenciaRepository;
     private final IUserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public PreferenciaFinanceiraResponse execute(Long idUsuario, PreferenciaFinanceiraRequest request) {
@@ -42,7 +46,15 @@ public class UpdatePreferenciaFinanceiraService {
 
         validarDivisaoOrcamento(pref);
 
-        return PreferenciaFinanceiraMapper.toResponse(preferenciaRepository.save(pref));
+        PreferenciaFinanceiraResponse resposta =
+                PreferenciaFinanceiraMapper.toResponse(preferenciaRepository.save(pref));
+
+        // Renda e divisão do orçamento são denominador de quase todo indicador:
+        // mudou aqui, toda análise anterior ficou obsoleta.
+        eventPublisher.publishEvent(DadosFinanceirosAlteradosEvent.de(
+                idUsuario, OrigemAlteracao.PREFERENCIAS_ATUALIZADAS, "USUARIO", idUsuario));
+
+        return resposta;
     }
 
     /** A soma da divisão do orçamento (fixos + dívidas + lazer) deve totalizar 100%. */

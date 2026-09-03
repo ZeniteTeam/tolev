@@ -6,9 +6,8 @@ import { toDividaView } from "../utils/divida-view";
 import { dividaKeys } from "./dividaKeys";
 
 /**
- * Lists the debts of the authenticated user. The hard-coded seed debts are
- * kept at the top of the list and any debts returned by the backend are
- * appended after them (to be removed once the seed is dropped).
+ * As dívidas de semente ficam no topo e o que vem do backend entra depois
+ * delas — some quando a semente for removida.
  */
 export function useDividas() {
   const userId = useAuthStore((s) => s.userId);

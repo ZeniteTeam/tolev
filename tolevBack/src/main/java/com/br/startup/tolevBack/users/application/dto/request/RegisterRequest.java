@@ -5,6 +5,8 @@ import com.br.startup.tolevBack.users.internal.enums.SituacaoFinanceira;
 import com.br.startup.tolevBack.users.internal.enums.TipoEmprego;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
@@ -19,6 +21,11 @@ public record RegisterRequest(
     ObjetivoPrincipal objetivoPrincipal,
     SituacaoFinanceira situacaoFinanceira,
     TipoEmprego ocupacao,
+
+    // A renda é o eixo de quase todo cálculo do motor de análise (comprometimento,
+    // taxa de poupança, tetos de orçamento): não existe conta sem ela informada.
+    @NotNull(message = "A renda mensal é obrigatória")
+    @PositiveOrZero(message = "A renda mensal não pode ser negativa")
     BigDecimal rendaMensal,
 
     @NotBlank(message = "O nome de usuário é obrigatório")

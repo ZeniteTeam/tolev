@@ -9,7 +9,6 @@ type Props = {
   onGoToLogin: () => void;
 };
 
-/** Welcome screen — brand logo + a single call to action to begin onboarding. */
 export default function IntroStep({ onStart, onGoToLogin }: Props) {
   const insets = useSafeAreaInsets();
 

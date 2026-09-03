@@ -5,8 +5,11 @@ import com.br.startup.tolevBack.progression.internal.entity.Divida;
 import com.br.startup.tolevBack.progression.internal.entity.ProgressoDivida;
 import com.br.startup.tolevBack.progression.internal.repository.IDividaRepository;
 import com.br.startup.tolevBack.progression.internal.repository.IProgressoDividaRepository;
+import com.br.startup.tolevBack.shared.events.DadosFinanceirosAlteradosEvent;
+import com.br.startup.tolevBack.shared.events.OrigemAlteracao;
 import com.br.startup.tolevBack.shared.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,7 @@ public class AddNewValueToDividaService {
 
     private final IDividaRepository dividaRepository;
     private final IProgressoDividaRepository progressoDividaRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void execute(AddValueToDividaRequest request) {
@@ -35,5 +39,8 @@ public class AddNewValueToDividaService {
         BigDecimal atual = progresso.getProgresso() != null ? progresso.getProgresso() : BigDecimal.ZERO;
         progresso.setProgresso(atual.add(request.getValue()));
         progressoDividaRepository.save(progresso);
+
+        eventPublisher.publishEvent(DadosFinanceirosAlteradosEvent.de(
+                divida.getIdUsuario(), OrigemAlteracao.PROGRESSO_DIVIDA, "DIVIDA", divida.getId()));
     }
 }

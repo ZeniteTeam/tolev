@@ -4,7 +4,7 @@ import type {
   PreferenciaFinanceiraResponse,
 } from "../../types/preferencias";
 
-/** Atualiza (parcialmente) as preferências financeiras. PUT /users/{id}/preferencias */
+/** Atualização parcial: campo omitido fica como está. */
 export async function updatePreferencias(
   idUsuario: number,
   payload: PreferenciaFinanceiraRequest,

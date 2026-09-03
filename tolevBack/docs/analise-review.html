@@ -1,0 +1,2447 @@
+<title>Motor de Análise — Change Review</title>
+<style>
+  :root {
+    --paper: #F5F7F5;
+    --card: #FFFFFF;
+    --ink: #0E1513;
+    --ink-soft: #33413D;
+    --muted: #667571;
+    --accent: #0E6B57;
+    --accent-soft: #E4EFEA;
+    --cost: #A84B22;
+    --cost-soft: #F6E9E1;
+    --rule: #D6DDD9;
+    --rule-soft: #E8EDEA;
+    --crit: #A32C22;
+    --warn: #8A6410;
+    --ok: #226E52;
+    --code-bg: #EFF3F0;
+
+    --f-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", ui-serif, Georgia, serif;
+    --f-body: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --f-mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+
+    --col: 74ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0D1211; --card: #141B19; --ink: #E7ECE9; --ink-soft: #B6C2BD;
+      --muted: #8A9995; --accent: #57C2A5; --accent-soft: #14302A;
+      --cost: #E09365; --cost-soft: #332117; --rule: #24302C; --rule-soft: #1A2321;
+      --crit: #E8776A; --warn: #D3A63F; --ok: #62C39B; --code-bg: #101817;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0D1211; --card: #141B19; --ink: #E7ECE9; --ink-soft: #B6C2BD;
+    --muted: #8A9995; --accent: #57C2A5; --accent-soft: #14302A;
+    --cost: #E09365; --cost-soft: #332117; --rule: #24302C; --rule-soft: #1A2321;
+    --crit: #E8776A; --warn: #D3A63F; --ok: #62C39B; --code-bg: #101817;
+  }
+  :root[data-theme="light"] {
+    --paper: #F5F7F5; --card: #FFFFFF; --ink: #0E1513; --ink-soft: #33413D;
+    --muted: #667571; --accent: #0E6B57; --accent-soft: #E4EFEA;
+    --cost: #A84B22; --cost-soft: #F6E9E1; --rule: #D6DDD9; --rule-soft: #E8EDEA;
+    --crit: #A32C22; --warn: #8A6410; --ok: #226E52; --code-bg: #EFF3F0;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--f-body); font-size: 16px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    display: grid; grid-template-columns: 1fr; gap: 0;
+    max-width: 1260px; margin: 0 auto; padding: 0 24px 120px;
+  }
+  @media (min-width: 1100px) {
+    .wrap { grid-template-columns: 236px minmax(0, 1fr); gap: 56px; padding-right: 40px; }
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    grid-column: 1 / -1; border-bottom: 2px solid var(--ink);
+    padding: 56px 0 22px; margin-bottom: 44px;
+  }
+  .eyebrow {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 14px;
+  }
+  .masthead h1 {
+    font-family: var(--f-display); font-weight: 600;
+    font-size: clamp(30px, 5vw, 46px); line-height: 1.1;
+    letter-spacing: -0.015em; margin: 0 0 14px; text-wrap: balance;
+  }
+  .standfirst { font-size: 17px; color: var(--ink-soft); max-width: 62ch; margin: 0 0 26px; }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 0 34px;
+    font-family: var(--f-mono); font-size: 12px; color: var(--muted);
+  }
+  .meta-row b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ---------- nav rail ---------- */
+  nav.rail { display: none; }
+  @media (min-width: 1100px) {
+    nav.rail {
+      display: block; position: sticky; top: 28px; align-self: start;
+      max-height: calc(100vh - 56px); overflow-y: auto;
+      font-size: 13px; line-height: 1.45; padding-bottom: 40px;
+    }
+  }
+  nav.rail p {
+    font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 12px;
+  }
+  nav.rail p.grp { margin-top: 18px; color: var(--accent); }
+  nav.rail ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+  nav.rail a {
+    display: grid; grid-template-columns: 24px 1fr; gap: 6px;
+    color: var(--ink-soft); text-decoration: none; padding: 3px 0; border-radius: 3px;
+  }
+  nav.rail a span.n {
+    font-family: var(--f-mono); font-size: 10px; color: var(--muted);
+    padding-top: 3px; font-variant-numeric: tabular-nums;
+  }
+  nav.rail a:hover { color: var(--accent); }
+  nav.rail a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- main ---------- */
+  main { min-width: 0; }
+  section { padding-top: 14px; margin-bottom: 60px; scroll-margin-top: 20px; }
+
+  h2 {
+    font-family: var(--f-display); font-size: 27px; font-weight: 600;
+    letter-spacing: -0.01em; line-height: 1.2; margin: 0 0 6px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--rule); text-wrap: balance;
+  }
+  h2 .num {
+    font-family: var(--f-mono); font-size: 12px; font-weight: 500;
+    color: var(--accent); letter-spacing: 0.08em; margin-right: 12px; vertical-align: 3px;
+  }
+  h3 {
+    font-family: var(--f-display); font-size: 20px; font-weight: 600;
+    margin: 34px 0 8px; letter-spacing: -0.005em;
+  }
+  h4 {
+    font-family: var(--f-mono); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin: 26px 0 8px;
+  }
+  p { margin: 0 0 14px; max-width: var(--col); }
+  ul, ol { max-width: var(--col); margin: 0 0 14px; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  a { color: var(--accent); }
+
+  code {
+    font-family: var(--f-mono); font-size: 0.87em; background: var(--code-bg);
+    padding: 1px 5px; border-radius: 3px; word-break: break-word;
+  }
+  .path {
+    font-family: var(--f-mono); font-size: 12px; color: var(--ink-soft);
+    background: var(--code-bg); padding: 2px 6px; border-radius: 3px; word-break: break-all;
+  }
+
+  /* ---------- formula ---------- */
+  .fx {
+    border-left: 3px solid var(--accent); background: var(--card);
+    padding: 15px 20px; margin: 0 0 16px; overflow-x: auto;
+  }
+  .fx.trace { border-left-color: var(--cost); }
+  .fx .expr {
+    font-family: var(--f-mono); font-size: 13.5px; line-height: 1.85;
+    color: var(--ink); white-space: pre; font-variant-numeric: tabular-nums;
+  }
+  .fx .expr em {
+    font-family: var(--f-display); font-style: italic; font-size: 15px; color: var(--accent);
+  }
+  .fx .expr b { color: var(--accent); font-weight: 600; }
+  .fx.trace .expr b { color: var(--cost); }
+  .fx .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; max-width: none; white-space: normal; }
+  .fx .note b { color: var(--ink-soft); font-weight: 600; }
+  .fx .cap {
+    font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 10px; white-space: normal;
+  }
+  .fx.trace .cap { color: var(--cost); }
+
+  /* ---------- chips ---------- */
+  .chip {
+    display: inline-block; font-family: var(--f-mono); font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px;
+    border-radius: 3px; border: 1px solid; white-space: nowrap; vertical-align: 1px;
+  }
+  .c-std  { color: var(--ok);     border-color: var(--ok); }
+  .c-conv { color: var(--accent); border-color: var(--accent); }
+  .c-cal  { color: var(--warn);   border-color: var(--warn); }
+  .c-der  { color: var(--muted);  border-color: var(--rule); }
+  .c-new  { color: var(--ok);     border-color: var(--ok); }
+  .c-mod  { color: var(--warn);   border-color: var(--warn); }
+  .u {
+    display: inline-block; font-family: var(--f-mono); font-size: 10px;
+    color: var(--muted); border: 1px dashed var(--rule); padding: 0 5px;
+    border-radius: 3px; white-space: nowrap;
+  }
+
+  /* ---------- tables ---------- */
+  .tw { overflow-x: auto; margin: 0 0 18px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 480px; }
+  th {
+    text-align: left; font-family: var(--f-mono); font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    font-weight: 600; padding: 0 14px 7px 0; border-bottom: 1px solid var(--ink); white-space: nowrap;
+  }
+  td { padding: 8px 14px 8px 0; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  td.n, th.n {
+    text-align: right; font-variant-numeric: tabular-nums;
+    font-family: var(--f-mono); font-size: 12.5px; padding-right: 18px;
+  }
+  tbody tr:last-child td { border-bottom: 1px solid var(--rule); }
+  td code { font-size: 12px; }
+  tr.tot td { font-weight: 600; border-top: 1px solid var(--ink); border-bottom: none; }
+
+  /* ---------- callout ---------- */
+  .call {
+    border: 1px solid var(--rule); border-left: 3px solid var(--muted);
+    background: var(--card); padding: 14px 18px; margin: 0 0 18px; font-size: 14.5px;
+  }
+  .call.risk { border-left-color: var(--crit); }
+  .call.judge { border-left-color: var(--warn); }
+  .call p:last-child, .call ul:last-child { margin-bottom: 0; }
+  .call .lbl {
+    font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px;
+  }
+  .call.risk .lbl { color: var(--crit); }
+  .call.judge .lbl { color: var(--warn); }
+
+  /* ---------- persona ---------- */
+  .persona {
+    background: var(--card); border: 1px solid var(--rule);
+    border-top: 3px solid var(--cost); padding: 20px 22px; margin: 0 0 20px;
+  }
+  .persona h4 { margin-top: 0; color: var(--cost); }
+
+  /* ---------- flow ---------- */
+  .flow {
+    font-family: var(--f-mono); font-size: 12.5px; line-height: 1.9;
+    background: var(--card); border: 1px solid var(--rule); padding: 18px 20px;
+    overflow-x: auto; white-space: pre; margin: 0 0 18px; color: var(--ink-soft);
+  }
+  .flow b { color: var(--accent); font-weight: 600; }
+
+  /* ---------- legend ---------- */
+  .legend {
+    display: grid; gap: 10px; background: var(--card); border: 1px solid var(--rule);
+    padding: 18px 20px; margin: 0 0 20px; font-size: 13.5px;
+  }
+  .legend div { display: grid; grid-template-columns: 108px 1fr; gap: 12px; align-items: baseline; }
+  @media (max-width: 520px) { .legend div { grid-template-columns: 1fr; gap: 3px; } }
+
+  /* ---------- stats ---------- */
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 0 0 22px;
+  }
+  .stats div { background: var(--card); padding: 14px 16px; }
+  .stats .v {
+    font-family: var(--f-mono); font-size: 22px; font-weight: 600;
+    color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.1;
+  }
+  .stats .k {
+    font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--muted); margin-top: 5px;
+  }
+
+  hr.soft { border: 0; border-top: 1px solid var(--rule-soft); margin: 26px 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Tolev Backend · feature/tolev-006 · Review Document · v3 verificada</p>
+    <h1>Motor de Análise: geração de análises, recomendações e gráficos por evento</h1>
+    <p class="standfirst">
+      A leitura de análises já existia e sempre devolvia lista vazia — nada no sistema escrevia em
+      <code>tb_analises</code>. Este documento descreve tudo que foi construído para preencher essas
+      tabelas: o evento que dispara o cálculo, os cinco modelos com cada equação, variável e unidade,
+      um caso numérico completo percorrendo todos eles, o portão que transforma achado em recomendação
+      e os gráficos que saem disso.
+    </p>
+    <div class="meta-row">
+      <span>Arquivos novos <b>37</b></span>
+      <span>Arquivos alterados <b>24</b></span>
+      <span>Migration <b>V13</b></span>
+      <span>Build <b>SUCCESS</b></span>
+      <span>Testes <b>33/33</b></span>
+      <span>Contexto Spring <b>carrega</b></span>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Índice">
+    <p>Contexto</p>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span>Como revisar</a></li>
+      <li><a href="#s2"><span class="n">02</span>Decisão: um evento só</a></li>
+      <li><a href="#s3"><span class="n">03</span>Migration V13</a></li>
+      <li><a href="#s4"><span class="n">04</span>Fluxo ponta a ponta</a></li>
+    </ol>
+    <p class="grp">Fundamentos</p>
+    <ol>
+      <li><a href="#s5"><span class="n">05</span>Notação e unidades</a></li>
+      <li><a href="#s6"><span class="n">06</span>Calculo: aritmética</a></li>
+      <li><a href="#s7"><span class="n">07</span>Glossário de variáveis</a></li>
+      <li><a href="#s8"><span class="n">08</span>Snapshot</a></li>
+      <li><a href="#s9"><span class="n">09</span>Caso de referência</a></li>
+    </ol>
+    <p class="grp">Os cinco modelos</p>
+    <ol>
+      <li><a href="#s10"><span class="n">10</span>CONSUMO</a></li>
+      <li><a href="#s11"><span class="n">11</span>SAUDE_FINANCEIRA</a></li>
+      <li><a href="#s12"><span class="n">12</span>INADIMPLENCIA</a></li>
+      <li><a href="#s13"><span class="n">13</span>PREVISAO</a></li>
+      <li><a href="#s14"><span class="n">14</span>RISCO</a></li>
+    </ol>
+    <p class="grp">Saída</p>
+    <ol>
+      <li><a href="#s15"><span class="n">15</span>Persistência</a></li>
+      <li><a href="#s16"><span class="n">16</span>Recomendações</a></li>
+      <li><a href="#s17"><span class="n">17</span>Texto via Gemini</a></li>
+      <li><a href="#s18"><span class="n">18</span>Gráficos</a></li>
+      <li><a href="#s19"><span class="n">19</span>Endpoints</a></li>
+    </ol>
+    <p class="grp">Referência</p>
+    <ol>
+      <li><a href="#s20"><span class="n">20</span>Configuração</a></li>
+      <li><a href="#s21"><span class="n">21</span>Inventário</a></li>
+      <li><a href="#s22"><span class="n">22</span>Problemas conhecidos</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <!-- ==================================================== 1 -->
+    <section id="s1">
+      <h2><span class="num">01</span>Como revisar este documento</h2>
+
+      <p>
+        Toda constante numérica no motor recebe uma etiqueta de procedência. Ela existe porque a
+        pergunta mais importante numa revisão deste tipo é <em>de onde veio esse número</em> — e a
+        resposta honesta varia bastante.
+      </p>
+
+      <div class="legend">
+        <div>
+          <span class="chip c-std">Padrão</span>
+          <span>Matemática estabelecida. Função logística, juros compostos, interpolação linear,
+            valor esperado. Não há o que calibrar; ou está certo ou está errado.</span>
+        </div>
+        <div>
+          <span class="chip c-conv">Convenção</span>
+          <span>Regra corrente de planejamento financeiro no Brasil: teto de 30% da renda para
+            dívida, reserva de 6 meses de despesa. São heurísticas conhecidas, não leis.</span>
+        </div>
+        <div>
+          <span class="chip c-cal">Calibrado</span>
+          <span><b>Meu julgamento.</b> Não saiu de regressão sobre dados reais nem de literatura.
+            É o que precisa da sua opinião de produto — e é o que mais influencia o que o usuário vê.</span>
+        </div>
+        <div>
+          <span class="chip c-der">Derivado</span>
+          <span>Veio do schema ou de código que já existia. Não é escolha nova.</span>
+        </div>
+      </div>
+
+      <p>
+        A <a href="#s9">§09</a> apresenta um caso numérico — a usuária Marina — que é usado do
+        <a href="#s10">§10</a> ao <a href="#s14">§14</a>. Todo modelo termina com os números dela
+        calculados passo a passo. Se você quiser entender o motor lendo <em>uma</em> coisa, leia esse
+        rastro: ele conecta snapshot, notas, achados e recomendações num fio só.
+      </p>
+
+      <p>
+        Se o tempo for curto, os pontos de maior alavancagem são os pesos da
+        <a href="#s11">saúde financeira</a>, os coeficientes do
+        <a href="#s12">modelo logístico</a> e o <a href="#s16">portão de recomendação</a>.
+        A <a href="#s22">§22</a> lista o que eu mesmo considero frágil — inclusive três problemas
+        que só apareceram quando rodei o caso da Marina no papel.
+      </p>
+
+      <div class="call risk">
+        <span class="lbl">Escopo</span>
+        <p>
+          A árvore de trabalho contém alterações anteriores a esta sessão — transação manual,
+          categorias, amortização, migrations V11 e V12. <b>Nada disso é meu</b> e nada disso está
+          descrito aqui. Este documento cobre exclusivamente o motor de análise e o que ele exigiu
+          tocar.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 2 -->
+    <section id="s2">
+      <h2><span class="num">02</span>Decisão de arquitetura: um evento genérico</h2>
+
+      <p>
+        O <code>CLAUDE.md</code> especifica Spring Events como o mecanismo interno de comunicação,
+        mas o código não tinha <em>nenhum</em>. Este é o primeiro, então ele define o padrão para
+        todos os próximos.
+      </p>
+
+      <p>
+        O caminho óbvio seria um evento por ação — <code>TransacaoCriadaEvent</code>,
+        <code>PagamentoRegistradoEvent</code>, <code>DividaCriadaEvent</code>. Recusei: com N eventos,
+        cada tipo novo de análise obriga a mexer em todos os publicadores, e o módulo de finanças
+        acaba tendo que saber quais análises existem.
+      </p>
+
+      <div class="fx">
+        <p class="cap">shared/events/DadosFinanceirosAlteradosEvent.java</p>
+        <div class="expr">record DadosFinanceirosAlteradosEvent(
+    Long          idUsuario,      // dono dos dados que mudaram
+    OrigemAlteracao origem,       // o fato que ocorreu
+    String        entidadeTipo,   // "TRANSACAO", "DIVIDA", "USUARIO" — anulável
+    Long          entidadeId,     // anulável
+    LocalDateTime ocorridoEm
+)</div>
+        <p class="note">
+          Publicado dentro da transação de escrita, entregue depois do commit. O publicador não
+          referencia o módulo de análise em momento nenhum — não há dependência de compilação entre
+          eles. Duas fábricas estáticas: <code>de(idUsuario, origem, tipo, id)</code> e
+          <code>de(idUsuario, origem)</code>.
+        </p>
+      </div>
+
+      <p>
+        <code>OrigemAlteracao</code> classifica o fato e carrega um único comportamento:
+        <code>isAltoImpacto()</code>, que decide se o recálculo fura a janela de debounce.
+      </p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Origem</th><th>Alto impacto</th><th>Publicado em</th></tr></thead>
+          <tbody>
+            <tr><td><code>TRANSACAO_CRIADA</code></td><td>não</td><td><code>CreateTransactionService</code></td></tr>
+            <tr><td><code>PAGAMENTO_DIVIDA</code></td><td><b>sim</b></td><td><code>RegisterDividaPaymentService</code></td></tr>
+            <tr><td><code>DIVIDA_CRIADA</code></td><td><b>sim</b></td><td><code>CreateDividaService</code></td></tr>
+            <tr><td><code>DIVIDA_ATUALIZADA</code></td><td><b>sim</b></td><td><code>UpdateDividaService</code></td></tr>
+            <tr><td><code>DIVIDA_REMOVIDA</code></td><td><b>sim</b></td><td><code>DeleteDividaService</code></td></tr>
+            <tr><td><code>PROGRESSO_DIVIDA</code></td><td>não</td><td><code>AddNewValueToDividaService</code></td></tr>
+            <tr><td><code>PREFERENCIAS_ATUALIZADAS</code></td><td><b>sim</b></td><td><code>UpdatePreferenciaFinanceiraService</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        A lógica: uma despesa de R$ 30 pode esperar a janela fechar. Quitar uma parcela ou mudar a
+        renda declarada muda o retrato inteiro, e o usuário está olhando para a tela esperando o
+        número novo. <span class="chip c-cal">Calibrado</span>
+      </p>
+
+      <div class="fx">
+        <p class="cap">analysis/events/FinancialDataChangedListener.java</p>
+        <div class="expr">@Async("analysisExecutor")
+@TransactionalEventListener(phase = AFTER_COMMIT)
+public void aoMudarDadosFinanceiros(DadosFinanceirosAlteradosEvent evento) {
+    try {
+        generateAnalysis.execute(evento.idUsuario(), evento.isAltoImpacto());
+    } catch (Exception e) { log.error(...); }
+}</div>
+        <p class="note">
+          <b>AFTER_COMMIT</b> garante que a análise nunca enxerga um lançamento que sofreu rollback.
+          <b>@Async</b> tira o cálculo da thread da requisição — a análise varre até 180 dias de
+          transações e pode chamar o Gemini. Como consequência, a exceção não tem mais para onde
+          subir, daí o <code>try/catch</code>: uma análise que falha não pode aparecer como erro num
+          POST que foi salvo com sucesso.
+        </p>
+      </div>
+
+      <p>
+        O pool é dedicado, separado do Tomcat: <span class="path">config/AsyncConfig.java</span> —
+        core 2, max 4, fila 100, <code>DiscardPolicy</code>. Descartar quando a fila enche é correto
+        aqui porque cada execução recalcula tudo do zero: a próxima cobre o que foi descartado.
+      </p>
+    </section>
+
+    <!-- ==================================================== 3 -->
+    <section id="s3">
+      <h2><span class="num">03</span>Migration V13: identidade do achado</h2>
+
+      <p>
+        A regra de recorrência precisa responder "esse mesmo problema apareceu em quantos dias
+        distintos?". Isso exige uma chave estável para o achado, e nenhuma coluna existente servia:
+        <code>tipo_impacto</code> tem só cinco valores grossos
+        (<code>FINANCEIRO / META / DIVIDA / RISCO / COMPORTAMENTO</code>), então "juros crescendo" e
+        "parcela atrasada" na mesma dívida colidiriam na mesma chave.
+      </p>
+
+      <div class="fx">
+        <p class="cap">db/migration/V13__add_regra_analise_recomendacao.sql</p>
+        <div class="expr">ALTER TABLE tb_analise_impacto ADD COLUMN regra VARCHAR(100);
+ALTER TABLE tb_recomendacoes  ADD COLUMN regra VARCHAR(100);
+
+CREATE INDEX idx_analise_impacto_regra
+    ON tb_analise_impacto (regra, entidade_origem_id);
+CREATE INDEX idx_recomendacoes_usuario_regra
+    ON tb_recomendacoes (id_usuario, regra, status);
+CREATE INDEX idx_analises_usuario_tipo_data
+    ON tb_analises (id_usuario, tipo, data_criacao);</div>
+        <p class="note">
+          Duas colunas aditivas e anuláveis, três índices. Nenhuma linha existente é reescrita e
+          nenhuma leitura atual muda de comportamento. Os índices cobrem exatamente as três consultas
+          que passam a rodar a cada evento: contagem de recorrência, deduplicação de recomendação e
+          busca da análise do dia.
+        </p>
+      </div>
+
+      <div class="call">
+        <span class="lbl">Atenção ao deploy</span>
+        <p>
+          <code>spring.jpa.hibernate.ddl-auto=validate</code> está ativo. A aplicação <b>não sobe</b>
+          sem a V13 aplicada, porque as entidades agora declaram um campo que a tabela precisa ter.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 4 -->
+    <section id="s4">
+      <h2><span class="num">04</span>Fluxo ponta a ponta</h2>
+
+      <div class="flow">POST /transactions
+  │
+  ├─ CreateTransactionService  ─ salva ─ publica evento
+  │                                        (dentro da transação)
+  ▼ COMMIT
+  │
+  ├─ resposta HTTP devolvida ao app ──────────────────────► fim do request
+  │
+  ▼ (thread analise-N)
+<b>FinancialDataChangedListener</b>
+  │
+  ▼
+<b>GenerateAnalysisService.execute(idUsuario, forcar)</b>
+  │
+  ├─ 1. debounce ──── última análise &lt; 30 min? e não é alto impacto? → sai
+  │
+  ├─ 2. <b>AnalysisSnapshotAssembler.montar()</b>
+  │        FinanceIntegrationApi     → transações (180d), visão geral, categorias
+  │        ProgressionIntegrationApi → dívidas com parcelas
+  │        UserIntegrationApi        → usuário, preferências financeiras
+  │        └─ calcula todos os derivados uma única vez
+  │
+  ├─ 3. para cada AnalisadorFinanceiro (injetados como List):
+  │        ConsumoAnalyzer · SaudeFinanceiraAnalyzer
+  │        InadimplenciaAnalyzer · PrevisaoAnalyzer
+  │        └─ try/catch individual: um quebrado não derruba os outros
+  │
+  ├─ 4. <b>RiscoConsolidator.consolidar(snapshot, drafts)</b>  ← lê o que os outros concluíram
+  │
+  ├─ 5. para cada draft: <b>AnalysisPersistenceService.salvar()</b>
+  │        upsert da análise do dia + resultado + variáveis + entidades + impactos
+  │
+  └─ 6. para cada draft com achados: <b>RecommendationEngine.avaliar()</b>
+           recorrência ≥ 3 dias  E  impacto anual ≥ R$ 600  E  não duplicada
+           └─ RecommendationTextService → Gemini (com fallback para template)</div>
+
+      <p>
+        O passo 6 roda depois do 5 de propósito: a contagem de recorrência precisa incluir a análise
+        de hoje, senão o terceiro dia contaria como o segundo.
+      </p>
+
+      <p>
+        <code>GenerateAnalysisService</code> não recebe "o que mudou" para decidir o que recalcular.
+        Isso é deliberado — as análises se alimentam umas das outras (o risco consolidado depende das
+        quatro), então recalcular só uma deixaria o conjunto incoerente: o app mostraria uma saúde
+        financeira de hoje ao lado de um risco de terça.
+      </p>
+    </section>
+
+    <!-- ==================================================== 5 -->
+    <section id="s5">
+      <h2><span class="num">05</span>Notação, unidades e termos</h2>
+
+      <p>
+        Esta seção existe porque a maior fonte de confusão num motor desses é unidade: a mesma ideia
+        aparece como percentual, como decimal e como reais em lugares diferentes. Vale ler antes dos
+        modelos.
+      </p>
+
+      <h3>Símbolos usados neste documento</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Símbolo</th><th>Nome</th><th>Faixa</th><th>O que é</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>nᵢ</code></td><td>nota</td><td class="n">0 … 100</td>
+              <td>O valor bruto de um indicador <b>traduzido</b> para escala comum por interpolação
+                de faixas. É o que permite somar meses, reais e percentuais na mesma conta.</td>
+            </tr>
+            <tr>
+              <td><code>pesoᵢ</code></td><td>peso</td><td class="n">0 … 1</td>
+              <td>Quanto o indicador vale no composto. Nos modelos ponderados <code>Σ pesoᵢ = 1</code>.</td>
+            </tr>
+            <tr>
+              <td><code>cᵢ</code></td><td>contribuição</td><td class="n">0 … 100·peso</td>
+              <td><code>pesoᵢ × nᵢ</code>. É o que a variável efetivamente somou ao score, e o que o
+                gráfico de <em>drivers</em> desenha.</td>
+            </tr>
+            <tr>
+              <td><code>xᵢ</code></td><td>fator normalizado</td><td class="n">0 … 1</td>
+              <td>Só no modelo logístico (§12). O indicador escalado para [0,1] antes de entrar na
+                soma linear.</td>
+            </tr>
+            <tr>
+              <td><code>bᵢ</code></td><td>coeficiente</td><td class="n">ℝ</td>
+              <td>Só no modelo logístico. O peso do termo na regressão. Pode ser negativo em
+                princípio; aqui todos são positivos exceto o intercepto <code>b₀</code>.</td>
+            </tr>
+            <tr>
+              <td><code>z</code></td><td>logito</td><td class="n">ℝ</td>
+              <td>A soma linear antes de passar pela logística.</td>
+            </tr>
+            <tr>
+              <td><code>p</code></td><td>probabilidade</td><td class="n">0 … 1</td>
+              <td>Saída da logística. Único modelo que produz isso é INADIMPLENCIA.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Convenções de unidade</h3>
+      <div class="fx">
+        <div class="expr">percentuais   → sempre em <b>pontos percentuais</b>, nunca em decimal
+                 comprometimento 30% é armazenado como 30,00 e não 0,30
+
+taxas de juros → <b>% ao mês</b> no banco (Divida.taxaJuros = 12,00)
+                 convertidas para decimal só dentro da fórmula:  <em>i</em> = taxa / 100
+
+dinheiro      → BigDecimal, escala 2, HALF_UP, sempre em R$
+meses         → decimal (0,29 mês é válido e comum)
+dias          → inteiro
+probabilidade → decimal 0…1 (0,5791), escala 4
+notas/scores  → decimal 0…100, escala 2</div>
+        <p class="note">
+          <b>A pegadinha mais comum:</b> <code>taxaJuros</code> vale <code>12,00</code> para 12% a.m.
+          Toda fórmula que usa juros começa dividindo por 100. Onde isso aparece:
+          <code>DIVIDA_JUROS_ALTO</code> (§12) e <code>APORTE_EXTRA_ACELERA_QUITACAO</code> (§13).
+        </p>
+      </div>
+
+      <h3>Termos do domínio</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Termo</th><th>Significa</th></tr></thead>
+          <tbody>
+            <tr><td><b>Snapshot</b></td><td>O retrato financeiro completo do usuário num instante, com todos os derivados já calculados. Montado uma vez por execução.</td></tr>
+            <tr><td><b>Analisador</b></td><td>Um ângulo de análise sobre o snapshot. Produz um <em>draft</em>.</td></tr>
+            <tr><td><b>Draft</b></td><td>O resultado de um analisador antes de virar linha no banco: resumo, resultado, variáveis, entidades e achados.</td></tr>
+            <tr><td><b>Variável</b></td><td>Um indicador que entrou na conta, com sua nota, peso e contribuição. Vira linha em <code>tb_analise_resultado_variavel</code>.</td></tr>
+            <tr><td><b>Achado</b></td><td>Um problema concreto, localizado numa entidade e com preço anual. Vira linha em <code>tb_analise_impacto</code> e é candidato a recomendação.</td></tr>
+            <tr><td><b>Entidade</b></td><td>Um objeto de outro módulo que a análise considerou (dívida, categoria, vendedor), com o peso que teve.</td></tr>
+            <tr><td><b>Regra</b></td><td>A identidade estável de um achado. Uma das 12 constantes de <code>RegraAnalise</code>.</td></tr>
+            <tr><td><b>Gravidade</b></td><td>Severidade do achado (<code>BAIXO…CRITICO</code>). Vira a prioridade da recomendação.</td></tr>
+            <tr><td><b>Impacto anual</b></td><td>Custo projetado em 12 meses se o padrão continuar. É o número comparado ao limiar de R$ 600.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================================================== 6 -->
+    <section id="s6">
+      <h2><span class="num">06</span>Calculo: a aritmética base</h2>
+
+      <p>
+        <span class="path">analysis/application/service/Calculo.java</span> — utilitário estático.
+        Existe por dois motivos concretos: divisão por zero é o caso <em>comum</em> aqui (usuário sem
+        renda declarada, sem despesa no período, sem dívida) e <code>BigDecimal.divide</code> lança
+        exceção nesses casos; e nota por faixa aparece em toda variável de todo analisador.
+      </p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Função</th><th>Definição</th><th>Escala</th><th>Por quê</th></tr></thead>
+          <tbody>
+            <tr><td><code>nz(x)</code></td><td>x ≠ null ? x : 0</td><td class="n">—</td><td>Quase todo campo financeiro do banco é anulável</td></tr>
+            <tr><td><code>dividir(a,b)</code></td><td>b = 0 ? 0 : a / b</td><td class="n">6</td><td>Divisor zero é caso normal, não exceção</td></tr>
+            <tr><td><code>percentual(p,t)</code></td><td>dividir(p,t) × 100</td><td class="n">2</td><td>Converte razão em pontos percentuais</td></tr>
+            <tr><td><code>dinheiro(v)</code></td><td>nz(v) arredondado</td><td class="n">2</td><td>Centavos</td></tr>
+            <tr><td><code>nota(v)</code></td><td>nz(v) arredondado</td><td class="n">2</td><td>Notas e contribuições</td></tr>
+            <tr><td><code>limitar(v,min,max)</code></td><td>clamp</td><td class="n">—</td><td>Normalização do logístico</td></tr>
+            <tr><td><code>logistica(z)</code></td><td>1 / (1 + e⁻ᶻ)</td><td class="n">4</td><td>Logito → probabilidade</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Interpolação por faixas — o coração do sistema de notas</h3>
+
+      <p>
+        Dado um vetor de fronteiras crescentes <em>L</em> = [<em>l</em>₀ … <em>l</em>ₙ] e as notas
+        correspondentes <em>N</em> = [<em>n</em>₀ … <em>n</em>ₙ] (mesmo tamanho), para um valor
+        <em>v</em>:
+      </p>
+
+      <div class="fx">
+        <div class="expr"><em>v</em> ≤ <em>l</em>₀        →  <em>n</em>₀                         (piso)
+<em>v</em> &gt; <em>l</em>ₙ        →  <em>n</em>ₙ                         (teto)
+
+<em>v</em> ∈ [<em>l</em>ᵢ, <em>l</em>ᵢ₊₁]  →  f = (<em>v</em> − <em>l</em>ᵢ) / (<em>l</em>ᵢ₊₁ − <em>l</em>ᵢ)
+                  nota = <em>n</em>ᵢ + f · (<em>n</em>ᵢ₊₁ − <em>n</em>ᵢ)</div>
+        <p class="note">
+          <span class="chip c-std">Padrão</span> Interpolação linear entre pontos de controle.<br>
+          <b>Por que não degraus:</b> 31% e 39% de comprometimento de renda não podem valer a mesma
+          nota, senão o gráfico de evolução fica plano enquanto a situação piora — o usuário não veria
+          nada acontecendo até cruzar uma fronteira.
+        </p>
+      </div>
+
+      <div class="fx trace">
+        <p class="cap">Exemplo trabalhado — COMPROMETIMENTO_RENDA a 35%</p>
+        <div class="expr">L = {10,  20,  30,  40,  60}
+N = {100, 88,  68,  40,   0}
+
+<em>v</em> = 35
+
+  35 ≤ 10?  não
+  35 ≤ 20?  não
+  35 ≤ 30?  não
+  35 ≤ 40?  <b>sim</b>  →  i = 2,  faixa [30, 40]
+
+  f    = (35 − 30) / (40 − 30)  =  5/10  =  0,50
+  nota = 68 + 0,50 × (40 − 68)
+       = 68 + 0,50 × (−28)
+       = 68 − 14
+       = <b>54,00</b></div>
+        <p class="note">
+          Repare que <em>N</em> é decrescente aqui (menos comprometimento é melhor), então
+          <code>nᵢ₊₁ − nᵢ</code> é negativo e a fórmula desce. A mesma fórmula sobe quando <em>N</em>
+          é crescente. <b>Não são dois casos</b> — ver a nota abaixo.
+        </p>
+      </div>
+
+      <div class="call judge">
+        <span class="lbl">Redundância que eu introduzi</span>
+        <p>
+          Escrevi dois métodos, <code>notaCrescente</code> e <code>notaDecrescente</code>. Eles são
+          <b>algebricamente idênticos</b>:
+          <code>nᵢ − f·(nᵢ − nᵢ₊₁) ≡ nᵢ + f·(nᵢ₊₁ − nᵢ)</code>. A distinção só existe para documentar
+          a intenção no ponto de chamada. Não é bug — o comportamento está correto nos dois — mas é
+          código duplicado e vale consolidar. Ver <a href="#s22">§22</a>.
+        </p>
+      </div>
+
+      <h3>Formatação</h3>
+      <p>
+        <code>formatarMoeda</code> e <code>formatarPercentual</code> usam
+        <code>Locale.of("pt","BR")</code> para produzir <code>1.234,50</code> e <code>30,5</code>.
+        Esses textos só entram no mapa <code>dados</code> dos achados, que preenche os templates —
+        <b>nunca</b> em campo numérico do banco.
+      </p>
+    </section>
+
+    <!-- ==================================================== 7 -->
+    <section id="s7">
+      <h2><span class="num">07</span>Glossário de variáveis</h2>
+
+      <p>
+        Toda grandeza que o motor calcula, em um lugar só. As três primeiras colunas são o contrato;
+        a última diz quem consome.
+      </p>
+
+      <h4>Entradas — vêm de outros módulos</h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Variável</th><th>Origem</th><th>Unidade</th><th>Observação</th></tr></thead>
+          <tbody>
+            <tr><td><code>rendaDeclarada</code></td><td><code>PreferenciaFinanceira.rendaMensal</code></td><td><span class="u">R$/mês</span></td><td><b>Obrigatória no cadastro</b> — sempre presente</td></tr>
+            <tr><td><code>aporteExtraMensal</code></td><td><code>PreferenciaFinanceira</code></td><td><span class="u">R$/mês</span></td><td>Usado em <code>mesesParaQuitar</code></td></tr>
+            <tr><td><code>percFixos / percDividas / percLazer</code></td><td><code>PreferenciaFinanceira</code></td><td><span class="u">pp</span></td><td>Somam 100, validado no update</td></tr>
+            <tr><td><code>metodoQuitacao</code></td><td><code>PreferenciaFinanceira</code></td><td><span class="u">enum</span></td><td>AVALANCHE / SNOWBALL / TSUNAMI</td></tr>
+            <tr><td><code>situacaoFinanceira</code></td><td><code>Usuario</code> (onboarding, V10)</td><td><span class="u">enum</span></td><td>Entra no logístico</td></tr>
+            <tr><td><code>saldoDisponivel</code></td><td><code>FinancialOverview.totalSaldo</code></td><td><span class="u">R$</span></td><td>Soma das contas</td></tr>
+            <tr><td><code>transacoes</code></td><td><code>FinanceIntegrationApi</code></td><td><span class="u">lista</span></td><td>Janela de 180 dias</td></tr>
+            <tr><td><code>dividas</code></td><td><code>ProgressionIntegrationApi</code></td><td><span class="u">lista</span></td><td>Com <code>parcelas</code> aninhadas</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Derivados de renda e despesa</h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Variável</th><th>Fórmula</th><th>Unidade</th><th>Consumida por</th></tr></thead>
+          <tbody>
+            <tr><td><code>rendaObservada</code></td><td>média das receitas por mês fechado</td><td><span class="u">R$/mês</span></td><td>rede de segurança de <code>rendaMensal</code> (renda declarada = 0)</td></tr>
+            <tr><td><code>rendaMensal</code></td><td>declarada &gt; 0 ? declarada : observada</td><td><span class="u">R$/mês</span></td><td><b>quase tudo</b> — na prática, sempre a declarada</td></tr>
+            <tr><td><code>despesaMensal</code></td><td>média das despesas por mês fechado</td><td><span class="u">R$/mês</span></td><td>Consumo, Saúde, Previsão</td></tr>
+            <tr><td><code>despesaMesCorrente</code></td><td>Σ despesas do mês atual</td><td><span class="u">R$</span></td><td><code>VARIACAO_MENSAL</code></td></tr>
+            <tr><td><code>receitaMesCorrente</code></td><td>Σ receitas do mês atual</td><td><span class="u">R$</span></td><td><code>receitaAReceber</code></td></tr>
+            <tr><td><code>taxaPoupanca</code></td><td>100 × (renda − despesa) / renda</td><td><span class="u">pp</span></td><td>Consumo, Saúde, Inadimplência</td></tr>
+            <tr><td><code>sobraMensal</code></td><td>renda − despesa − comprometimento</td><td><span class="u">R$/mês</span></td><td>achado de aporte extra</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Derivados de categoria e vendedor</h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Variável</th><th>Fórmula</th><th>Unidade</th><th>Consumida por</th></tr></thead>
+          <tbody>
+            <tr><td><code>gastoPorCategoria[c]</code></td><td>Σ despesas de <em>c</em> no mês</td><td><span class="u">R$</span></td><td>gatilhos de consumo</td></tr>
+            <tr><td><code>mediaPorCategoria[c]</code></td><td>média de <em>c</em> nos meses fechados</td><td><span class="u">R$/mês</span></td><td>base de comparação</td></tr>
+            <tr><td><code>idPorCategoria[nome]</code></td><td>id sistema (+) ou usuário (−)</td><td><span class="u">Long</span></td><td>chave de recorrência</td></tr>
+            <tr><td><code>comprasPorVendedor[v]</code></td><td>contagem no mês</td><td><span class="u">un</span></td><td>gatilho de recorrência</td></tr>
+            <tr><td><code>gastoPorVendedor[v]</code></td><td>Σ no mês</td><td><span class="u">R$</span></td><td>impacto do achado</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Derivados de dívida</h4>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Variável</th><th>Fórmula</th><th>Unidade</th><th>Consumida por</th></tr></thead>
+          <tbody>
+            <tr><td><code>comprometimentoMensal</code></td><td>Σ parcelas do mês (ou Σ parcelaMinima)</td><td><span class="u">R$/mês</span></td><td>Saúde, Inadimplência, Previsão</td></tr>
+            <tr><td><code>comprometimentoPercentual</code></td><td>100 × comprometimento / renda</td><td><span class="u">pp</span></td><td><code>n₁</code> da saúde, <code>x₁</code> do logístico</td></tr>
+            <tr><td><code>totalDividas</code></td><td>Σ saldo</td><td><span class="u">R$</span></td><td>endividamento, meses até quitar</td></tr>
+            <tr><td><code>totalJurosPendentes</code></td><td>Σ valorJuros das pendentes</td><td><span class="u">R$</span></td><td>gravado, não usado em nota</td></tr>
+            <tr><td><code>parcelasAtrasadas[d]</code></td><td>pendentes com venc. &lt; hoje</td><td><span class="u">mapa</span></td><td>achado de atraso</td></tr>
+            <tr><td><code>valorEmAtraso</code></td><td>Σ valorTotal das atrasadas</td><td><span class="u">R$</span></td><td>peso da entidade, resumo</td></tr>
+            <tr><td><code>diasAtrasoMaximo</code></td><td>max(hoje − vencimento)</td><td><span class="u">dias</span></td><td><code>x₂</code> do logístico</td></tr>
+            <tr><td><code>mesesDeReserva</code></td><td>saldo / (despesa + comprometimento)</td><td><span class="u">meses</span></td><td><code>n₃</code> da saúde, <code>x₃</code> do logístico</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="call">
+        <span class="lbl">Nota sobre reuso</span>
+        <p>
+          <code>taxaPoupanca</code>, <code>comprometimentoPercentual</code> e
+          <code>mesesDeReserva</code> aparecem em <b>três modelos cada um</b>. Como todos leem do
+          mesmo snapshot, o valor é literalmente o mesmo objeto — não há chance de dois modelos
+          discordarem sobre o comprometimento do mesmo usuário na mesma análise. Era esse o objetivo
+          de centralizar os derivados.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 8 -->
+    <section id="s8">
+      <h2><span class="num">08</span>AnalysisSnapshot: como os derivados são montados</h2>
+
+      <p>
+        <span class="path">…/service/AnalysisSnapshot.java</span> (record) ·
+        <span class="path">…/service/AnalysisSnapshotAssembler.java</span> (montagem)
+      </p>
+
+      <p>
+        Toda leitura passa pelas <em>integration APIs</em>. A análise nunca toca repositório de
+        <code>finance</code>, <code>progression</code> ou <code>users</code>. Cada leitura é
+        embrulhada num <code>buscar()</code> que devolve valor neutro em caso de falha: um módulo fora
+        do ar não derruba a análise inteira — sem dívidas ainda dá para analisar consumo.
+      </p>
+
+      <h3>Renda: por que a declarada manda</h3>
+
+      <p>
+        <b>A renda declarada existe sempre.</b> Não há como criar conta sem informá-la: o onboarding
+        exige o passo "Quanto você recebe por mês?" e <code>RegisterRequest.rendaMensal</code> é
+        <code>@NotNull</code> — o <code>POST /auth/register</code> devolve 400 sem ela, e
+        <code>RegisterUserService</code> grava o valor em <code>PreferenciaFinanceira</code> na mesma
+        transação do cadastro. Toda análise, inclusive a primeira, roda sobre renda informada pelo
+        usuário.
+      </p>
+
+      <div class="fx">
+        <div class="expr">rendaObservada = Σ (receitas de cada mês <b>fechado</b> com ≥1 lançamento)
+                 ─────────────────────────────────────────────
+                          nº desses meses
+
+  nenhum mês fechado  →  usa o parcial do mês corrente
+
+rendaMensal = rendaDeclarada &gt; 0 ? rendaDeclarada : rendaObservada</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> (a precedência)<br>
+          <b>Por que a declarada manda:</b> é a que o usuário usou para montar o orçamento dele —
+          <code>percFixos / percDividas / percLazer</code> são percentuais <em>dela</em>. Usar a
+          observada quebraria a coerência entre o teto que ele definiu e o teto que a análise cobra.<br>
+          <b>Por que só meses fechados:</b> comparar um mês pela metade com meses completos sempre
+          acusaria "ganhando menos". No dia 5, um mês parcial arrastaria a média para baixo em ~85%.<br>
+          <b>Quando a observada entra:</b> só se a declarada for zero — o que hoje significa um
+          usuário que declarou renda 0 (desempregado, por exemplo) ou uma conta anterior à V10, antes
+          de a renda ser coletada no onboarding. Não é o caminho normal: é rede de segurança.
+        </p>
+      </div>
+
+      <h3>Categorias: o truque do id com sinal</h3>
+
+      <div class="fx">
+        <div class="expr">idPorCategoria[nome] = idCategoriaGastoSistema        (positivo)
+                     | −idCategoriaGastoUsuario      (negativo)</div>
+        <p class="note">
+          <code>tb_categorias_gastos_sistema</code> e <code>tb_categorias_gastos_usuario</code> são
+          tabelas distintas com ids independentes — o id 3 existe nas duas. Negar o id do usuário
+          permite as duas conviverem numa chave só.<br>
+          <b>Por que isso importa:</b> <code>entidade_origem_id</code> é o que distingue "delivery
+          estourou" de "transporte estourou" na contagem de recorrência (§16). Sem essa chave, todas
+          as categorias colapsariam num achado só e a recorrência ficaria sem sentido.
+        </p>
+      </div>
+
+      <h3>Comprometimento: o fallback</h3>
+
+      <div class="fx">
+        <div class="expr">comprometimentoMensal = Σ valorTotal das parcelas pendentes
+                        cujo vencimento cai no mês corrente
+
+  se der zero  →  Σ parcelaMinima das dívidas com saldo &gt; 0</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span><br>
+          Mês sem parcela a vencer não significa dívida sem custo mensal — pode ser que a parcela
+          vencia dia 5 e hoje é dia 20, ou que todas do mês já foram pagas. Sem esse fallback o
+          comprometimento cairia a zero na segunda quinzena, o <code>n₁</code> da saúde saltaria para
+          100 e o score subiria artificialmente todo mês — um serrote no gráfico de evolução que não
+          corresponde a nada real.
+        </p>
+      </div>
+
+      <h3>Guarda de entrada</h3>
+      <p>
+        <code>temDadosSuficientes()</code> exige renda &gt; 0 <b>ou</b> alguma transação <b>ou</b>
+        alguma dívida. Abaixo disso o motor sai sem gravar nada — análise sobre zero é pior que
+        análise nenhuma. Como a renda é obrigatória no cadastro, essa guarda passa desde o primeiro
+        dia da conta: o portão real é o de cada analisador — consumo exige transações,
+        inadimplência exige dívidas —, então um usuário recém-criado já recebe
+        <code>SAUDE_FINANCEIRA</code>, <code>PREVISAO</code> e o <code>RISCO</code> consolidado, e
+        passa a receber <code>CONSUMO</code> e <code>INADIMPLENCIA</code> conforme lança transações e
+        dívidas.
+      </p>
+    </section>
+
+    <!-- ==================================================== 9 -->
+    <section id="s9">
+      <h2><span class="num">09</span>Caso de referência: Marina</h2>
+
+      <p>
+        Os cinco modelos a seguir terminam com os números desta usuária, calculados passo a passo.
+        Ela foi construída para ser um caso <em>intermediário e realista</em> — não um desastre nem
+        um exemplo perfeito — porque é onde as decisões de calibragem ficam visíveis.
+      </p>
+
+      <div class="persona">
+        <h4>Perfil</h4>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Campo</th><th class="n">Valor</th><th>Fonte</th></tr></thead>
+            <tbody>
+              <tr><td>Renda declarada</td><td class="n">R$ 4.000,00</td><td><code>tb_preferencias_financeiras</code></td></tr>
+              <tr><td>Situação declarada</td><td class="n">NO_LIMITE</td><td>onboarding</td></tr>
+              <tr><td>Método de quitação</td><td class="n">AVALANCHE</td><td>preferências</td></tr>
+              <tr><td>% para dívidas</td><td class="n">30</td><td>preferências</td></tr>
+              <tr><td>Aporte extra</td><td class="n">R$ 0,00</td><td>preferências</td></tr>
+              <tr><td>Saldo em conta</td><td class="n">R$ 1.200,00</td><td><code>FinancialOverview</code></td></tr>
+              <tr><td>Despesa média (meses fechados)</td><td class="n">R$ 2.900,00</td><td>transações</td></tr>
+              <tr><td>Despesa do mês corrente</td><td class="n">R$ 3.480,00</td><td>transações</td></tr>
+              <tr><td>Receita do mês corrente</td><td class="n">R$ 4.000,00</td><td>transações</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Gastos por categoria</h4>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Categoria</th><th class="n">Mês corrente</th><th class="n">Média anterior</th><th class="n">Δ</th></tr></thead>
+            <tbody>
+              <tr><td>Mercado</td><td class="n">980,00</td><td class="n">950,00</td><td class="n">+30</td></tr>
+              <tr><td>Outros</td><td class="n">900,00</td><td class="n">770,00</td><td class="n">+130</td></tr>
+              <tr><td>Delivery</td><td class="n">612,00</td><td class="n">380,00</td><td class="n">+232</td></tr>
+              <tr><td>Transporte</td><td class="n">520,00</td><td class="n">500,00</td><td class="n">+20</td></tr>
+              <tr><td>Lazer</td><td class="n">468,00</td><td class="n">300,00</td><td class="n">+168</td></tr>
+              <tr class="tot"><td>Total</td><td class="n">3.480,00</td><td class="n">2.900,00</td><td class="n">+580</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Dívidas</h4>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Dívida</th><th class="n">Saldo</th><th class="n">Juros a.m.</th><th class="n">Parcela</th><th class="n">Vence</th></tr></thead>
+            <tbody>
+              <tr><td>Cartão</td><td class="n">6.500,00</td><td class="n">12,00%</td><td class="n">780,00</td><td class="n">dia 20</td></tr>
+              <tr><td>Empréstimo</td><td class="n">3.200,00</td><td class="n">2,50%</td><td class="n">420,00</td><td class="n">dia 10 (pago)</td></tr>
+              <tr class="tot"><td>Total</td><td class="n">9.700,00</td><td class="n">—</td><td class="n">1.200,00</td><td class="n">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-bottom:0;font-size:13.5px;color:var(--muted)">
+          Nenhuma parcela em atraso · 4 parcelas pagas no histórico · vendedor <b>iFood</b> com
+          9 compras somando R$ 612,00 no mês · data da análise: <b>15 de agosto</b>.
+        </p>
+      </div>
+
+      <h3>Derivados do snapshot</h3>
+
+      <div class="fx trace">
+        <div class="expr">rendaMensal               = 4.000,00        (declarada &gt; 0, então manda)
+despesaMensal             = 2.900,00
+comprometimentoMensal     = 780 + 420        = <b>1.200,00</b>
+totalDividas              = 6.500 + 3.200    = <b>9.700,00</b>
+saldoDisponivel           = 1.200,00
+
+comprometimentoPercentual = 100 × 1.200 / 4.000        = <b>30,00%</b>
+taxaPoupanca              = 100 × (4.000 − 2.900)/4.000 = <b>27,50%</b>
+sobraMensal               = 4.000 − 2.900 − 1.200      = <b>−100,00</b>
+mesesDeReserva            = 1.200 / (2.900 + 1.200)    = <b>0,292683</b>
+diasAtrasoMaximo          = <b>0</b></div>
+        <p class="note">
+          Repare na tensão do perfil: taxa de poupança boa (27,5%), comprometimento exatamente no
+          teto convencional (30%), mas <b>sobra mensal negativa</b> e reserva de menos de um terço de
+          mês. É esse conflito que faz os cinco modelos discordarem entre si — e é exatamente o que
+          se quer observar numa revisão de calibragem.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 10 -->
+    <section id="s10">
+      <h2><span class="num">10</span>CONSUMO — padrão de gasto</h2>
+
+      <p>
+        <span class="path">…/analyzers/ConsumoAnalyzer.java</span> ·
+        modelo <code>CONSUMO_PONDERADO</code> v1.0 · guarda: exige ≥1 transação.
+      </p>
+
+      <p>
+        Nota alta significa gasto sob controle: diluído entre categorias, estável mês a mês e
+        deixando sobra.
+      </p>
+
+      <div class="fx">
+        <div class="expr">score = Σ (pesoᵢ × nᵢ)          Σ pesoᵢ = 1,00
+coeficienteGeral = taxaPoupanca</div>
+      </div>
+
+      <h3>As quatro variáveis</h3>
+
+      <div class="fx">
+        <p class="cap">n₁ · TAXA_POUPANCA · peso 0,35</p>
+        <div class="expr">valor bruto = 100 × (rendaMensal − despesaMensal) / rendaMensal   <span class="u">pp</span>
+
+L = {−20,  0, 10, 20,  30}
+N = {  0, 30, 60, 85, 100}</div>
+        <p class="note">
+          <b>O que mede:</b> quanto da renda sobra depois das despesas correntes. Não desconta
+          parcelas de dívida — isso é medido separadamente pelo comprometimento.<br>
+          <span class="chip c-conv">Convenção</span> A referência de 20% vem da fatia de poupança da
+          regra 50/30/20. <span class="chip c-cal">Calibrado</span> O mapeamento 20% → nota 85, e
+          todo o resto do vetor. Note que a faixa começa em −20%: gastar 20% a mais do que ganha zera
+          a nota, e piorar além disso não piora mais.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">n₂ · DESPESA_SOBRE_RENDA · peso 0,25</p>
+        <div class="expr">valor bruto = 100 × despesaMensal / rendaMensal   <span class="u">pp</span>
+
+L = { 50,  70, 85, 100, 120}
+N = {100,  80, 55,  30,   0}</div>
+        <p class="note">
+          <b>Por que junto com n₁ se são complementares?</b> São correlacionados mas não idênticos:
+          <code>n₁</code> é a sobra, <code>n₂</code> é o consumo. Ter as duas com pesos diferentes
+          (0,35 e 0,25) é uma forma de dar peso total 0,60 ao mesmo eixo econômico com curvas de
+          penalização distintas — a de poupança pune mais o déficit, a de despesa pune mais o gasto
+          alto mesmo com renda alta. <span class="chip c-cal">Calibrado</span> — e discutível: um
+          revisor pode argumentar que é dupla contagem.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">n₃ · CONCENTRACAO_CATEGORIA · peso 0,20</p>
+        <div class="expr">valor bruto = 100 × max(gastoPorCategoria) / Σ gastoPorCategoria   <span class="u">pp</span>
+
+L = { 25, 35, 50, 70}
+N = {100, 75, 45, 10}</div>
+        <p class="note">
+          <b>O que mede:</b> se o orçamento depende demais de uma única categoria. Concentração alta
+          significa pouca margem de manobra — não dá para cortar o que é essencial.<br>
+          <b>Limitação:</b> é a maior fatia, não um índice de concentração completo (tipo
+          Herfindahl). Duas categorias com 30% cada dão nota melhor que uma com 35%, embora a
+          concentração real seja parecida. Simplificação consciente.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">n₄ · VARIACAO_MENSAL · peso 0,20</p>
+        <div class="expr">valor bruto = max(0, 100 × (despesaMesCorrente − despesaMensal) / despesaMensal)
+
+L = {  0, 15, 30, 60}
+N = {100, 80, 50, 15}</div>
+        <p class="note">
+          <b>O <code>max(0, …)</code> é intencional:</b> gastar <em>menos</em> que a média não é
+          desvio a punir. Sem ele, quem economizou receberia a mesma nota de quem estourou na mesma
+          magnitude.<br>
+          <b>Viés conhecido:</b> compara mês parcial com média de meses fechados. No dia 5 do mês a
+          variação é quase sempre negativa (logo, nota 100); no dia 28 ela é comparável. A nota deste
+          indicador sobe e desce ao longo do mês por construção.
+        </p>
+      </div>
+
+      <h3>Marina · CONSUMO</h3>
+
+      <div class="fx trace">
+        <div class="expr">n₁ TAXA_POUPANCA        27,50 ∈ [20, 30]
+   f = (27,50 − 20)/(30 − 20) = 0,750
+   n = 85 + 0,750 × (100 − 85)              = <b>96,25</b>   c = 0,35 × 96,25 = <b>33,69</b>
+
+n₂ DESPESA_SOBRE_RENDA  100 × 2.900/4.000   = 72,50 ∈ [70, 85]
+   f = (72,50 − 70)/(85 − 70) = 0,1667
+   n = 80 + 0,1667 × (55 − 80)              = <b>75,83</b>   c = 0,25 × 75,83 = <b>18,96</b>
+
+n₃ CONCENTRACAO         100 × 980/3.480     = 28,16 ∈ [25, 35]
+   f = (28,16 − 25)/(35 − 25) = 0,316
+   n = 100 + 0,316 × (75 − 100)             = <b>92,10</b>   c = 0,20 × 92,10 = <b>18,42</b>
+
+n₄ VARIACAO_MENSAL      100 × 580/2.900     = 20,00 ∈ [15, 30]
+   f = (20 − 15)/(30 − 15) = 0,3333
+   n = 80 + 0,3333 × (50 − 80)              = <b>70,00</b>   c = 0,20 × 70,00 = <b>14,00</b>
+                                                          ──────────────
+                                              score CONSUMO = <b>85,07</b>
+
+classificação = CONTROLADO (≥80)   nivelRisco = BAIXO (≥75)   relevancia = BAIXA</div>
+      </div>
+
+      <h3>Achados de consumo</h3>
+
+      <div class="fx">
+        <p class="cap">GASTO_CATEGORIA_ACIMA_DA_MEDIA · uma por categoria que dispara</p>
+        <div class="expr">gatilho    gastoMês &gt; média × 1,25   E   excedente ≥ R$ 50
+           (categorias sem histórico, média = 0, são ignoradas)
+
+excedente     = gastoMês − média                      <span class="u">R$/mês</span>
+impactoMensal = excedente
+impactoAnual  = excedente × 12                        <span class="u">R$/ano</span>
+scoreImpacto  = 100 × excedente / média               <span class="u">pp</span>
+
+gravidade     peso = 100 × excedente / rendaMensal
+              &gt;15% CRITICO · &gt;8% ALTO · &gt;3% MEDIO · senão BAIXO</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> O fator 1,25 separa desvio de flutuação normal;
+          o piso de R$ 50 evita gerar achado para R$ 4 de café a mais.<br>
+          <b>A gravidade é relativa à renda</b>, não absoluta: R$ 300 a mais em delivery pesa muito
+          diferente para quem ganha R$ 2.000 e para quem ganha R$ 20.000.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">CONCENTRACAO_EXCESSIVA_CATEGORIA</p>
+        <div class="expr">gatilho       concentração &gt; 35%
+impactoAnual  = gasto da maior categoria × 12
+gravidade     = concentração &gt; 50% ? ALTO : MEDIO</div>
+        <p class="note">
+          <b>Cuidado com a leitura do impacto:</b> aqui o custo anual é o gasto <em>inteiro</em> da
+          categoria, não o excedente. É "quanto essa concentração representa", não "quanto você
+          economizaria". Semanticamente diferente dos outros achados — ver §22.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">GASTO_RECORRENTE_VENDEDOR · top 3 por nº de compras</p>
+        <div class="expr">gatilho       compras no mês ≥ 6   E   total ≥ R$ 50
+impactoAnual  = total × 12
+scoreImpacto  = nº de compras
+gravidade     mesma escala relativa à renda</div>
+        <p class="note">
+          <b>O que captura:</b> o gasto que não parece gasto — muitas compras pequenas no mesmo
+          lugar. R$ 68 nove vezes não dói como R$ 612 uma vez, mas é o mesmo dinheiro.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">TAXA_POUPANCA_NEGATIVA</p>
+        <div class="expr">gatilho       despesaMensal &gt; rendaMensal &gt; 0
+déficit       = despesa − renda
+impactoAnual  = déficit × 12
+gravidade     = CRITICO (sempre)</div>
+      </div>
+
+      <div class="fx trace">
+        <p class="cap">Marina · achados de consumo</p>
+        <div class="expr">Delivery    612 &gt; 380 × 1,25 = 475  ✓   excedente 232 ≥ 50  ✓
+            anual = 232 × 12 = <b>R$ 2.784</b>   desvio = 61,05%
+            peso = 100 × 232/4.000 = 5,80%  →  gravidade <b>MEDIO</b>
+
+Lazer       468 &gt; 300 × 1,25 = 375  ✓   excedente 168 ≥ 50  ✓
+            anual = 168 × 12 = <b>R$ 2.016</b>   peso 4,20%  →  <b>MEDIO</b>
+
+Outros      900 &gt; 770 × 1,25 = 962,50  ✗   não dispara
+Mercado     980 &gt; 950 × 1,25 = 1.187,50 ✗  não dispara
+Transporte  520 &gt; 500 × 1,25 = 625  ✗      não dispara
+
+Concentração 28,16% &gt; 35%  ✗              não dispara
+
+iFood       9 compras ≥ 6  ✓   R$ 612 ≥ 50  ✓
+            anual = 612 × 12 = <b>R$ 7.344</b>
+            peso = 100 × 612/4.000 = 15,30%  →  gravidade <b>CRITICO</b>
+
+Taxa poupança  2.900 &gt; 4.000  ✗           não dispara
+
+                                       <b>3 achados gerados</b></div>
+        <p class="note">
+          <b>Note o problema:</b> os R$ 612 de delivery aparecem duas vezes — como excedente de
+          categoria (R$ 2.784/ano) e como gasto de vendedor (R$ 7.344/ano). Os dois medem coisas
+          diferentes, mas ambos entram no total do ranking de impacto. Ver §22.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 11 -->
+    <section id="s11">
+      <h2><span class="num">11</span>SAUDE_FINANCEIRA — o índice geral</h2>
+
+      <p>
+        <span class="path">…/analyzers/SaudeFinanceiraAnalyzer.java</span> ·
+        modelo <code>SAUDE_FINANCEIRA_PONDERADA</code> v1.0
+      </p>
+
+      <p>
+        É a nota que o app mostra como "sua saúde financeira". Cinco indicadores ponderados, cada um
+        gravado com o peso e a contribuição que teve — é isso que permite mostrar não só a nota, mas
+        o que a está segurando.
+      </p>
+
+      <div class="fx">
+        <div class="expr">score = 0,30·n₁ + 0,20·n₂ + 0,20·n₃ + 0,15·n₄ + 0,15·n₅
+
+coeficienteGeral = score        (o composto já é o índice)</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> <b>Os cinco pesos — ponto de revisão mais
+          importante do documento.</b> O raciocínio: comprometimento de renda é o que mais determina
+          se a pessoa consegue respirar no mês (0,30); poupança e reserva medem a folga (0,20 cada);
+          endividamento total e pontualidade são consequência e histórico (0,15 cada).
+          <b>Nada disso foi validado contra dados.</b>
+        </p>
+      </div>
+
+      <h3>As cinco variáveis</h3>
+
+      <div class="fx">
+        <p class="cap">n₁ · COMPROMETIMENTO_RENDA · peso 0,30</p>
+        <div class="expr">valor bruto = 100 × comprometimentoMensal / rendaMensal   <span class="u">pp</span>
+
+L = { 10, 20, 30, 40, 60}
+N = {100, 88, 68, 40,  0}</div>
+        <p class="note">
+          <span class="chip c-conv">Convenção</span> O <b>30%</b> é o teto clássico de comprometimento
+          de renda com dívida, referência corrente de crédito no Brasil. A mesma constante
+          (<code>COMPROMETIMENTO_TETO</code>) é o gatilho do achado.<br>
+          <span class="chip c-cal">Calibrado</span> A nota <b>68</b> atribuída a esse ponto. Repare:
+          estar exatamente no teto convencional já derruba a variável em quase um terço. Tratei 30%
+          como "limite aceitável", não como "situação boa". Se a leitura de produto for outra, é este
+          número que muda.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">n₂ · TAXA_POUPANCA · peso 0,20</p>
+        <div class="expr">idêntica ao n₁ do CONSUMO — mesmo valor, mesmas faixas, peso diferente
+
+L = {−20,  0, 10, 20,  30}
+N = {  0, 30, 60, 85, 100}</div>
+      </div>
+
+      <div class="fx">
+        <p class="cap">n₃ · RESERVA_EMERGENCIA_MESES · peso 0,20</p>
+        <div class="expr">valor bruto = saldoDisponivel / (despesaMensal + comprometimentoMensal)   <span class="u">meses</span>
+
+L = {0,  1,  3,  6,  12}
+N = {0, 30, 65, 95, 100}</div>
+        <p class="note">
+          <span class="chip c-conv">Convenção</span> <b>6 meses</b> é a recomendação padrão de reserva
+          de emergência (<code>MESES_RESERVA_IDEAL</code>).<br>
+          <b>O denominador inclui as parcelas</b> de propósito: numa emergência elas continuam
+          vencendo. Quem tem R$ 5.000 guardados e R$ 1.200 de parcela tem menos meses de reserva do
+          que a despesa sozinha sugeriria.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">n₄ · ENDIVIDAMENTO_SOBRE_RENDA_ANUAL · peso 0,15</p>
+        <div class="expr">valor bruto = 100 × totalDividas / (rendaMensal × 12)   <span class="u">pp</span>
+
+L = { 10, 30, 60, 100, 200}
+N = {100, 85, 60,  30,   0}</div>
+        <p class="note">
+          <b>Por que existe se já há o comprometimento?</b> Mede coisa diferente: o comprometimento é
+          o <em>aperto do mês</em>, este é o <em>tamanho do buraco</em>. Duas pessoas com a mesma
+          parcela podem dever valores muito diferentes — e quem deve mais demora muito mais para sair,
+          mesmo pagando confortavelmente. <span class="chip c-cal">Calibrado</span> Todas as faixas.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">n₅ · PONTUALIDADE_PAGAMENTOS · peso 0,15</p>
+        <div class="expr">pagas            = parcelas com dataPagamento ≠ null
+vencidasNãoPagas = parcelas vencidas ainda pendentes
+
+valor bruto = 100 × pagas / (pagas + vencidasNãoPagas)   <span class="u">pp</span>
+denominador = 0  →  <b>100</b>
+
+L = { 50, 80, 95, 100}
+N = {  0, 55, 90, 100}</div>
+        <p class="note">
+          <b>Por que 100 e não 0 sem histórico:</b> quem acabou de contratar a dívida ainda não teve
+          nenhuma parcela vencer. Começar em zero faria a nota nascer péssima por ausência de dado,
+          não por comportamento.<br>
+          <b>Curva agressiva de propósito:</b> 80% de pontualidade já vale só 55. Atrasar 1 em cada 5
+          parcelas não é "razoável".
+        </p>
+      </div>
+
+      <h3>Marina · SAUDE_FINANCEIRA</h3>
+
+      <div class="fx trace">
+        <div class="expr">n₁ COMPROMETIMENTO   30,00 → fronteira exata de L[2]
+   f = (30 − 20)/(30 − 20) = 1,000
+   n = 88 + 1,000 × (68 − 88)               = <b>68,00</b>   c = 0,30 × 68,00 = <b>20,40</b>
+
+n₂ TAXA_POUPANCA     27,50                  = <b>96,25</b>   c = 0,20 × 96,25 = <b>19,25</b>
+
+n₃ RESERVA_MESES     0,292683 ∈ [0, 1]
+   f = (0,2927 − 0)/(1 − 0) = 0,2927
+   n = 0 + 0,2927 × (30 − 0)                = <b> 8,78</b>   c = 0,20 ×  8,78 = <b> 1,76</b>
+
+n₄ ENDIVIDAMENTO     100 × 9.700/48.000     = 20,21 ∈ [10, 30]
+   f = (20,21 − 10)/(30 − 10) = 0,5105
+   n = 100 + 0,5105 × (85 − 100)            = <b>92,34</b>   c = 0,15 × 92,34 = <b>13,85</b>
+
+n₅ PONTUALIDADE      100 × 4/4 = 100,00     = <b>100,00</b>  c = 0,15 × 100   = <b>15,00</b>
+                                                          ──────────────
+                                        score SAUDE = <b>70,26</b>
+
+classificação = BOA (≥70)   nivelRisco = BAIXO (≥70)   relevancia = BAIXA</div>
+        <p class="note">
+          <b>Leitura:</b> a reserva quase inexistente custou 18,24 dos 20 pontos possíveis daquele
+          indicador — de longe o maior buraco. Ainda assim o score fica em "BOA" porque poupança,
+          endividamento e pontualidade carregam. É exatamente esse tipo de compensação que o gráfico
+          de <em>drivers</em> (§18) existe para expor: a nota agregada esconde que a pessoa está a um
+          imprevisto de entrar no rotativo.
+        </p>
+      </div>
+
+      <h3>Achados de saúde</h3>
+
+      <div class="fx">
+        <p class="cap">COMPROMETIMENTO_RENDA_ALTO</p>
+        <div class="expr">gatilho       comprometimentoPercentual &gt; 30      (estritamente maior)
+excedente     = comprometimentoMensal − (rendaMensal × 0,30)
+impactoAnual  = excedente × 12
+gravidade     = comprometimento &gt; 50% ? CRITICO : ALTO</div>
+      </div>
+
+      <div class="fx">
+        <p class="cap">ORCAMENTO_DIVIDAS_ESTOURADO</p>
+        <div class="expr">teto          = rendaMensal × percDividas / 100     ← preferência do usuário
+gatilho       comprometimentoMensal &gt; teto
+impactoAnual  = (comprometimentoMensal − teto) × 12
+gravidade     = MEDIO</div>
+        <p class="note">
+          Os dois achados podem disparar juntos e são distintos de propósito: o primeiro compara com
+          a convenção de mercado, o segundo com o orçamento que <b>o próprio usuário</b> definiu.
+          Quem definiu 20% para dívidas quer ser avisado aos 21%, não aos 31%.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">SEM_RESERVA_EMERGENCIA</p>
+        <div class="expr">gatilho       mesesDeReserva &lt; 3   E   custoMensal &gt; 0
+
+custoMensal   = despesaMensal + comprometimentoMensal
+metaReserva   = custoMensal × 6
+faltante      = max(0, metaReserva − saldoDisponivel)  → impactoEstimadoValor
+
+impactoMensal = custoMensal × 0,08
+impactoAnual  = custoMensal × 0,96          ( = 0,08 × 12 )
+
+gravidade     = mesesDeReserva &lt; 1 ? ALTO : MEDIO</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> <b>O 0,08.</b> Não ter reserva não tem custo
+          direto — o custo é o que se paga por recorrer ao crédito num imprevisto. Modelei como uma
+          despesa emergencial de um mês caindo no rotativo a ~8% a.m.<br>
+          <b>O anual usa juros simples</b> (<code>0,08 × 12 = 0,96</code>). Composto daria
+          <code>(1,08)¹² − 1 ≈ 1,52</code>, quase 60% maior. Escolhi o conservador; decisão discutível
+          e sinalizada na §22.
+        </p>
+      </div>
+
+      <div class="fx trace">
+        <p class="cap">Marina · achados de saúde</p>
+        <div class="expr">COMPROMETIMENTO_ALTO   30,00 &gt; 30  ✗   <b>não dispara</b>  (fronteira exata)
+ORCAMENTO_ESTOURADO    teto = 4.000 × 30/100 = 1.200
+                       1.200 &gt; 1.200  ✗   <b>não dispara</b>
+
+SEM_RESERVA            0,2927 &lt; 3  ✓
+  custoMensal   = 2.900 + 1.200         = 4.100,00
+  metaReserva   = 4.100 × 6             = 24.600,00
+  faltante      = 24.600 − 1.200        = <b>23.400,00</b>
+  impactoMensal = 4.100 × 0,08          = 328,00
+  impactoAnual  = 4.100 × 0,96          = <b>R$ 3.936,00</b>
+  gravidade     0,2927 &lt; 1              → <b>ALTO</b>
+
+                                        <b>1 achado gerado</b></div>
+        <p class="note">
+          Os dois primeiros não disparam por um triz — <code>&gt;</code> e não <code>≥</code>. É o
+          comportamento correto (estar <em>no</em> teto não é estourar o teto), mas vale saber que
+          um usuário exatamente no limite não recebe alerta nenhum.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 12 -->
+    <section id="s12">
+      <h2><span class="num">12</span>INADIMPLENCIA — modelo logístico</h2>
+
+      <p>
+        <span class="path">…/analyzers/InadimplenciaAnalyzer.java</span> ·
+        modelo <code>LOGISTICO_INADIMPLENCIA</code> v1.0 · guarda: exige ≥1 dívida.
+      </p>
+
+      <p>
+        Estima a chance de o usuário atrasar algum pagamento nos próximos meses. É o único modelo que
+        produz <code>probabilidade</code>, e o único cuja estrutura não é média ponderada.
+      </p>
+
+      <div class="fx">
+        <div class="expr"><em>z</em> = <em>b</em>₀ + <em>b</em>₁<em>x</em>₁ + <em>b</em>₂<em>x</em>₂ + <em>b</em>₃<em>x</em>₃ + <em>b</em>₄<em>x</em>₄ + <em>b</em>₅<em>x</em>₅
+
+<em>p</em> = 1 / (1 + <em>e</em>⁻ᶻ)
+
+score            = 100 − 100<em>p</em>       ← saúde do lado do crédito
+coeficienteGeral = <em>z</em>              ← o logito bruto, gravado para auditoria</div>
+        <p class="note">
+          <span class="chip c-std">Padrão</span> A forma funcional é regressão logística padrão.
+          <span class="chip c-cal">Calibrado</span> <b>Todos os seis coeficientes.</b><br>
+          <b>Por que logística e não média ponderada:</b> risco não é linear. Quem tem um fator de
+          risco está bem; quem tem quatro está muito pior do que 4× um. A curva em S captura essa
+          aceleração e satura naturalmente perto de 0 e 1, sem precisar de clamp no resultado.
+        </p>
+      </div>
+
+      <h3>Termos do modelo</h3>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Termo</th><th class="n">b</th><th>x normalizado para [0,1]</th><th>Saturação</th></tr></thead>
+          <tbody>
+            <tr><td>intercepto</td><td class="n">−2,75</td><td>—</td><td>define a taxa base</td></tr>
+            <tr><td><code>COMPROMETIMENTO_RENDA</code></td><td class="n">2,40</td><td>clamp(comprometimento% / 60, 0, 1)</td><td>60% da renda</td></tr>
+            <tr><td><code>ATRASO_ATUAL</code></td><td class="n">2,10</td><td>clamp(diasAtrasoMáximo / 90, 0, 1)</td><td>90 dias</td></tr>
+            <tr><td><code>AUSENCIA_DE_RESERVA</code></td><td class="n">1,35</td><td>1 − clamp(mesesDeReserva / 6, 0, 1)</td><td>6 meses</td></tr>
+            <tr><td><code>DEFICIT_MENSAL</code></td><td class="n">1,60</td><td>poupança &lt; 0 ? clamp(|poupança| / 50, 0, 1) : 0</td><td>−50%</td></tr>
+            <tr><td><code>SITUACAO_DECLARADA</code></td><td class="n">0,90</td><td>tabela abaixo</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <b>Por que normalizar:</b> os indicadores têm unidades incompatíveis (pontos percentuais,
+        dias, meses). Escalar cada um para [0,1] antes de multiplicar pelo coeficiente é o que torna
+        os <em>b</em> comparáveis entre si — <code>b₁ = 2,40</code> significa "este fator, no
+        extremo, empurra o logito em 2,40", independentemente da unidade original.
+      </p>
+
+      <p>
+        <b>Por que saturar:</b> 90 e 200 dias de atraso são igualmente ruins do ponto de vista de
+        "vai atrasar de novo". Sem o teto, um caso extremo dominaria toda a soma.
+      </p>
+
+      <div class="fx">
+        <p class="cap">x₅ · SITUACAO_DECLARADA — enum do onboarding</p>
+        <div class="expr">ENDIVIDADO    → 1,00      "dívidas maiores do que a renda sustenta"
+NO_LIMITE     → 0,65      "fecha o mês no zero a zero"
+EQUILIBRADO   → 0,20      "consegue poupar um pouco"
+INVESTINDO    → 0,00      "sobra dinheiro e já investe"
+não informada → 0,50      ← assume o meio, não o melhor caso</div>
+        <p class="note">
+          <span class="chip c-der">Derivado</span> O enum e as descrições já existiam
+          (<code>users/internal/enums/SituacaoFinanceira.java</code>, V10).
+          <span class="chip c-cal">Calibrado</span> Os valores atribuídos.<br>
+          <b>É o único termo subjetivo do modelo</b> — vem do que a pessoa declarou sobre si, não de
+          dado transacional. Por isso tem o menor coeficiente (0,90).
+        </p>
+      </div>
+
+      <h3>Comportamento nos extremos</h3>
+
+      <div class="fx">
+        <div class="expr">todos os x = 0   →  <em>z</em> = −2,75
+                 <em>p</em> = 1/(1 + <em>e</em>^2,75) = 1/(1 + 15,64) = <b>0,0601</b>  ≈ 6,0%
+
+todos os x = 1   →  <em>z</em> = −2,75 + 2,40 + 2,10 + 1,35 + 1,60 + 0,90 = 5,60
+                 <em>p</em> = 1/(1 + <em>e</em>^−5,60) = <b>0,9963</b>  ≈ 99,6%</div>
+        <p class="note">
+          O intercepto foi escolhido para colocar a taxa base perto de <b>6%</b>: um usuário sem
+          nenhum fator de risco não tem probabilidade zero de atrasar, mas tem pouca.
+          <b>É o número mais fácil de recalibrar depois</b> — quando houver base real, é ele que se
+          ajusta primeiro, deslocando toda a curva sem mexer nos pesos relativos.
+        </p>
+      </div>
+
+      <h3>Marina · INADIMPLENCIA</h3>
+
+      <div class="fx trace">
+        <div class="expr">x₁ COMPROMETIMENTO   clamp(30,00 / 60)              = <b>0,5000</b>
+x₂ ATRASO            clamp(0 / 90)                  = <b>0,0000</b>
+x₃ SEM_RESERVA       1 − clamp(0,292683 / 6)
+                     = 1 − 0,0488                   = <b>0,9512</b>
+x₄ DEFICIT           poupança 27,50 &gt; 0            = <b>0,0000</b>
+x₅ SITUACAO          NO_LIMITE                      = <b>0,6500</b>
+
+<em>z</em> = −2,75
+  + 2,40 × 0,5000  = +1,2000
+  + 2,10 × 0,0000  = +0,0000
+  + 1,35 × 0,9512  = +1,2841
+  + 1,60 × 0,0000  = +0,0000
+  + 0,90 × 0,6500  = +0,5850
+                     ────────
+<em>z</em> = <b>0,3191</b>
+
+<em>p</em> = 1 / (1 + <em>e</em>^−0,3191) = 1 / 1,7269 = <b>0,5791</b>   →  57,91%
+
+score = 100 − 57,91 = <b>42,09</b>
+classificação = PROVAVEL (≥0,40)   nivelRisco = ALTO</div>
+        <p class="note">
+          <b>Resultado incômodo, e proposital mostrá-lo:</b> 57,91% de chance de atraso para alguém
+          com poupança positiva, zero atrasos históricos e comprometimento exatamente no teto
+          convencional. Quem carrega o resultado é <code>x₃</code> — a ausência de reserva sozinha
+          contribui 1,28 dos 3,07 pontos acima do intercepto. Ver §22.
+        </p>
+      </div>
+
+      <h3>Achados de inadimplência</h3>
+
+      <div class="fx">
+        <p class="cap">PARCELA_EM_ATRASO · uma por dívida com parcela vencida</p>
+        <div class="expr">encargos = Σ sobre as parcelas vencidas de:
+
+             valor × multa/100                    ← multa, uma única vez
+           + valor × (mora/100) × dias / 30       ← mora, pro rata dos dias
+
+impactoEstimadoValor = valorAtrasado
+impactoMensal        = encargos
+impactoAnual         = encargos / dias × 365
+scoreImpacto         = diasAtraso
+gravidade            = dias &gt; 30 ? CRITICO : ALTO</div>
+        <p class="note">
+          <span class="chip c-der">Derivado</span> <code>multaAtraso</code> e <code>jurosMora</code>
+          são campos de <code>Divida</code>, com a semântica documentada lá: multa aplicada
+          <b>uma única vez</b> sobre a parcela; mora em <b>% a.m. proporcional aos dias</b>. Ambos
+          anuláveis → ausência vira zero, sem inventar taxa de mercado.<br>
+          <span class="chip c-std">Padrão</span> A anualização <code>/dias × 365</code> é regra de
+          três: os encargos correm por dia, então o que acumulou em <code>dias</code> projeta o custo
+          de não resolver.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">DIVIDA_JUROS_ALTO · a dívida de maior taxa com saldo &gt; 0</p>
+        <div class="expr"><em>i</em>           = taxaJuros / 100                  ← % a.m. para decimal
+jurosAnuais = saldo × ((1 + <em>i</em>)¹² − 1)         ← efetiva anual composta
+
+impactoMensal = jurosAnuais / 12
+impactoAnual  = jurosAnuais
+scoreImpacto  = taxaJuros
+gravidade     = jurosAnuais &gt; R$ 2.000 ? ALTO : MEDIO</div>
+        <p class="note">
+          <span class="chip c-std">Padrão</span> Conversão de taxa mensal para efetiva anual em
+          regime composto. É o custo de <b>manter</b> a dívida por 12 meses no saldo atual — não o
+          custo total do contrato.<br>
+          <span class="chip c-cal">Calibrado</span> O corte de R$ 2.000 para a gravidade.<br>
+          O texto cita o <code>metodoQuitacao</code> do usuário para justificar a priorização.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">RISCO_INADIMPLENCIA_ALTO</p>
+        <div class="expr">gatilho       <em>p</em> ≥ 0,40
+custoEsperado = <em>p</em> × comprometimentoMensal      ← valor esperado
+impactoAnual  = custoEsperado × 12
+gravidade     = <em>p</em> ≥ 0,60 ? CRITICO : ALTO</div>
+        <p class="note">
+          <span class="chip c-std">Padrão</span> Valor esperado: probabilidade × exposição.
+          <span class="chip c-cal">Calibrado</span> O gatilho em 0,40.
+        </p>
+      </div>
+
+      <div class="fx trace">
+        <p class="cap">Marina · achados de inadimplência</p>
+        <div class="expr">PARCELA_EM_ATRASO    nenhuma parcela vencida  ✗   <b>não dispara</b>
+
+DIVIDA_JUROS_ALTO    maior taxa = Cartão, 12,00% a.m., saldo 6.500
+  <em>i</em>            = 12,00 / 100                    = 0,12
+  (1,12)¹²     = 3,895975
+  fator anual  = 3,895975 − 1                  = 2,895975
+  jurosAnuais  = 6.500 × 2,895975              = <b>R$ 18.823,84</b>
+  impactoMensal = 18.823,84 / 12               = 1.568,65
+  gravidade    18.823,84 &gt; 2.000               → <b>ALTO</b>
+
+RISCO_INADIMPLENCIA  <em>p</em> = 0,5791 ≥ 0,40  ✓
+  custoEsperado = 0,5791 × 1.200               = 694,92
+  impactoAnual  = 694,92 × 12                  = <b>R$ 8.339,04</b>
+  gravidade    0,5791 &lt; 0,60                   → <b>ALTO</b>
+
+                                        <b>2 achados gerados</b></div>
+        <p class="note">
+          R$ 18.823/ano de juros num saldo de R$ 6.500 parece absurdo até lembrar que 12% a.m.
+          <em>é</em> absurdo — é rotativo de cartão. A conta está certa e o número é justamente o
+          argumento da recomendação.
+        </p>
+      </div>
+
+      <div class="call judge">
+        <span class="lbl">Auditabilidade</span>
+        <p>
+          Cada termo vira uma linha em <code>tb_analise_resultado_variavel</code> com
+          <code>peso = b</code> (o coeficiente), <code>valorFaixa = x × 100</code> e
+          <code>coeficiente = x·b</code> (a contribuição). Junto de <code>modelo_utilizado</code> e
+          <code>versao_modelo</code>, isso torna qualquer probabilidade histórica reproduzível — e
+          permite comparar v1.0 com v2.0 quando os coeficientes forem recalibrados.
+          <b>Mas esse reuso da coluna <code>peso</code> quebra o gráfico de drivers</b> — ver §22.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 13 -->
+    <section id="s13">
+      <h2><span class="num">13</span>PREVISAO — projeção linear</h2>
+
+      <p>
+        <span class="path">…/analyzers/PrevisaoAnalyzer.java</span> ·
+        modelo <code>PROJECAO_LINEAR</code> v1.0
+      </p>
+
+      <p>
+        Assume que o resto do mês se parece com os meses anteriores. Essa premissa é exatamente o que
+        o usuário precisa ver questionada quando o resultado dá negativo — não tenta prever o
+        imprevisível.
+      </p>
+
+      <div class="fx">
+        <div class="expr">diasRestantes    = últimoDiaDoMês − hoje.dia              <span class="u">dias</span>
+despesaDiária    = despesaMensal / últimoDiaDoMês        <span class="u">R$/dia</span>
+despesaAtéOFim   = despesaDiária × diasRestantes         <span class="u">R$</span>
+
+parcelasAVencer  = Σ valorTotal das parcelas pendentes com
+                     hoje ≤ vencimento ≤ fimDoMês        <span class="u">R$</span>
+
+receitaAReceber  = max(0, rendaMensal − receitaMesCorrente)   <span class="u">R$</span>
+
+<b>saldoProjetado = saldo + receitaAReceber − despesaAtéOFim − parcelasAVencer</b></div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> O modelo de ritmo diário constante.<br>
+          <b><code>max(0, …)</code> na receita:</b> quem já recebeu mais do que declara não "deve"
+          receita ao mês. Sem isso, um bônus lançado produziria receita futura negativa e a projeção
+          afundaria sem motivo.<br>
+          <b>A conta inteira é gravada</b> em <code>explicacao</code> com os valores, então a
+          projeção é conferível linha a linha direto no banco.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">Horizonte de quitação</p>
+        <div class="expr">mesesParaQuitar = ⌈ totalDividas / (comprometimentoMensal + aporteExtraMensal) ⌉
+
+  null se totalDividas ≤ 0  ou  pagamentoMensal ≤ 0</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> Divisão simples, <b>sem considerar juros</b> —
+          subestima o prazo real de dívidas caras. Simplificação consciente para o número de topo;
+          a tabela de parcelas real, que já considera amortização, continua sendo a fonte da verdade
+          por dívida. Devolve <code>null</code> em vez de "infinito" — projetar infinito não ajuda
+          ninguém.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">Nota do saldo projetado</p>
+        <div class="expr">folga = saldoProjetado / despesaMensal        ← adimensional
+
+L = { −1,  0, 0,5,  1,   3}
+N = {  0, 35,  60, 80, 100}
+
+despesaMensal = 0  →  saldoProjetado ≥ 0 ? 70 : 30</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> A nota é a folga <em>relativa</em> à despesa
+          mensal, não o valor absoluto: R$ 500 sobrando significa coisas diferentes para quem gasta
+          R$ 400 e para quem gasta R$ 8.000 por mês.
+        </p>
+      </div>
+
+      <h3>Marina · PREVISAO</h3>
+
+      <div class="fx trace">
+        <div class="expr">hoje = 15 de agosto        últimoDiaDoMês = 31
+
+diasRestantes   = 31 − 15                            = <b>16</b>
+despesaDiária   = 2.900 / 31                         = 93,548387
+despesaAtéOFim  = 93,548387 × 16                     = <b>1.496,77</b>
+
+parcelasAVencer   Cartão vence dia 20, ≥ hoje  ✓     = 780,00
+                  Empréstimo dia 10, já pago   ✗
+                                                     = <b>780,00</b>
+
+receitaAReceber = max(0, 4.000 − 4.000)              = <b>0,00</b>
+
+saldoProjetado  = 1.200 + 0 − 1.496,77 − 780         = <b>−1.076,77</b>
+
+folga           = −1.076,77 / 2.900                  = −0,3713 ∈ [−1, 0]
+  f = (−0,3713 − (−1))/(0 − (−1)) = 0,6287
+  n = 0 + 0,6287 × (35 − 0)                          = <b>22,00</b>
+
+mesesParaQuitar = ⌈ 9.700 / (1.200 + 0) ⌉ = ⌈8,08⌉   = <b>9 meses</b>
+
+score = 22,00   classificação = NEGATIVO   nivelRisco = CRITICO (&lt;30)</div>
+      </div>
+
+      <h3>Achados de previsão</h3>
+
+      <div class="fx">
+        <p class="cap">SALDO_PROJETADO_NEGATIVO</p>
+        <div class="expr">gatilho       saldoProjetado &lt; 0
+falta         = |saldoProjetado|
+impactoAnual  = falta × 12
+scoreImpacto  = 100 × falta / rendaMensal
+gravidade     = falta &gt; rendaMensal × 0,20 ? CRITICO : ALTO</div>
+      </div>
+
+      <div class="fx">
+        <p class="cap">APORTE_EXTRA_ACELERA_QUITACAO</p>
+        <div class="expr">gatilho    sobraMensal ≥ R$ 100   E   existe dívida ativa
+
+alvo       conforme metodoQuitacao:
+             AVALANCHE → maior taxa de juros    (menor custo total)
+             SNOWBALL  → menor saldo            (vitória rápida)
+             TSUNAMI   → maior peso emocional   (alívio psicológico)
+             (nulo)    → maior taxa de juros
+
+aporte     = sobraMensal / 2
+prazo      = nº de parcelas pendentes | quantidadeParcelas | 12
+economia   = aporte × ((1 + <em>i</em>)^prazo − 1)
+
+só gera achado se economia &gt; 0        gravidade = BAIXO</div>
+        <p class="note">
+          <span class="chip c-der">Derivado</span> <code>MetodoQuitacao</code> já existia com a
+          semântica documentada no enum; o analisador apenas a respeita.<br>
+          <span class="chip c-std">Padrão</span> A economia é o valor futuro dos juros que aquele
+          principal deixaria de gerar pelo prazo restante.<br>
+          <span class="chip c-cal">Calibrado</span> O piso de R$ 100 e o <b>aporte = metade da
+          sobra</b> — sugerir a sobra inteira ignoraria que ela também precisa virar reserva.
+        </p>
+      </div>
+
+      <div class="fx trace">
+        <p class="cap">Marina · achados de previsão</p>
+        <div class="expr">SALDO_PROJETADO_NEGATIVO   −1.076,77 &lt; 0  ✓
+  falta        = 1.076,77
+  impactoAnual = 1.076,77 × 12               = <b>R$ 12.921,24</b>
+  limiar crit. = 4.000 × 0,20 = 800
+  1.076,77 &gt; 800                             → <b>CRITICO</b>
+
+APORTE_EXTRA               sobraMensal = −100 &lt; 100  ✗   <b>não dispara</b>
+
+                                        <b>1 achado gerado</b></div>
+      </div>
+
+      <div class="call judge">
+        <span class="lbl">Limitação conhecida</span>
+        <p>
+          Todas as variáveis deste analisador são gravadas com <code>peso = 1</code>. Elas são
+          componentes de uma conta aditiva em reais, não pesos de média ponderada. Isso quebra o
+          gráfico de <em>score drivers</em> para este tipo — ver §22.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 14 -->
+    <section id="s14">
+      <h2><span class="num">14</span>RISCO — consolidação</h2>
+
+      <p>
+        <span class="path">…/analyzers/RiscoConsolidator.java</span> ·
+        modelo <code>RISCO_CONSOLIDADO</code> v1.0
+      </p>
+
+      <p>
+        <b>Não implementa <code>AnalisadorFinanceiro</code>.</b> Os outros analisadores olham o
+        retrato financeiro; este olha o que eles concluíram. Forçá-lo na mesma interface exigiria que
+        ela carregasse um parâmetro que só uma implementação usa. O orquestrador o chama
+        explicitamente, depois do laço.
+      </p>
+
+      <div class="fx">
+        <div class="expr">riscoᵢ = 100 − scoreᵢ          ← score alto = situação boa
+
+              Σ (pesoᵢ × riscoᵢ)
+scoreRisco = ────────────────────      ← renormalização pela soma dos pesos presentes
+                  Σ pesoᵢ
+
+  INADIMPLENCIA    0,40
+  SAUDE_FINANCEIRA 0,30
+  PREVISAO         0,20
+  CONSUMO          0,10</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> Os quatro pesos. Inadimplência pesa mais porque é
+          a única que fala de um evento concreto e datado; consumo pesa menos porque é o mais fácil
+          de corrigir sozinho.<br>
+          <b>A divisão por Σpeso é essencial:</b> se uma análise não rodou — usuário sem dívida não
+          gera INADIMPLENCIA — os pesos restantes somam 0,60 e o risco sairia diluído em 40%. Sem
+          renormalizar, alguém sem dívida pareceria muito mais seguro do que é.
+        </p>
+      </div>
+
+      <h3>Marina · RISCO</h3>
+
+      <div class="fx trace">
+        <div class="expr">                   score    risco   peso   contribuição
+INADIMPLENCIA      42,09    57,91   0,40   0,40 × 57,91 = <b>23,16</b>
+SAUDE_FINANCEIRA   70,26    29,74   0,30   0,30 × 29,74 = <b> 8,92</b>
+PREVISAO           22,00    78,00   0,20   0,20 × 78,00 = <b>15,60</b>
+CONSUMO            85,07    14,93   0,10   0,10 × 14,93 = <b> 1,49</b>
+                                    ────                 ──────
+                                    1,00                  49,17
+
+scoreRisco = 49,17 / 1,00 = <b>49,17</b>
+
+nível = MEDIO (≥30, mas &lt; 50 por 0,83)     relevancia = MEDIA</div>
+        <p class="note">
+          <b>Caso de fronteira instrutivo:</b> falta menos de um ponto para "ALTO". Uma despesa a
+          mais lançada hoje moveria a previsão e provavelmente cruzaria o limiar. Isso mostra por que
+          o gráfico de evolução (§18) usa um limiar de ±2 pontos para declarar tendência — oscilações
+          dessa ordem são ruído, não melhora.
+        </p>
+      </div>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th class="n">scoreRisco</th><th>Nível</th><th>Relevância</th></tr></thead>
+          <tbody>
+            <tr><td class="n">≥ 70</td><td>CRITICO</td><td>ALTA</td></tr>
+            <tr><td class="n">≥ 50</td><td>ALTO</td><td>ALTA</td></tr>
+            <tr><td class="n">≥ 30</td><td>MEDIO</td><td>MEDIA</td></tr>
+            <tr><td class="n">&lt; 30</td><td>BAIXO</td><td>BAIXA</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Não gera achados próprios — os problemas já foram nomeados por quem os detectou, e repetir
+        aqui criaria recomendação duplicada. Ele apenas <em>empresta</em> a contagem
+        (<code>acionavel</code> e o resumo citam quantos pontos de atenção existem) e consolida as
+        entidades das outras análises, deduplicando por (tipo, id).
+      </p>
+    </section>
+
+    <!-- ==================================================== 15 -->
+    <section id="s15">
+      <h2><span class="num">15</span>Persistência: uma linha por tipo por dia</h2>
+
+      <p><span class="path">analysis/application/service/AnalysisPersistenceService.java</span></p>
+
+      <div class="fx">
+        <div class="expr">chave de upsert = (idUsuario, tipo, dataCriacao ∈ [00:00 hoje, 23:59:59 hoje])
+
+encontrou   → atualiza a linha, incluindo dataCriacao = agora
+não achou   → insere</div>
+        <p class="note">
+          O usuário que lança dez transações num sábado não gera dez pontos no gráfico de evolução:
+          gera um, o do sábado, com o número mais recente. A <code>dataCriacao</code> é recarimbada
+          mesmo reaproveitando a linha, porque é ela que diz "esse número é de hoje" na tela.
+        </p>
+      </div>
+
+      <h3>Mapa draft → colunas</h3>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Campo do draft</th><th>Tabela.coluna</th><th>Observação</th></tr></thead>
+          <tbody>
+            <tr><td><code>tipo</code></td><td><code>tb_analises.tipo</code></td><td>enum como string</td></tr>
+            <tr><td><code>resumo</code></td><td><code>tb_analises.resultado_resumo</code></td><td>frase para a lista do app</td></tr>
+            <tr><td><code>relevancia</code></td><td><code>tb_analises.relevancia</code></td><td>ALTA / MEDIA / BAIXA</td></tr>
+            <tr><td><code>periodoInicio / Fim</code></td><td><code>tb_analises.periodo_*</code></td><td>janela que a análise cobriu</td></tr>
+            <tr><td><code>acionavel</code></td><td><code>tb_analises.acionavel</code></td><td>true se há achados</td></tr>
+            <tr><td>— fixo —</td><td><code>tb_analises.origem</code></td><td>sempre <code>"MOTOR_ANALISE"</code></td></tr>
+            <tr><td>— fixo —</td><td><code>tb_analises.status</code></td><td>sempre <code>FINALIZADA</code></td></tr>
+            <tr><td><code>resultado.score</code></td><td><code>tb_analise_resultado.score</code></td><td>0–100</td></tr>
+            <tr><td><code>resultado.probabilidade</code></td><td><code>…resultado.probabilidade</code></td><td>só INADIMPLENCIA</td></tr>
+            <tr><td><code>resultado.coeficienteGeral</code></td><td><code>…resultado.coeficiente_geral</code></td><td>varia por modelo</td></tr>
+            <tr><td><code>resultado.nivelRisco</code></td><td><code>…resultado.nivel_risco</code></td><td>BAIXO…CRITICO</td></tr>
+            <tr><td><code>resultado.modeloUtilizado</code></td><td><code>…resultado.modelo_utilizado</code></td><td>ex. <code>LOGISTICO_INADIMPLENCIA</code></td></tr>
+            <tr><td><code>resultado.versaoModelo</code></td><td><code>…resultado.versao_modelo</code></td><td><code>"1.0"</code></td></tr>
+            <tr><td><code>resultado.explicacao</code></td><td><code>…resultado.explicacao</code></td><td>a conta por extenso</td></tr>
+            <tr><td><code>variavel.valorFaixa</code></td><td><code>…variavel.valor_faixa</code></td><td><b>nᵢ</b>, a nota 0–100</td></tr>
+            <tr><td><code>variavel.peso</code></td><td><code>…variavel.peso</code></td><td>peso, ou <b>b</b> no logístico</td></tr>
+            <tr><td><code>variavel.coeficiente</code></td><td><code>…variavel.coeficiente</code></td><td><b>cᵢ</b>, a contribuição</td></tr>
+            <tr><td><code>achado.regra</code></td><td><code>tb_analise_impacto.regra</code></td><td>chave de recorrência (V13)</td></tr>
+            <tr><td><code>achado.gravidade</code></td><td><code>…impacto.gravidade</code></td><td>string do <code>NivelRisco</code></td></tr>
+            <tr><td><code>achado.impactoMensal</code></td><td><code>…impacto.impacto_temporal_mensal</code></td><td>R$/mês</td></tr>
+            <tr><td><code>achado.impactoAnual</code></td><td><code>…impacto.impacto_temporal_anual</code></td><td>R$/ano — o do portão</td></tr>
+            <tr><td><code>achado.dados</code></td><td>— não persistido —</td><td>só alimenta os templates</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Os filhos são <b>substituídos por inteiro</b> (delete + flush + insert): variáveis, entidades
+        e impactos. O conjunto muda de execução para execução — uma categoria sai da lista, outra
+        entra — e casar item a item custaria mais do que reescrever.
+        <code>tb_analise_resultado</code> é 1:1 e é atualizado no lugar.
+      </p>
+
+      <h4>Repositórios novos</h4>
+      <ul>
+        <li><span class="path">IAnaliseImpactoRepository</span> — <code>findByAnalise</code>, <code>deleteByAnalise</code>, <code>contarOcorrencias</code>, <code>contarOcorrenciasSemEntidade</code>, <code>buscarRecentes</code></li>
+        <li><span class="path">IAnaliseEntidadeRepository</span> — <code>findByAnalise</code>, <code>deleteByAnalise</code></li>
+        <li><span class="path">IAnaliseResultadoVariavelRepository</span> — <code>findByAnaliseResultado</code>, <code>deleteByAnaliseResultado</code></li>
+        <li><span class="path">IRecomendacaoEntidadeRepository</span> — CRUD</li>
+      </ul>
+    </section>
+
+    <!-- ==================================================== 16 -->
+    <section id="s16">
+      <h2><span class="num">16</span>De achado a recomendação</h2>
+
+      <p><span class="path">analysis/application/service/RecommendationEngine.java</span></p>
+
+      <div class="fx">
+        <p class="cap">Filtro 1 · recorrência</p>
+        <div class="expr">ocorrências = COUNT(DISTINCT análise.id)
+              WHERE idUsuario = ?  AND  regra = ?
+                AND entidadeOrigemId = ?          (ou IS NULL)
+                AND análise.dataCriacao ≥ agora − 30 dias
+
+qualifica se  ocorrências ≥ 3</div>
+        <p class="note">
+          <b>Por que contar análises e não datas:</b> cada regra pertence a um único analisador, e há
+          exatamente uma análise por tipo por dia — logo, contar análises distintas <em>é</em> contar
+          dias distintos. Isso evita depender de função de data específica do banco
+          (<code>DATE()</code>, <code>TRUNC</code>) e mantém a query portável.<br>
+          <b>Duas queries, não uma:</b> <code>contarOcorrencias</code> e
+          <code>contarOcorrenciasSemEntidade</code>. Usar <code>:id IS NULL</code> na mesma query faz
+          o Postgres não conseguir inferir o tipo do parâmetro e falhar <em>em execução</em>. Nulo
+          acontece de verdade — categoria sem classificação produz achado sem entidade.<br>
+          <b>O que filtra:</b> o mês atípico. A viagem, o presente, o conserto do carro.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">Filtro 2 · impacto</p>
+        <div class="expr">qualifica se  impactoAnual ≥ R$ 600</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> R$ 600/ano ≈ R$ 50/mês.<br>
+          <b>Por que o anual da última medição e não a soma dos dias:</b> o mesmo estouro mensal é
+          redetectado a cada análise. Somar diariamente contaria o mesmo problema três vezes só porque
+          o usuário abriu o app três dias seguidos. O valor comparado é o custo anual projetado
+          <em>mais recente</em>: "esse padrão apareceu em 3 dias e projeta R$ X/ano".<br>
+          <b>O que filtra:</b> o que é real mas irrelevante.
+        </p>
+      </div>
+
+      <div class="fx">
+        <p class="cap">Filtro 3 · deduplicação — mesma regra + mesma entidade</p>
+        <div class="expr">PENDENTE   → não recria    já está na tela
+ACEITA     → não recria    já está na tela
+IGNORADA   → não recria    o usuário recusou; não se insiste
+CONCLUIDA  → recria apenas se criada há mais de 30 dias</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> O cooldown de 30 dias.<br>
+          A comparação inclui a entidade porque a mesma regra vale para alvos diferentes. Quando o
+          achado não tem entidade, casa com a recomendação que também não tem.
+        </p>
+      </div>
+
+      <h3>Marina · dia 12, terceira análise</h3>
+
+      <div class="fx trace">
+        <div class="expr">achado                            impactoAnual   ocorr.  ≥600  →  recomendação
+─────────────────────────────────────────────────────────────────────────────
+GASTO_CATEGORIA · Delivery         2.784,00      3      ✓    <b>ECONOMIA · MEDIA</b>
+GASTO_CATEGORIA · Lazer            2.016,00      3      ✓    <b>ECONOMIA · MEDIA</b>
+GASTO_RECORRENTE · iFood           7.344,00      3      ✓    <b>HABITO · CRITICA</b>
+SEM_RESERVA_EMERGENCIA             3.936,00      3      ✓    <b>HABITO · ALTA</b>
+DIVIDA_JUROS_ALTO · Cartão        18.823,84      3      ✓    <b>ECONOMIA · ALTA</b>
+RISCO_INADIMPLENCIA_ALTO           8.339,04      3      ✓    <b>ALERTA · ALTA</b>
+SALDO_PROJETADO_NEGATIVO          12.921,24      3      ✓    <b>ALERTA · CRITICA</b>
+                                                             ─────────────────
+                                                             <b>7 recomendações</b></div>
+        <p class="note">
+          <b>Sete de uma vez.</b> Todas passam os dois filtros — os impactos são todos muito acima de
+          R$ 600. Não há teto de recomendações por execução. Ver §22.
+        </p>
+      </div>
+
+      <h3>O que é gravado</h3>
+      <div class="fx">
+        <div class="expr">Recomendacao
+  regra        ← RegraAnalise.name()
+  tipo         ← regra.tipoRecomendacao()   ECONOMIA | ALERTA | INVESTIMENTO | HABITO
+  dificuldade  ← regra.dificuldade()        escala 1 (trivial) … 5 (duro)
+  prioridade   ← gravidade do achado:
+                   CRITICO → CRITICA    ALTO  → ALTA
+                   MEDIO   → MEDIA      BAIXO → BAIXA
+                   (nula)  → MEDIA
+  status       ← PENDENTE
+  analise      ← a análise que a originou
+
+RecomendacaoEntidade (só se houver entidade)
+  tipoEntidade, idEntidade, papelEntidade = "ORIGEM"</div>
+      </div>
+
+      <h3>Catálogo de regras</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Regra</th><th>Analisador</th><th>Tipo</th><th>Impacto</th><th class="n">Dif.</th></tr></thead>
+          <tbody>
+            <tr><td><code>GASTO_CATEGORIA_ACIMA_DA_MEDIA</code></td><td>CONSUMO</td><td>ECONOMIA</td><td>COMPORTAMENTO</td><td class="n">2,00</td></tr>
+            <tr><td><code>CONCENTRACAO_EXCESSIVA_CATEGORIA</code></td><td>CONSUMO</td><td>ECONOMIA</td><td>COMPORTAMENTO</td><td class="n">3,00</td></tr>
+            <tr><td><code>GASTO_RECORRENTE_VENDEDOR</code></td><td>CONSUMO</td><td>HABITO</td><td>COMPORTAMENTO</td><td class="n">2,00</td></tr>
+            <tr><td><code>TAXA_POUPANCA_NEGATIVA</code></td><td>CONSUMO</td><td>ALERTA</td><td>FINANCEIRO</td><td class="n">4,00</td></tr>
+            <tr><td><code>COMPROMETIMENTO_RENDA_ALTO</code></td><td>SAUDE</td><td>ALERTA</td><td>FINANCEIRO</td><td class="n">4,00</td></tr>
+            <tr><td><code>SEM_RESERVA_EMERGENCIA</code></td><td>SAUDE</td><td>HABITO</td><td>FINANCEIRO</td><td class="n">3,00</td></tr>
+            <tr><td><code>ORCAMENTO_DIVIDAS_ESTOURADO</code></td><td>SAUDE</td><td>ALERTA</td><td>FINANCEIRO</td><td class="n">3,00</td></tr>
+            <tr><td><code>PARCELA_EM_ATRASO</code></td><td>INADIMPLENCIA</td><td>ALERTA</td><td>DIVIDA</td><td class="n">4,00</td></tr>
+            <tr><td><code>RISCO_INADIMPLENCIA_ALTO</code></td><td>INADIMPLENCIA</td><td>ALERTA</td><td>RISCO</td><td class="n">5,00</td></tr>
+            <tr><td><code>DIVIDA_JUROS_ALTO</code></td><td>INADIMPLENCIA</td><td>ECONOMIA</td><td>DIVIDA</td><td class="n">3,00</td></tr>
+            <tr><td><code>SALDO_PROJETADO_NEGATIVO</code></td><td>PREVISAO</td><td>ALERTA</td><td>FINANCEIRO</td><td class="n">4,00</td></tr>
+            <tr><td><code>APORTE_EXTRA_ACELERA_QUITACAO</code></td><td>PREVISAO</td><td>INVESTIMENTO</td><td>DIVIDA</td><td class="n">2,00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><span class="chip c-cal">Calibrado</span> As dificuldades e os mapeamentos para tipo.</p>
+    </section>
+
+    <!-- ==================================================== 17 -->
+    <section id="s17">
+      <h2><span class="num">17</span>O texto: regra decide, Gemini escreve</h2>
+
+      <p><span class="path">analysis/application/service/RecommendationTextService.java</span></p>
+
+      <p>
+        A separação é deliberada e não é negociável: <b>conselho financeiro não pode depender de um
+        modelo generativo acertar a aritmética.</b> A regra decide o que recomendar e calcula os
+        números; o Gemini só decide como falar.
+      </p>
+
+      <div class="fx">
+        <div class="expr">template = RegraAnalise.titulo(dados) + descricao(dados)
+                                    ↑ placeholders {chave} preenchidos com
+                                      valores já formatados em pt-BR
+
+Gemini não configurado  →  devolve template
+chamada falha           →  devolve template   (log em WARN)
+resposta não é JSON     →  devolve template
+campo ausente/vazio     →  devolve o campo do template
+
+nunca lança exceção</div>
+        <p class="note">
+          Placeholder sem valor correspondente <b>fica como está</b> em vez de virar "null" no meio da
+          frase — o buraco aparece no log, não na tela do usuário.
+        </p>
+      </div>
+
+      <div class="fx trace">
+        <p class="cap">Exemplo · GASTO_CATEGORIA_ACIMA_DA_MEDIA para Marina</p>
+        <div class="expr">dados = { categoria:      "Delivery"
+          gastoMes:       "612,00"
+          mediaMes:       "380,00"
+          excedente:      "232,00"
+          excedenteAnual: "2.784,00" }
+
+template →  "Delivery está puxando mais que o normal"
+            "Você gastou R$ 612,00 em Delivery neste mês, contra uma
+             média de R$ 380,00 nos meses anteriores. São R$ 232,00 a
+             mais por mês, ou R$ 2.784,00 no ano se o ritmo continuar."
+
+Gemini   →  reescreve com <b>exatamente os mesmos números</b></div>
+      </div>
+
+      <h4>Restrições enviadas ao modelo</h4>
+      <ul>
+        <li>usar <b>exatamente</b> os mesmos valores numéricos; não inventar, não arredondar, não estimar;</li>
+        <li>não prometer resultado nem garantir economia;</li>
+        <li>tratar por "você"; sem emoji, sem exclamação;</li>
+        <li>título ≤ 60 caracteres; descrição ≤ 300 caracteres, 1–2 frases;</li>
+        <li>responder só com <code>{"titulo": …, "descricao": …}</code>, sem cercas de código.</li>
+      </ul>
+
+      <p>
+        O parser recorta do primeiro <code>{</code> ao último <code>}</code> — o modelo às vezes
+        embrulha em <code>```json</code> — e desiste no primeiro sinal de problema. Reusa o
+        <code>GeminiClient</code> que já existia em <code>common/gemini</code> e que até agora não era
+        usado por ninguém.
+      </p>
+    </section>
+
+    <!-- ==================================================== 18 -->
+    <section id="s18">
+      <h2><span class="num">18</span>Gráficos</h2>
+
+      <p>
+        Três novos, um corrigido. Todos leem pela <code>AnalysisIntegrationApi</code> — o módulo de
+        gráficos nunca toca repositório da análise.
+      </p>
+
+      <h3>Correção: risco geral fixo em "BAIXO"</h3>
+      <div class="fx">
+        <p class="cap">graphs/…/GetRiskGraphService.java</p>
+        <div class="expr">// antes
+String nivelRiscoGeral = analyses.isEmpty() ? "SEM_DADOS" : "BAIXO";
+
+// depois
+= getLatestRisk(idUsuario).map(r -> r.nivelRisco().name())
+    .orElse(analyses.isEmpty() ? "SEM_DADOS" : "NAO_CALCULADO");</div>
+        <p class="note">
+          O valor era literal: qualquer usuário com qualquer análise recebia "BAIXO". Não era descuido
+          — nada escrevia na tabela, então não havia de onde tirar o valor. Agora vem da análise
+          consolidada, com <code>NAO_CALCULADO</code> distinguindo "existem análises mas nenhuma de
+          risco" de "não há nada".
+        </p>
+      </div>
+
+      <h3>score-evolution</h3>
+      <div class="fx">
+        <div class="expr">variação  = scoreAtual − scoreAnterior
+
+variação &gt;  2  → MELHORANDO
+variação &lt; −2  → PIORANDO
+senão          → ESTAVEL
+só 1 ponto     → PRIMEIRA_MEDICAO</div>
+        <p class="note">
+          <span class="chip c-cal">Calibrado</span> O limiar de ±2 pontos. Abaixo disso é ruído de
+          arredondamento, não tendência — o caso da Marina no §14, a 0,83 ponto de mudar de faixa,
+          mostra por quê.<br>
+          Nada é recalculado aqui: o gráfico mostra o que estava valendo em cada dia.
+        </p>
+      </div>
+
+      <h3>score-drivers</h3>
+      <div class="fx">
+        <div class="expr">contribuição       = variavel.coeficiente        (peso × nota, já gravado)
+contribuiçãoMáxima = variavel.peso × 100
+pontosPerdidos     = max(0, Σ máximas − Σ contribuições)</div>
+        <p class="note">
+          Responde "o que está segurando minha nota". Para Marina em SAUDE_FINANCEIRA:
+          reserva contribui 1,76 de um máximo de 20,00 — 18,24 pontos perdidos num indicador só,
+          contra 9,60 de todos os outros somados.<br>
+          <b>Válido para</b> CONSUMO, SAUDE_FINANCEIRA e RISCO. <b>Não faz sentido para</b>
+          INADIMPLENCIA e PREVISAO — ver §22.
+        </p>
+      </div>
+
+      <h3>impact-ranking</h3>
+      <div class="fx">
+        <div class="expr">fonte      = impactos dos últimos 30 dias, ordenados por impactoAnual desc
+dedup      = primeira ocorrência de cada (regra # entidadeOrigemId)
+percentual = 100 × impactoAnual / Σ impactoAnual</div>
+        <p class="note">
+          A tradução mais direta que a tabela permite: em vez de "sua nota é 70", mostra "o cartão te
+          custa R$ 18.823 por ano". A deduplicação é necessária porque o mesmo problema é redetectado
+          a cada análise.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================== 19 -->
+    <section id="s19">
+      <h2><span class="num">19</span>Endpoints</h2>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Método</th><th>Rota</th><th>Parâmetros</th><th>Devolve</th></tr></thead>
+          <tbody>
+            <tr><td><code>POST</code></td><td><code>/analysis/generate</code></td><td><code>idUsuario</code></td><td>Recalcula agora, ignora debounce</td></tr>
+            <tr><td><code>GET</code></td><td><code>/analysis/score-history</code></td><td><code>idUsuario</code>, <code>tipo</code></td><td>Série temporal da nota</td></tr>
+            <tr><td><code>GET</code></td><td><code>/analysis/variables</code></td><td><code>idUsuario</code>, <code>tipo</code></td><td>Variáveis da análise mais recente</td></tr>
+            <tr><td><code>GET</code></td><td><code>/analysis/impacts</code></td><td><code>idUsuario</code></td><td>Achados com custo</td></tr>
+            <tr><td><code>GET</code></td><td><code>/graphs/score-evolution</code></td><td><code>idUsuario</code>, <code>tipo</code>*</td><td>Evolução + tendência</td></tr>
+            <tr><td><code>GET</code></td><td><code>/graphs/score-drivers</code></td><td><code>idUsuario</code>, <code>tipo</code>*</td><td>Decomposição da nota</td></tr>
+            <tr><td><code>GET</code></td><td><code>/graphs/impact-ranking</code></td><td><code>idUsuario</code></td><td>Ranking em R$/ano</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <small>* <code>tipo</code> tem default <code>SAUDE_FINANCEIRA</code> nos endpoints de gráfico.
+        Todos exigem autenticação — <code>SecurityConfig</code> não foi alterado por mim, e a regra
+        <code>anyRequest().authenticated()</code> já os cobre.</small>
+      </p>
+    </section>
+
+    <!-- ==================================================== 20 -->
+    <section id="s20">
+      <h2><span class="num">20</span>Configuração</h2>
+
+      <p>
+        <span class="path">analysis/internal/config/AnalysisProperties.java</span> ·
+        prefixo <code>analise.*</code> · lido via <code>@ConfigurationPropertiesScan</code>, já ativo.
+      </p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Propriedade</th><th class="n">Default</th><th>Variável de ambiente</th><th>Efeito</th></tr></thead>
+          <tbody>
+            <tr><td><code>janela-dias</code></td><td class="n">180</td><td><code>ANALISE_JANELA_DIAS</code></td><td>Histórico de transação lido</td></tr>
+            <tr><td><code>debounce-minutos</code></td><td class="n">30</td><td><code>ANALISE_DEBOUNCE_MINUTOS</code></td><td>Intervalo mínimo entre recálculos</td></tr>
+            <tr><td><code>ocorrencias-minimas</code></td><td class="n">3</td><td><code>ANALISE_OCORRENCIAS_MINIMAS</code></td><td>Dias para virar recomendação</td></tr>
+            <tr><td><code>impacto-anual-minimo</code></td><td class="n">600</td><td><code>ANALISE_IMPACTO_ANUAL_MINIMO</code></td><td>Custo mínimo em R$/ano</td></tr>
+            <tr><td><code>janela-recorrencia-dias</code></td><td class="n">30</td><td><code>ANALISE_JANELA_RECORRENCIA_DIAS</code></td><td>Janela da contagem</td></tr>
+            <tr><td><code>cooldown-recriacao-dias</code></td><td class="n">30</td><td><code>ANALISE_COOLDOWN_RECRIACAO_DIAS</code></td><td>Espera para recriar concluída</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Estão fora do código porque são calibragem de produto, não regra. Todos com fallback no
+        próprio record, então a aplicação sobe sem nenhum deles definido. <b>O que não está aqui</b>
+        e talvez devesse: pesos, coeficientes e fronteiras de faixa, todos hoje constantes compiladas
+        nos analisadores.
+      </p>
+    </section>
+
+    <!-- ==================================================== 21 -->
+    <section id="s21">
+      <h2><span class="num">21</span>Inventário de arquivos</h2>
+
+      <div class="stats">
+        <div><div class="v">37</div><div class="k">novos</div></div>
+        <div><div class="v">24</div><div class="k">alterados</div></div>
+        <div><div class="v">1</div><div class="k">migration</div></div>
+        <div><div class="v">7</div><div class="k">endpoints</div></div>
+        <div><div class="v">12</div><div class="k">regras</div></div>
+      </div>
+
+      <h3>Novos <span class="chip c-new">37</span></h3>
+
+      <h4>shared · config</h4>
+      <ul>
+        <li><span class="path">shared/events/DadosFinanceirosAlteradosEvent.java</span></li>
+        <li><span class="path">shared/events/OrigemAlteracao.java</span></li>
+        <li><span class="path">config/AsyncConfig.java</span></li>
+        <li><span class="path">db/migration/V13__add_regra_analise_recomendacao.sql</span></li>
+      </ul>
+
+      <h4>analysis — motor</h4>
+      <ul>
+        <li><span class="path">analysis/events/FinancialDataChangedListener.java</span></li>
+        <li><span class="path">analysis/application/usecase/commands/GenerateAnalysisService.java</span></li>
+        <li><span class="path">analysis/application/service/Calculo.java</span></li>
+        <li><span class="path">analysis/application/service/AnalysisSnapshot.java</span></li>
+        <li><span class="path">analysis/application/service/AnalysisSnapshotAssembler.java</span></li>
+        <li><span class="path">analysis/application/service/AnalysisDraft.java</span></li>
+        <li><span class="path">analysis/application/service/AnalysisPersistenceService.java</span></li>
+        <li><span class="path">analysis/application/service/RecommendationEngine.java</span></li>
+        <li><span class="path">analysis/application/service/RecommendationTextService.java</span></li>
+        <li><span class="path">analysis/application/service/analyzers/AnalisadorFinanceiro.java</span></li>
+        <li><span class="path">analysis/application/service/analyzers/ConsumoAnalyzer.java</span></li>
+        <li><span class="path">analysis/application/service/analyzers/SaudeFinanceiraAnalyzer.java</span></li>
+        <li><span class="path">analysis/application/service/analyzers/InadimplenciaAnalyzer.java</span></li>
+        <li><span class="path">analysis/application/service/analyzers/PrevisaoAnalyzer.java</span></li>
+        <li><span class="path">analysis/application/service/analyzers/RiscoConsolidator.java</span></li>
+        <li><span class="path">analysis/internal/config/AnalysisProperties.java</span></li>
+        <li><span class="path">analysis/internal/enums/RegraAnalise.java</span></li>
+      </ul>
+
+      <h4>analysis — leitura</h4>
+      <ul>
+        <li><span class="path">analysis/application/dto/response/AnalysisScorePointResponse.java</span></li>
+        <li><span class="path">analysis/application/dto/response/AnalysisVariableResponse.java</span></li>
+        <li><span class="path">analysis/application/dto/response/AnalysisImpactResponse.java</span></li>
+        <li><span class="path">analysis/application/usecase/queries/GetAnalysisScoreHistoryService.java</span></li>
+        <li><span class="path">analysis/application/usecase/queries/GetAnalysisVariablesService.java</span></li>
+        <li><span class="path">analysis/application/usecase/queries/GetAnalysisImpactsService.java</span></li>
+        <li><span class="path">analysis/internal/repository/IAnaliseImpactoRepository.java</span></li>
+        <li><span class="path">analysis/internal/repository/IAnaliseEntidadeRepository.java</span></li>
+        <li><span class="path">analysis/internal/repository/IAnaliseResultadoVariavelRepository.java</span></li>
+        <li><span class="path">analysis/internal/repository/IRecomendacaoEntidadeRepository.java</span></li>
+      </ul>
+
+      <h4>graphs</h4>
+      <ul>
+        <li><span class="path">graphs/application/dto/response/ScoreEvolutionGraphResponse.java</span></li>
+        <li><span class="path">graphs/application/dto/response/ScoreDriversGraphResponse.java</span></li>
+        <li><span class="path">graphs/application/dto/response/ImpactRankingGraphResponse.java</span></li>
+        <li><span class="path">graphs/application/usecase/queries/GetScoreEvolutionGraphService.java</span></li>
+        <li><span class="path">graphs/application/usecase/queries/GetScoreDriversGraphService.java</span></li>
+        <li><span class="path">graphs/application/usecase/queries/GetImpactRankingGraphService.java</span></li>
+      </ul>
+
+      <h3>Alterados <span class="chip c-mod">24</span></h3>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Arquivo</th><th>O que mudou</th></tr></thead>
+          <tbody>
+            <tr><td><code>AnaliseImpacto.java</code></td><td>campo <code>regra</code></td></tr>
+            <tr><td><code>Recomendacao.java</code></td><td>campo <code>regra</code></td></tr>
+            <tr><td><code>IAnaliseRepository.java</code></td><td>+3 métodos de consulta</td></tr>
+            <tr><td><code>IRecomendacaoRepository.java</code></td><td>+2 métodos de consulta</td></tr>
+            <tr><td><code>AnalysisController.java</code></td><td>+4 endpoints</td></tr>
+            <tr><td><code>AnalysisFacade.java</code></td><td>+4 métodos, injeta o gerador</td></tr>
+            <tr><td><code>AnalysisIntegrationApi.java</code></td><td>+4 métodos para os gráficos</td></tr>
+            <tr><td><code>AnalysisIntegrationFacade.java</code></td><td>implementações correspondentes</td></tr>
+            <tr><td><code>ITransactionRepository.java</code></td><td>consulta por período com <code>@EntityGraph</code></td></tr>
+            <tr><td><code>GetTransactionsService.java</code></td><td>sobrecarga <code>execute(id, início, fim)</code></td></tr>
+            <tr><td><code>FinanceIntegrationApi.java</code></td><td>+ transações por período, + categorias</td></tr>
+            <tr><td><code>FinanceIntegrationFacade.java</code></td><td>implementações + injeta <code>GetCategoriesService</code></td></tr>
+            <tr><td><code>CreateTransactionService.java</code></td><td>publica evento</td></tr>
+            <tr><td><code>RegisterDividaPaymentService.java</code></td><td>publica evento</td></tr>
+            <tr><td><code>CreateDividaService.java</code></td><td>publica evento</td></tr>
+            <tr><td><code>UpdateDividaService.java</code></td><td>publica evento</td></tr>
+            <tr><td><code>DeleteDividaService.java</code></td><td>publica evento (sem id — a dívida some no commit)</td></tr>
+            <tr><td><code>AddNewValueToDividaService.java</code></td><td>publica evento</td></tr>
+            <tr><td><code>UpdatePreferenciaFinanceiraService.java</code></td><td>publica evento</td></tr>
+            <tr><td><code>GraphController.java</code></td><td>+3 endpoints</td></tr>
+            <tr><td><code>GraphFacade.java</code></td><td>+3 métodos</td></tr>
+            <tr><td><code>GetRiskGraphService.java</code></td><td>nível de risco real no lugar do literal</td></tr>
+            <tr><td><code>application.properties</code></td><td>+6 propriedades <code>analise.*</code></td></tr>
+            <tr><td><code>RegisterDividaPaymentServiceTest.java</code></td><td>mock do <code>ApplicationEventPublisher</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================================================== 22 -->
+    <section id="s22">
+      <h2><span class="num">22</span>Problemas conhecidos</h2>
+
+      <div class="call risk">
+        <span class="lbl">O que falta verificar — atualizado</span>
+        <p>
+          A versão anterior deste documento dizia que o contexto Spring nunca tinha sido carregado.
+          <b>Isso foi resolvido</b>: o contexto sobe (perfil <code>test</code>, H2), o que valida a
+          fiação completa de beans e as duas consultas <code>@Query</code> de
+          <code>IAnaliseImpactoRepository</code> — o Hibernate as analisa na inicialização dos
+          repositórios, não na compilação. Ver o teste ponta a ponta na caixa abaixo.
+        </p>
+        <p>
+          <b>Continua sem prova apenas o Postgres:</b> a V13 nunca foi aplicada por Flyway num banco
+          real, e <code>ddl-auto=validate</code> nunca conferiu as entidades contra o schema
+          migrado — o perfil de teste usa <code>create-drop</code> e Flyway desligado, então ele
+          gera o schema a partir das entidades em vez de conferir contra ele. Subir o
+          <code>docker-compose</code> e rodar a aplicação uma vez fecha esse último ponto.
+        </p>
+      </div>
+
+      <div class="call">
+        <span class="lbl">Verificado — pipeline ponta a ponta</span>
+        <p>
+          <code>AnalysisPipelineTest</code> exercita o caminho real, com commit de verdade em cada
+          passo (nada de rollback de teste, senão o <code>AFTER_COMMIT</code> nunca dispararia):
+        </p>
+        <ul>
+          <li><code>POST /auth/register</code> com renda 4.000 → grava <code>PreferenciaFinanceira</code>;</li>
+          <li>criar dívida de R$ 3.000 em 10 parcelas → <b>4 análises gravadas</b>
+            (<code>SAUDE_FINANCEIRA</code>, <code>PREVISAO</code>, <code>INADIMPLENCIA</code>,
+            <code>RISCO</code>). Sem <code>CONSUMO</code>, correto: o usuário ainda não tem transação;</li>
+          <li>pagar a parcela 1 → as <b>mesmas 4</b> análises recalculadas e recarimbadas, com 19
+            linhas em <code>tb_analise_resultado_variavel</code>. Continuam 4 no total: o upsert por
+            tipo por dia funciona, não duplica.</li>
+        </ul>
+      </div>
+
+      <div class="call risk">
+        <span class="lbl">Bug de projeto — score-drivers</span>
+        <p>
+          <code>GetScoreDriversGraphService</code> calcula
+          <code>contribuiçãoMáxima = peso × 100</code>, assumindo que <code>peso</code> é fração de
+          uma média ponderada. Vale para CONSUMO, SAUDE_FINANCEIRA e RISCO.
+          <b>Não vale para INADIMPLENCIA</b>, onde <code>peso</code> guarda o coeficiente logístico
+          (2,40 → "máxima" de 240), nem para <b>PREVISAO</b>, onde todos os pesos são 1. O endpoint
+          não quebra — devolve números — mas os números não significam nada nesses dois tipos.
+          Opções: restringir o endpoint aos três tipos ponderados, ou separar "peso" de "coeficiente
+          do modelo" em colunas distintas.
+        </p>
+      </div>
+
+      <div class="call risk">
+        <span class="lbl">Dupla contagem no impact-ranking</span>
+        <p>
+          Os R$ 612 de delivery da Marina entram duas vezes no <code>custoAnualTotal</code>: como
+          excedente de categoria (R$ 2.784) e como gasto de vendedor (R$ 7.344). Somam R$ 10.128/ano
+          para o que é, na prática, R$ 612/mês de delivery. Pior, os dois números têm semânticas
+          diferentes — um é <em>excesso sobre a média</em>, o outro é <em>gasto total</em>, e
+          <code>CONCENTRACAO_EXCESSIVA_CATEGORIA</code> usa uma terceira (gasto total da maior
+          categoria). O ranking por item continua útil; <b>o total é enganoso</b>.
+        </p>
+      </div>
+
+      <div class="call judge">
+        <span class="lbl">Calibragem — o logístico parece agressivo</span>
+        <p>
+          Marina tem poupança positiva (27,5%), zero atrasos, comprometimento exatamente no teto
+          convencional — e recebe <b>57,91% de chance de atraso</b>. O que carrega o resultado é
+          <code>x₃</code> (ausência de reserva) valendo 0,9512 e contribuindo 1,28 dos 3,07 pontos
+          acima do intercepto. Ter pouca reserva é de fato um fator de risco, mas o modelo hoje trata
+          "sem reserva" quase como "já atrasando". Sugestões: baixar <code>b₃</code> de 1,35, ou
+          suavizar a normalização (saturar em 3 meses em vez de 6 muda a curva bastante).
+        </p>
+      </div>
+
+      <div class="call judge">
+        <span class="lbl">Sem teto de recomendações por execução</span>
+        <p>
+          No terceiro dia, Marina recebe <b>7 recomendações de uma vez</b> — todas legítimas, todas
+          bem acima do limiar. Nenhum código limita quantas podem ser criadas numa execução nem
+          quantas podem ficar PENDENTES simultaneamente. Sete cartões de alerta de uma vez é o tipo
+          de coisa que faz o usuário ignorar todos. Vale considerar um teto por execução
+          (ex.: as 3 de maior impacto) ou um teto de pendentes.
+        </p>
+      </div>
+
+      <div class="call judge">
+        <span class="lbl">Duplicação e simplificações</span>
+        <ul>
+          <li>
+            <b><code>notaCrescente</code> ≡ <code>notaDecrescente</code></b> — algebricamente
+            idênticos (§06). Consolidar elimina ~15 linhas e a chance de alguém "corrigir" um dos dois.
+          </li>
+          <li>
+            <b>Custo de não ter reserva</b> usa juros simples (<code>0,08 × 12</code>) onde o
+            rotativo é composto. Subestima em ~60%.
+          </li>
+          <li>
+            <b><code>mesesParaQuitar</code></b> ignora juros. Para Marina dá 9 meses; com 12% a.m. no
+            cartão o número real é bem maior.
+          </li>
+          <li>
+            <b>Projeções <code>× 12</code></b> não descontam a valor presente. Consistente em todo o
+            motor, mas não é o custo econômico exato.
+          </li>
+          <li>
+            <b><code>n₁</code> e <code>n₂</code> do consumo</b> medem eixos correlacionados (sobra e
+            gasto) e juntos pesam 0,60. Defensável, mas um revisor pode chamar de dupla contagem.
+          </li>
+        </ul>
+      </div>
+
+      <div class="call">
+        <span class="lbl">Fora de escopo</span>
+        <p>
+          O <code>AnaliseTab</code> do app continua com dados mockados. Ligá-lo a
+          <code>GET /analysis</code> e aos novos gráficos é trabalho separado, não incluído aqui.
+        </p>
+      </div>
+
+      <h3>Roteiro sugerido de revisão</h3>
+      <ol>
+        <li>Subir o contexto contra o Postgres com a V13 aplicada — resolve o risco maior.</li>
+        <li>Ler os cinco pesos da §11. São a nota que o usuário vê na tela principal.</li>
+        <li>Rodar o caso da Marina mentalmente contra o seu entendimento do produto: ela é "BOA" em saúde, "PROVAVEL" de atrasar e "CRITICO" em previsão ao mesmo tempo. Isso é coerente?</li>
+        <li>Decidir se 3 dias × R$ 600/ano é o portão certo (§16), e se cabe um teto de recomendações.</li>
+        <li>Decidir o que fazer com <em>score-drivers</em> nos dois tipos onde ele não faz sentido.</li>
+        <li>Fazer um <code>POST /analysis/generate</code> com um usuário real e ler <code>tb_analise_resultado_variavel</code>: é a tabela que prova se o motor está pensando direito.</li>
+      </ol>
+    </section>
+
+  </main>
+</div>

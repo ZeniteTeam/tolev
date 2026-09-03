@@ -3,7 +3,6 @@ import { register } from "../../../api/auth/register";
 import { useAuthStore } from "../../../store/authStore";
 import type { RegisterRequest } from "../../../types/auth";
 
-/** Registers a new user and stores the returned token + profile. */
 export function useRegister() {
   const setAuth = useAuthStore((s) => s.setAuth);
   return useMutation({

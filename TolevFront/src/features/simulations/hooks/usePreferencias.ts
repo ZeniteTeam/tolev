@@ -3,7 +3,6 @@ import { getPreferencias } from "../../../api/preferencias/get-preferencias";
 import { useAuthStore } from "../../../store/authStore";
 import { preferenciasKeys } from "./preferenciasKeys";
 
-/** Server state for the authenticated user's financial preferences. */
 export function usePreferencias() {
   const userId = useAuthStore((s) => s.userId);
   return useQuery({

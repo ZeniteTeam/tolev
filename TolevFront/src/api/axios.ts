@@ -4,10 +4,8 @@ import Constants from "expo-constants";
 const PORT = 8080;
 
 /**
- * Resolves the backend base URL.
- * On a physical device / Android emulator `localhost` points at the device itself,
- * so we derive the dev machine host (LAN IP) from the Expo host URI when available.
- * Falls back to localhost for web / iOS simulator.
+ * Em aparelho físico / emulador Android, `localhost` aponta para o próprio
+ * aparelho — por isso o host da máquina de dev sai do host URI do Expo.
  */
 function resolveBaseUrl(): string {
   const hostUri =
@@ -24,18 +22,15 @@ const api = axios.create({
 });
 
 /**
- * In-memory copy of the JWT, kept in sync by the auth store. The request
- * interceptor needs the token synchronously, so we can't read it from the
- * async SecureStore on every call.
+ * Cópia do JWT em memória. O interceptor precisa do token de forma síncrona,
+ * então não dá para ler do SecureStore (async) a cada request.
  */
 let authToken: string | null = null;
 
-/** Sets (or clears) the bearer token sent on every request. */
 export function setAuthToken(token: string | null): void {
   authToken = token;
 }
 
-/** Callback invoked when the API rejects the current token (401). */
 let onUnauthorized: (() => void) | null = null;
 
 export function setOnUnauthorized(handler: (() => void) | null): void {

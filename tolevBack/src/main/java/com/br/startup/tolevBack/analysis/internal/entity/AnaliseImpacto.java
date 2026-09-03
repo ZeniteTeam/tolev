@@ -25,6 +25,13 @@ public class AnaliseImpacto {
     @Enumerated(EnumType.STRING)
     private TipoImpacto tipoImpacto;
 
+    /**
+     * Nome da {@link com.br.startup.tolevBack.analysis.internal.enums.RegraAnalise}
+     * que gerou o achado. É a identidade dele entre análises de dias diferentes —
+     * sem ela não dá para contar recorrência.
+     */
+    private String regra;
+
     private String entidadeOrigemTipo;
     private Long entidadeOrigemId;
     private String entidadeImpactadaTipo;

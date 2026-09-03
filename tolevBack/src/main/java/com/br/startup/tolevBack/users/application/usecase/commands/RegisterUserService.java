@@ -55,10 +55,9 @@ public class RegisterUserService {
         Usuario salvo = userRepository.save(usuario);
 
         // Cria as preferências financeiras já com a renda informada no onboarding.
+        // A renda é obrigatória no contrato de registro, então nunca chega nula aqui.
         PreferenciaFinanceira preferencia = PreferenciaFinanceiraMapper.defaults(salvo.getId());
-        if (request.rendaMensal() != null) {
-            preferencia.setRendaMensal(request.rendaMensal());
-        }
+        preferencia.setRendaMensal(request.rendaMensal());
         preferenciaRepository.save(preferencia);
 
         String token = jwtService.generateToken(

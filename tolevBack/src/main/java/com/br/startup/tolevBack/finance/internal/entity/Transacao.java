@@ -20,6 +20,13 @@ public class Transacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Dono da transação. Fica direto aqui (e não só via conta bancária) porque
+     * um lançamento manual em dinheiro não tem conta nenhuma associada.
+     */
+    private Long idUsuario;
+
+    /** Opcional: só quando o gasto saiu de uma conta conectada. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_conta_bancaria")
     private ContaBancaria contaBancaria;

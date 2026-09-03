@@ -1,6 +1,5 @@
 import { isAxiosError } from "axios";
 
-/** Extracts a user-facing message from an API/Axios error, with a fallback. */
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   if (isAxiosError(error)) {
     const data = error.response?.data as { message?: string } | undefined;

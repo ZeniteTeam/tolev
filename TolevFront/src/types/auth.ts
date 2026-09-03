@@ -1,7 +1,7 @@
 /**
- * Auth domain types, mirroring the backend `users` module:
- *  - RegisterRequest / LoginRequest        (users.application.dto.request)
- *  - AuthResponse / UsuarioResponse        (users.application.dto.response)
+ * Espelha o módulo `users` do backend:
+ *  - RegisterRequest / LoginRequest   (users.application.dto.request)
+ *  - AuthResponse / UsuarioResponse   (users.application.dto.response)
  */
 
 /** Principal objetivo do usuário — enum backend `ObjetivoPrincipal`. */
@@ -41,11 +41,12 @@ export type TipoEmprego = (typeof TIPO_EMPREGO)[number];
 export interface RegisterRequest {
   nome?: string | null;
   genero?: string | null;
-  dataNascimento?: string | null; // ISO date "yyyy-MM-dd"
+  dataNascimento?: string | null; // ISO "yyyy-MM-dd"
   objetivoPrincipal?: ObjetivoPrincipal | null;
   situacaoFinanceira?: SituacaoFinanceira | null;
   ocupacao?: TipoEmprego | null;
-  rendaMensal?: number | null;
+  /** Obrigatória: o backend rejeita o registro sem ela. */
+  rendaMensal: number;
   nomeUsuario: string;
   email: string;
   senha: string;
@@ -57,7 +58,7 @@ export interface LoginRequest {
   senha: string;
 }
 
-/** Authenticated user, as returned inside AuthResponse. */
+/** Usuário autenticado, como vem dentro de AuthResponse. */
 export interface UsuarioResponse {
   id: number;
   nome: string | null;

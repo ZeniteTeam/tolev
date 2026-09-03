@@ -20,11 +20,15 @@ import { Pressable, Text, View } from "react-native";
 import { BankFilter, Progress, Ring, Screen } from "../../../components";
 import type { BankId } from "../../../components/BankFilter";
 import { colors, shadows } from "../../../theme";
+import { useSpendingByCategory } from "../../analysis/hooks/useSpendingByCategory";
+import { toCategoriaView } from "../../analysis/utils/categoria-view";
 import { CategoriaGastosCompact } from "../components/CategoriaGastos";
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
   const [bank, setBank] = useState<BankId>("all");
+  const { data: gastos, isLoading: gastosLoading } = useSpendingByCategory();
+  const categorias = gastos ? toCategoriaView(gastos.pontos) : [];
 
   return (
     <Screen bottomPad={120}>
@@ -67,7 +71,15 @@ export default function HomeScreen() {
       </LinearGradient>
 
       <SectionLink title="Onde seu dinheiro vai" sub="Despesas do mês" onPress={() => navigation.navigate("Financas")}>
-        <CategoriaGastosCompact />
+        {gastosLoading ? (
+          <View className="bg-[#F1F5F3] rounded-[12px] h-[88px]" />
+        ) : categorias.length === 0 ? (
+          <Text className="text-[13px] text-muted font-regular">
+            Sem despesas neste mês ainda.
+          </Text>
+        ) : (
+          <CategoriaGastosCompact categorias={categorias} />
+        )}
       </SectionLink>
 
       <SectionLink

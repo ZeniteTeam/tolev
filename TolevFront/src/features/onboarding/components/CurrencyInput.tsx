@@ -3,13 +3,12 @@ import { Text } from "react-native";
 import { colors } from "../../../theme";
 
 type Props = {
-  /** Raw digits string of the amount in reais (e.g. "3500"). */
+  /** Os dígitos crus do valor em reais (ex.: "3500"). */
   value: string;
   onChange: (digits: string) => void;
   autoFocus?: boolean;
 };
 
-/** Big, centered "R$ 0" input for the monthly income step. */
 export default function CurrencyInput({ value, onChange, autoFocus }: Props) {
   const display = value ? Number(value).toLocaleString("pt-BR") : "";
 
