@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 # Phase 01 -- provisiona o Azure Database for PostgreSQL Flexible Server.
-# Pre-requisitos: az CLI instalado e `az login` feito.
 #
 #   PGPASS='SuaSenhaForte123!' ./scripts/azure/01-provision-postgres.sh
-#
-# A senha vem do ambiente de proposito: nao fica no script nem no historico do shell
-# (note o espaco antes do comando para omiti-lo do history do bash).
 set -euo pipefail
 
-RG=${RG:-rg-tolev}
-LOC=${LOC:-brazilsouth}
-PG=${PG:-tolev-pg-zenite}          # precisa ser globalmente unico
+RG=${RG:-tolev-pg}
+LOC=${LOC:-canadacentral}
+PG=${PG:-tolev-pg-zenite}
 PGUSER=${PGUSER:-tolev_admin}
 PGDB=${PGDB:-tolev}
 
@@ -40,16 +36,16 @@ az postgres flexible-server create \
   --public-access None \
   -o none
 
-# Regra 1: a sua maquina, para conseguir testar no Phase 02.
+# Regra para a maquina local, usada pelo Phase 02.
 MYIP=$(curl -fsS ifconfig.me)
-echo ">> Liberando seu IP atual ($MYIP)"
+echo ">> Liberando o IP atual ($MYIP)"
 az postgres flexible-server firewall-rule create \
   --resource-group "$RG" --name "$PG" \
   --rule-name dev-machine \
   --start-ip-address "$MYIP" --end-ip-address "$MYIP" -o none
 
-# Regra 2: 0.0.0.0/0.0.0.0 e o marcador especial do Azure para "qualquer servico
-# Azure", NAO para "a internet inteira". E assim que o App Service alcanca o banco.
+# 0.0.0.0-0.0.0.0 e o marcador do Azure para "qualquer servico Azure", nao para
+# a internet inteira. E por ela que o App Service alcanca o banco.
 echo ">> Liberando servicos do Azure"
 az postgres flexible-server firewall-rule create \
   --resource-group "$RG" --name "$PG" \

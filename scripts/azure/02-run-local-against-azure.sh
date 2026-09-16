@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-# Phase 02 -- roda o backend NA SUA MAQUINA apontando para o Postgres do Azure.
+# Phase 02 -- roda o backend localmente apontando para o Postgres do Azure.
+# Valida Flyway, SSL, firewall e o perfil `azure` antes de existir compute na nuvem.
 #
-# E o checkpoint mais importante do processo: valida Flyway, SSL, firewall e o
-# perfil `azure` num terminal seu, onde voce ve o stack trace, antes de existir
-# qualquer coisa de compute na nuvem.
-#
-# Credenciais: crie .env.azure (copie de .env.azure.example) e preencha a senha.
-# O arquivo e gitignored. Alternativa: exportar PGPASS antes de rodar.
+# Credenciais: .env.azure (modelo em .env.azure.example) ou PGPASS no ambiente.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -25,8 +21,7 @@ else
     echo "ERRO: crie .env.azure (cp .env.azure.example .env.azure) ou exporte PGPASS." >&2
     exit 1
   fi
-  # sslmode=require nao e opcional: o Flexible Server recusa conexao sem TLS.
-  # Usuario e `tolev_admin` puro -- o formato user@servername era do Single Server.
+  # sslmode=require: o Flexible Server recusa conexao sem TLS.
   export SPRING_DATASOURCE_URL="jdbc:postgresql://$PG.postgres.database.azure.com:5432/$PGDB?sslmode=require"
   export SPRING_DATASOURCE_USERNAME="$PGUSER"
   export SPRING_DATASOURCE_PASSWORD="$PGPASS"
