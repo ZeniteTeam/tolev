@@ -25,7 +25,7 @@ export type ParcelaView = {
 };
 
 export type DividaView = {
-  id: number | string;
+  id: number;
   nome: string;
   banco: string;
   bankColor: string;
@@ -102,55 +102,3 @@ export function pctQuitado(d: DividaView): number {
 export function isQuitada(d: DividaView): boolean {
   return d.saldo <= 0 || (d.parcelas > 0 && d.parcelasPagas.length >= d.parcelas);
 }
-
-type SeedInput = Pick<
-  DividaView,
-  "id" | "nome" | "banco" | "saldo" | "juros" | "min" | "emocional" | "parcelas" | "icon" | "tipo"
->;
-
-/**
- * Completa uma dívida de demonstração com um cronograma coerente (parcela fixa,
- * vencendo mês a mês), para que as telas leiam dela os mesmos campos que leem de
- * uma dívida real.
- */
-function seedDivida(s: SeedInput): DividaView {
-  const hoje = new Date();
-  const cronograma: ParcelaView[] = Array.from({ length: s.parcelas }, (_, i) => {
-    const venc = new Date(hoje.getFullYear(), hoje.getMonth() + i + 1, 10);
-    const juros = Number(((s.saldo / s.parcelas) * (s.juros / 100)).toFixed(2));
-    return {
-      numero: i + 1,
-      valor: s.min,
-      principal: Number((s.min - juros).toFixed(2)),
-      juros,
-      status: "PENDENTE" as const,
-      vencimento: venc.toISOString().slice(0, 10),
-      pagamento: null,
-    };
-  });
-
-  const totalAPagar = Number((s.min * s.parcelas).toFixed(2));
-  return {
-    ...s,
-    bankColor: bankColor(s.banco),
-    parcelasPagas: [],
-    cronograma,
-    totalAPagar,
-    totalJuros: Number((totalAPagar - s.saldo).toFixed(2)),
-    multaAtraso: 2,
-    jurosMora: 1,
-    sistema: "PRICE",
-    regime: "COMPOSTO",
-  };
-}
-
-/**
- * Semente usada até o /dividas existir. Também alimenta as prévias de ordenação
- * de Projeções e Planejamento. Total = R$ 30.000.
- */
-export const DIVIDAS_SEED: DividaView[] = ([
-  { id: "cartao", nome: "Cartão Nubank", banco: "Nubank", saldo: 8400, juros: 13.9, min: 620, emocional: 5, parcelas: 14, icon: CreditCard, tipo: "CARTAO" },
-  { id: "consignado", nome: "Empréstimo pessoal", banco: "Itaú", saldo: 12500, juros: 4.2, min: 780, emocional: 3, parcelas: 18, icon: Landmark, tipo: "EMPRESTIMO" },
-  { id: "carro", nome: "Financiamento carro", banco: "Bradesco", saldo: 6800, juros: 1.9, min: 540, emocional: 2, parcelas: 24, icon: Car, tipo: "FINANCIAMENTO" },
-  { id: "cheque", nome: "Cheque especial", banco: "Santander", saldo: 2300, juros: 8.5, min: 210, emocional: 4, parcelas: 12, icon: AlertTriangle, tipo: "CHEQUE_ESPECIAL" },
-] satisfies SeedInput[]).map(seedDivida);

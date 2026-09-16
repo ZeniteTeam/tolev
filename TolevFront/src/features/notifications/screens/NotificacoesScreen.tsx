@@ -8,8 +8,8 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import { Text, View } from "react-native";
-import { PageTitle, Screen } from "../../../components";
-import { colors, shadows } from "../../../theme";
+import { PageTitle, Screen, Stagger } from "../../../components";
+import { colors, motion, shadows } from "../../../theme";
 
 type Tint = "green" | "coral" | "muted";
 
@@ -50,14 +50,20 @@ export default function NotificacoesScreen() {
     <Screen bottomPad={64}>
       <PageTitle title="Notificações" sub="Atualizações sobre suas metas e finanças" />
 
-      {GROUPS.map((g) => (
+      {/* A cascata é por grupo: dentro de "Hoje" as linhas entram em sequência,
+          e o grupo seguinte começa depois — a leitura acompanha os blocos. */}
+      {GROUPS.map((g, grupo) => (
         <View key={g.label} className="mb-[22px]">
           <Text className="text-[11px] text-muted uppercase tracking-[0.6px] font-semibold mb-2 pl-1">{g.label}</Text>
-          <View className="bg-white rounded-lg overflow-hidden" style={shadows.card}>
+          <Stagger
+            className="bg-white rounded-lg overflow-hidden"
+            style={shadows.card}
+            delay={grupo * motion.duration.fast}
+          >
             {g.items.map((n, i) => (
               <NotifRow key={i} {...n} last={i === g.items.length - 1} />
             ))}
-          </View>
+          </Stagger>
         </View>
       ))}
     </Screen>

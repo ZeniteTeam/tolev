@@ -59,19 +59,24 @@ public class GetScoreEvolutionGraphService {
                 scoreAtual,
                 scoreAnterior,
                 variacao,
-                tendencia(variacao, anterior != null),
+                tendencia(variacao, anterior != null, tipo),
                 atual.classificacao(),
                 pontos);
     }
 
-    private String tendencia(BigDecimal variacao, boolean temComparativo) {
+    /**
+     * Em RISCO o score <em>é</em> o risco: subir é piorar. Sem inverter o sinal,
+     * um usuário cujo risco cresceu era reportado como MELHORANDO.
+     */
+    private String tendencia(BigDecimal variacao, boolean temComparativo, TipoAnalise tipo) {
         if (!temComparativo) {
             return "PRIMEIRA_MEDICAO";
         }
-        if (variacao.compareTo(LIMIAR_TENDENCIA) > 0) {
+        BigDecimal melhora = tipo == TipoAnalise.RISCO ? variacao.negate() : variacao;
+        if (melhora.compareTo(LIMIAR_TENDENCIA) > 0) {
             return "MELHORANDO";
         }
-        if (variacao.compareTo(LIMIAR_TENDENCIA.negate()) < 0) {
+        if (melhora.compareTo(LIMIAR_TENDENCIA.negate()) < 0) {
             return "PIORANDO";
         }
         return "ESTAVEL";

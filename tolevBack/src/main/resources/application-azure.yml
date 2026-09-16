@@ -1,0 +1,40 @@
+# Perfil de produção (Azure App Service / container apontando para o Azure).
+# Ativado com SPRING_PROFILES_ACTIVE=azure.
+#
+# A URL vem inteira do ambiente — diferente do perfil default, que fixa
+# localhost e só parametriza o nome do banco. Nada aqui tem fallback:
+# faltando variável, a aplicação falha no boot em vez de subir apontando
+# para um banco errado.
+spring:
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+    hikari:
+      # O tier Burstable B1ms permite ~35 conexões no total. Deixa folga para
+      # psql, migrations e uma segunda instância durante restart/deploy.
+      maximum-pool-size: 5
+      connection-timeout: 20000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+
+logging:
+  level:
+    org.flywaydb: INFO
+
+server:
+  shutdown: graceful
+
+# Sem fallback de proposito. Se JWT_SECRET nao estiver setado no App Service,
+# a aplicacao falha no boot em vez de subir assinando tokens com chave do repositorio.
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}

@@ -6,6 +6,7 @@ import { View } from "react-native";
 import { Field, StepScaffold } from "../../../components";
 import type { RegisterRequest } from "../../../types/auth";
 import { getApiErrorMessage } from "../../../util/apiError";
+import { digitsToDecimal } from "../../../util/masks";
 import { useRegister } from "../../auth/hooks/useRegister";
 import AccountStep from "../components/AccountStep";
 import CurrencyInput from "../components/CurrencyInput";
@@ -78,7 +79,7 @@ export default function OnboardingFlow({ onAuthenticated, onGoToLogin }: Props) 
       objetivoPrincipal: v.objetivoPrincipal,
       situacaoFinanceira: v.situacaoFinanceira,
       ocupacao: v.ocupacao,
-      rendaMensal: Number(v.rendaMensal),
+      rendaMensal: digitsToDecimal(v.rendaMensal),
       nomeUsuario: v.nomeUsuario.trim(),
       email: v.email.trim(),
       senha: v.senha,

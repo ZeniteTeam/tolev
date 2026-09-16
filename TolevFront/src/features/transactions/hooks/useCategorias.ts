@@ -19,7 +19,12 @@ export function useCategorias(tipo?: TipoCategoriaGasto) {
     retry: false,
   });
 
-  const categorias = (query.data ?? []).filter((c) => tipo == null || c.tipo === tipo);
+  // Categoria antiga pode ter vindo sem tipo. Tratada como despesa em vez de
+  // descartada: sumir da grade sem explicação é pior do que aparecer no lado
+  // mais provável — quase tudo que se lança à mão é despesa.
+  const categorias = (query.data ?? []).filter(
+    (c) => tipo == null || (c.tipo ?? "DESPESA") === tipo,
+  );
 
   return { ...query, categorias };
 }

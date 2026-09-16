@@ -1,0 +1,30 @@
+# Roda o backend em container local apontando para o Azure Database for PostgreSQL.
+# Não sobe Postgres: o banco é o do Azure.
+#
+#   docker compose -f docker-compose.azure.yml --env-file .env.azure up --build
+#
+# O docker-compose.yml continua sendo o ambiente 100% local (Postgres em container).
+services:
+
+  backend:
+    build:
+      context: ./tolevBack
+
+    container_name: tolev-backend-azure
+
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: azure
+
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+
+      GEMINI_API_KEY: ${GEMINI_API_KEY}

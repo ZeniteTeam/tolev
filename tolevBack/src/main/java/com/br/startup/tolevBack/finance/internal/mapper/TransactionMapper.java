@@ -15,6 +15,7 @@ public class TransactionMapper {
                 transacao.getId(),
                 transacao.getIdUsuario(),
                 transacao.getContaBancaria() != null ? transacao.getContaBancaria().getId() : null,
+                transacao.getBanco() != null ? transacao.getBanco().getId() : null,
                 transacao.getVendedor() != null ? transacao.getVendedor().getId() : null,
                 transacao.getVendedor() != null ? transacao.getVendedor().getNomeEmpresa() : null,
                 transacao.getValor(),

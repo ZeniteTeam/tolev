@@ -4,10 +4,21 @@ import Constants from "expo-constants";
 const PORT = 8080;
 
 /**
+ * URL da API em produção (App Service). Vem do ambiente para que o mesmo
+ * bundle sirva local e nuvem: `.env` no desenvolvimento, `env` do perfil do
+ * EAS nos builds de APK. Sem ela, cai na dedução pelo host do Expo abaixo.
+ */
+const URL_DO_AMBIENTE = process.env.EXPO_PUBLIC_API_URL?.trim();
+
+/**
  * Em aparelho físico / emulador Android, `localhost` aponta para o próprio
  * aparelho — por isso o host da máquina de dev sai do host URI do Expo.
  */
 function resolveBaseUrl(): string {
+  if (URL_DO_AMBIENTE) {
+    return URL_DO_AMBIENTE.replace(/\/+$/, "");
+  }
+
   const hostUri =
     (Constants.expoConfig as { hostUri?: string } | null)?.hostUri ??
     (Constants.expoGoConfig as { debuggerHost?: string } | null)?.debuggerHost;

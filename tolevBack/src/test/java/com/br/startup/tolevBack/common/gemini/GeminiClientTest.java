@@ -143,7 +143,7 @@ class GeminiClientTest {
     void propriedadesTemPadraoQuandoNaoConfiguradas() {
         GeminiProperties padrao = new GeminiProperties("k", null, null, null);
 
-        assertThat(padrao.model()).isEqualTo("gemini-2.5-flash");
+        assertThat(padrao.model()).isEqualTo("gemini-3.5-flash");
         assertThat(padrao.baseUrl()).isEqualTo("https://generativelanguage.googleapis.com/v1beta");
         assertThat(padrao.timeout()).isEqualTo(Duration.ofSeconds(30));
         assertThat(padrao.configurado()).isTrue();

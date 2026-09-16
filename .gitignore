@@ -39,3 +39,5 @@ redis_data/
 # Arquivos de teste locais com PDFs de extrato (dados financeiros, nunca versionar)
 
 tolevBack/src/test/*.pdf
+
+.env.azure

@@ -10,7 +10,10 @@ export function useCreateTransacao() {
   return useMutation({
     mutationFn: (payload: TransacaoRequest) => createTransacao(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: transacaoKeys.lists() });
+      // `all` e não `lists()`: a fila de classificação tem chave própria
+      // debaixo de `all`, e invalidar só as listagens a deixava velha — era o
+      // extrato entrar e a tela de classificar continuar mostrando a fila antiga.
+      queryClient.invalidateQueries({ queryKey: transacaoKeys.all });
       queryClient.invalidateQueries({ queryKey: contaKeys.all });
       // spending-by-category lê as transações direto, sem passar pelo motor de
       // análise, então invalidar aqui basta. Os cards de nota (score-*) são

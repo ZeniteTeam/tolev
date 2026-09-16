@@ -26,9 +26,28 @@ public class GetSpendingByCategory {
 
     private final FinanceIntegrationApi financeIntegrationApi;
 
-    public SpendingByCategoryGraphResponse execute(Long idUsuario, int meses) {
+    /**
+     * @param idBanco recorta por procedência: só os gastos que vieram do extrato
+     *                daquele banco. {@code null} = todos, inclusive os digitados
+     *                à mão, que não têm banco nenhum
+     */
+    public SpendingByCategoryGraphResponse execute(Long idUsuario, int meses, Long idBanco) {
         var end = LocalDate.now();
         var start = YearMonth.from(end).minusMonths(meses - 1).atDay(1);
+        return execute(idUsuario, start, end, idBanco);
+    }
+
+    /**
+     * Mesmo gráfico, com a janela dita por quem chama em vez de contada a partir
+     * de hoje.
+     *
+     * <p>Existe porque {@code meses} só sabe descrever período que termina hoje,
+     * e extrato importado costuma cobrir um pedaço do passado: um PDF de julho
+     * aberto em setembro não cabe em nenhum valor de {@code meses} sem arrastar
+     * junto dois meses vazios e rotular o resultado errado na tela.
+     */
+    public SpendingByCategoryGraphResponse execute(
+            Long idUsuario, LocalDate start, LocalDate end, Long idBanco) {
 
         var transactions = financeIntegrationApi.getTransactionsByUserAndPeriod(idUsuario, start, end);
 
@@ -36,6 +55,7 @@ public class GetSpendingByCategory {
                 .stream()
                 .filter(t -> TipoTransacao.DESPESA.equals(t.tipo()))
                 .filter(t -> t.valor() != null)
+                .filter(t -> idBanco == null || idBanco.equals(t.idBanco()))
                 .toList();
 
         Map<String, Acumulador> porCategoria = new LinkedHashMap<>();

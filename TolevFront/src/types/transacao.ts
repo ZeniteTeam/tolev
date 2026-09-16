@@ -34,6 +34,20 @@ export interface CategoriaResponse {
   tipo: TipoCategoriaGasto | null;
 }
 
+/**
+ * POST /categories e PUT /categories/{id} — só categorias do usuário.
+ *
+ * Na edição o backend ignora `idUsuario` (o dono é o que já está gravado) e
+ * `tipo` (mudá-lo jogaria as transações já classificadas para o outro lado da
+ * análise).
+ */
+export interface CategoriaRequest {
+  idUsuario: number;
+  nome: string;
+  cor: string | null;
+  tipo: TipoCategoriaGasto;
+}
+
 /** GET /accounts?idUsuario= — só o que o seletor de conta precisa. */
 export interface ContaResponse {
   id: number;

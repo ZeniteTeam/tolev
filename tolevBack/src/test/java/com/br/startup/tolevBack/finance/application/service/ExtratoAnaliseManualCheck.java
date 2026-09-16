@@ -1,4 +1,4 @@
-package com.br.startup.tolevBack.analysis.application.service.analyzers;
+package com.br.startup.tolevBack.finance.application.service;
 
 import com.br.startup.tolevBack.common.gemini.GeminiClient;
 import com.br.startup.tolevBack.common.gemini.GeminiProperties;
@@ -11,6 +11,7 @@ import org.springframework.web.client.RestClient;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Chamada manual e real ao Gemini para conferir a extração de um extrato PDF
@@ -24,6 +25,12 @@ import java.nio.file.Path;
 class ExtratoAnaliseManualCheck {
 
     private static final Path PDF = Path.of("src/test/testeextrato - Copia.pdf");
+
+    /** Mesma lista semeada em V4__seed_categorias_gasto_sistema.sql. */
+    private static final List<String> CATEGORIAS = List.of(
+            "Alimentação", "Transporte", "Moradia", "Saúde", "Educação", "Lazer",
+            "Compras", "Assinaturas", "Contas e Serviços", "Outros",
+            "Salário", "Outras Receitas");
 
     @Test
     void extraiOExtratoDeVerdade() throws Exception {
@@ -45,7 +52,7 @@ class ExtratoAnaliseManualCheck {
         byte[] pdf = Files.readAllBytes(PDF);
 
         System.out.println("Chamando o Gemini (modelo " + properties.model() + ")...");
-        ExtratoAnaliseService.ExtratoExtraido resultado = service.analisar(pdf);
+        ExtratoAnaliseService.ExtratoExtraido resultado = service.analisar(pdf, CATEGORIAS);
 
         System.out.println("=== Resultado da extração ===");
         System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(resultado));

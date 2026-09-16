@@ -50,6 +50,14 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- Só pelo /actuator/health: é o que o App Service sonda para saber se a
+             instância ainda responde. Sem ele a plataforma não tem como detectar
+             um processo travado e segue mandando tráfego para ele. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>

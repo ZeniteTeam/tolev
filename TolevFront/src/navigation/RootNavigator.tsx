@@ -1,14 +1,17 @@
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { DefaultTheme, NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { setOnUnauthorized } from "../api/axios";
 import { SlimHeader } from "../components";
+import { colors } from "../theme";
 import LoginScreen from "../features/auth/screens/LoginScreen";
 import OnboardingFlow from "../features/onboarding/screens/OnboardingFlow";
 import AdicionarDividaScreen from "../features/debts/screens/AdicionarDividaScreen";
 import DividaDetalheScreen from "../features/debts/screens/DividaDetalheScreen";
 import AdicionarTransacaoScreen from "../features/transactions/screens/AdicionarTransacaoScreen";
+import ExtratoProcessandoScreen from "../features/extrato/screens/ExtratoProcessandoScreen";
+import ImportarExtratoScreen from "../features/extrato/screens/ImportarExtratoScreen";
 import NotificacoesScreen from "../features/notifications/screens/NotificacoesScreen";
 import PerfilScreen from "../features/profile/screens/PerfilScreen";
 import CategoriasScreen from "../features/simulations/screens/CategoriasScreen";
@@ -19,6 +22,25 @@ import { useAuthStore } from "../store/authStore";
 import MainTabs from "./MainTabs";
 
 const Stack = createNativeStackNavigator();
+
+/** Fluxos que o usuário abre por cima do app, e não empilha dentro dele. */
+const VINDO_DE_BAIXO = { animation: "slide_from_bottom" } as const;
+
+/**
+ * O fundo que aparece atrás das telas durante uma transição. O padrão do React
+ * Navigation é um cinza quase branco, que numa troca entre duas telas verdes
+ * aparece como um lampejo claro no vão entre elas.
+ */
+const TEMA = {
+  ...DefaultTheme,
+  colors: { ...DefaultTheme.colors, background: colors.background },
+};
+
+/**
+ * Login e onboarding são telas verdes de ponta a ponta: o vão exposto enquanto
+ * uma sai e a outra entra tem que ser verde também, não o fundo claro do app.
+ */
+const ACESSO = { contentStyle: { backgroundColor: colors.primary[700] } } as const;
 
 function ModalShell({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation<any>();
@@ -89,7 +111,7 @@ export default function RootNavigator() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={TEMA}>
       {/*
         A `key` por estado de auth força o navigator a remontar inteiro no
         login/logout. Sem ela, trocar os grupos condicionais com uma rota
@@ -98,24 +120,33 @@ export default function RootNavigator() {
       */}
       <Stack.Navigator
         key={isAuthenticated ? "app" : "guest"}
-        screenOptions={{ headerShown: false }}
+        /*
+          Empilhar entra pela direita; começar uma tarefa sobe de baixo. A
+          direção é o que diz se dá para voltar um passo ou se o usuário abriu
+          outra coisa — por isso os fluxos de criação levam `VINDO_DE_BAIXO`.
+        */
+        screenOptions={{ headerShown: false, animation: "slide_from_right" }}
       >
         {isAuthenticated ? (
           <Stack.Group>
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="DividaDetalhe" component={DividaDetalhe} />
             {/* Fluxo em etapas: traz o próprio cabeçalho com voltar + progresso. */}
-            <Stack.Screen name="AdicionarDivida" component={AdicionarDividaScreen} />
-            <Stack.Screen name="AdicionarTransacao" component={AdicionarTransacaoScreen} />
+            <Stack.Screen name="AdicionarDivida" component={AdicionarDividaScreen} options={VINDO_DE_BAIXO} />
+            <Stack.Screen name="AdicionarTransacao" component={AdicionarTransacaoScreen} options={VINDO_DE_BAIXO} />
+            {/* Ambas trazem o próprio cabeçalho: a de importar tem barra de
+                progresso, e a de acompanhamento precisa que sair seja óbvio. */}
+            <Stack.Screen name="ImportarExtrato" component={ImportarExtratoScreen} options={VINDO_DE_BAIXO} />
+            <Stack.Screen name="ExtratoProcessando" component={ExtratoProcessandoScreen} options={VINDO_DE_BAIXO} />
             <Stack.Screen name="Categorias" component={Categorias} />
-            <Stack.Screen name="Simulacao" component={Simulacao} />
+            <Stack.Screen name="Simulacao" component={Simulacao} options={VINDO_DE_BAIXO} />
             <Stack.Screen name="MetodoOnboarding" component={MetodoOnboardingScreen} />
             <Stack.Screen name="SimulacaoResultado" component={SimulacaoResultado} />
             <Stack.Screen name="Perfil" component={Perfil} />
-            <Stack.Screen name="Notificacoes" component={Notificacoes} />
+            <Stack.Screen name="Notificacoes" component={Notificacoes} options={VINDO_DE_BAIXO} />
           </Stack.Group>
         ) : (
-          <Stack.Group>
+          <Stack.Group screenOptions={ACESSO}>
             <Stack.Screen name="Login">
               {({ navigation }) => (
                 <LoginScreen

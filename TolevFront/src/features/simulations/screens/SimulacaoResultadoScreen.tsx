@@ -10,7 +10,7 @@ import {
 } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Button, LineChart, PageTitle, Screen } from "../../../components";
+import { Button, LineChart, PageTitle, Screen, Stagger } from "../../../components";
 import { colors, shadows } from "../../../theme";
 
 type Cenario = "excelente" | "normal" | "baixo";
@@ -72,84 +72,88 @@ export default function SimulacaoResultadoScreen() {
 
   return (
     <Screen bottomPad={120}>
-      <PageTitle title="Resultado da simulação" sub="Veja como diferentes hábitos afetam seu prazo" />
+      <Stagger>
+        <PageTitle title="Resultado da simulação" sub="Veja como diferentes hábitos afetam seu prazo" />
 
-      <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
-        <Text className="text-[11px] text-muted font-bold tracking-[0.5px] mb-2.5">SEUS FILTROS</Text>
-        <View className="flex-row flex-wrap gap-2">
-          <FilterTag>{filters.categoria}</FilterTag>
-          <FilterTag>{filters.periodo}</FilterTag>
-          <FilterTag>{filters.valor}</FilterTag>
+        <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
+          <Text className="text-[11px] text-muted font-bold tracking-[0.5px] mb-2.5">SEUS FILTROS</Text>
+          <View className="flex-row flex-wrap gap-2">
+            <FilterTag>{filters.categoria}</FilterTag>
+            <FilterTag>{filters.periodo}</FilterTag>
+            <FilterTag>{filters.valor}</FilterTag>
+          </View>
         </View>
-      </View>
 
-      <View className="flex-row bg-white p-1.5 rounded-lg mb-3.5 gap-2" style={shadows.card}>
-        {(Object.keys(SCENARIOS) as Cenario[]).map((k) => {
-          const isActive = cenario === k;
-          const cfg = SCENARIOS[k];
-          const Icon: LucideIcon = k === "excelente" ? TrendingUp : k === "normal" ? Activity : TrendingDown;
-          return (
-            <Pressable
-              key={k}
-              onPress={() => setCenario(k)}
-              className="flex-1 py-2.5 rounded-md items-center gap-1"
-              style={isActive ? { backgroundColor: cfg.color } : undefined}
-            >
-              <Icon size={18} color={isActive ? "#fff" : cfg.color} strokeWidth={2} />
-              <Text className="text-[12px] font-bold text-muted" style={isActive ? { color: "#fff" } : undefined}>
-                {cfg.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+        <View className="flex-row bg-white p-1.5 rounded-lg mb-3.5 gap-2" style={shadows.card}>
+          {(Object.keys(SCENARIOS) as Cenario[]).map((k) => {
+            const isActive = cenario === k;
+            const cfg = SCENARIOS[k];
+            const Icon: LucideIcon = k === "excelente" ? TrendingUp : k === "normal" ? Activity : TrendingDown;
+            return (
+              <Pressable
+                key={k}
+                onPress={() => setCenario(k)}
+                className="flex-1 py-2.5 rounded-md items-center gap-1"
+                style={isActive ? { backgroundColor: cfg.color } : undefined}
+              >
+                <Icon size={18} color={isActive ? "#fff" : cfg.color} strokeWidth={2} />
+                <Text className="text-[12px] font-bold text-muted" style={isActive ? { color: "#fff" } : undefined}>
+                  {cfg.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
-      <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
-        <View className="flex-row justify-between items-start">
-          <View>
-            <Text className="text-[13px] text-muted font-regular">Quitação em</Text>
-            <Text className="font-bold text-[26px] text-ink mt-1">
-              {c.months} <Text className="text-[15px] text-muted font-medium">meses</Text>
-            </Text>
-            <View className="flex-row items-center gap-1 mt-1.5">
-              {c.deltaPositive ? (
-                <TrendingUp size={14} color={colors.teal[500]} strokeWidth={2} />
-              ) : (
-                <TrendingDown size={14} color={colors.coral[500]} strokeWidth={2} />
-              )}
-              <Text className="text-[12px] font-semibold" style={{ color: c.deltaPositive ? colors.teal[500] : colors.coral[500] }}>
-                {c.delta}
+        <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
+          <View className="flex-row justify-between items-start">
+            <View>
+              <Text className="text-[13px] text-muted font-regular">Quitação em</Text>
+              <Text className="font-bold text-[26px] text-ink mt-1">
+                {c.months} <Text className="text-[15px] text-muted font-medium">meses</Text>
               </Text>
+              <View className="flex-row items-center gap-1 mt-1.5">
+                {c.deltaPositive ? (
+                  <TrendingUp size={14} color={colors.teal[500]} strokeWidth={2} />
+                ) : (
+                  <TrendingDown size={14} color={colors.coral[500]} strokeWidth={2} />
+                )}
+                <Text className="text-[12px] font-semibold" style={{ color: c.deltaPositive ? colors.teal[500] : colors.coral[500] }}>
+                  {c.delta}
+                </Text>
+              </View>
+            </View>
+            <View className="px-3.5 py-2 rounded-pill" style={{ backgroundColor: c.color }}>
+              <Text className="text-white text-[13px] font-bold">{c.label}</Text>
             </View>
           </View>
-          <View className="px-3.5 py-2 rounded-pill" style={{ backgroundColor: c.color }}>
-            <Text className="text-white text-[13px] font-bold">{c.label}</Text>
+
+          <View className="mt-3">
+            {/* A `key` do cenário redesenha a curva a cada troca: o gráfico é
+                a resposta da pergunta, então precisa se refazer junto com ela. */}
+            <LineChart key={cenario} values={c.curve} color={c.color} showGoalLine />
+            <View className="flex-row justify-between px-1">
+              <Text className="text-[11px] text-muted font-regular">0m</Text>
+              <Text className="text-[11px] text-muted font-regular">3m</Text>
+              <Text className="text-[11px] text-muted font-regular">6m</Text>
+              <Text className="text-[11px] text-muted font-regular">9m</Text>
+              <Text className="text-[11px] text-muted font-regular">12m</Text>
+            </View>
           </View>
         </View>
 
-        <View className="mt-3">
-          <LineChart values={c.curve} color={c.color} showGoalLine />
-          <View className="flex-row justify-between px-1">
-            <Text className="text-[11px] text-muted font-regular">0m</Text>
-            <Text className="text-[11px] text-muted font-regular">3m</Text>
-            <Text className="text-[11px] text-muted font-regular">6m</Text>
-            <Text className="text-[11px] text-muted font-regular">9m</Text>
-            <Text className="text-[11px] text-muted font-regular">12m</Text>
-          </View>
+        <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
+          <Text className="text-[11px] text-muted font-bold tracking-[0.5px] mb-2.5">O QUE MUDA NESSE CENÁRIO</Text>
+          <MetricRow icon={Calendar} label="Conclusão" value={c.finalDate} />
+          <MetricRow icon={DollarSign} label="Economia mensal" value={`R$ ${c.saving},00`} />
+          <MetricRow icon={Award} label="Pontos ganhos" value={cenario === "excelente" ? "+180" : cenario === "normal" ? "+90" : "+30"} last />
         </View>
-      </View>
 
-      <View className="bg-white rounded-[18px] p-[18px] mb-3.5" style={shadows.card}>
-        <Text className="text-[11px] text-muted font-bold tracking-[0.5px] mb-2.5">O QUE MUDA NESSE CENÁRIO</Text>
-        <MetricRow icon={Calendar} label="Conclusão" value={c.finalDate} />
-        <MetricRow icon={DollarSign} label="Economia mensal" value={`R$ ${c.saving},00`} />
-        <MetricRow icon={Award} label="Pontos ganhos" value={cenario === "excelente" ? "+180" : cenario === "normal" ? "+90" : "+30"} last />
-      </View>
-
-      <View className="gap-2">
-        <Button variant="primary">Aplicar este plano</Button>
-        <Button variant="ghost" onPress={() => navigation.goBack()}>Refazer simulação</Button>
-      </View>
+        <View className="gap-2">
+          <Button variant="primary">Aplicar este plano</Button>
+          <Button variant="ghost" onPress={() => navigation.goBack()}>Refazer simulação</Button>
+        </View>
+      </Stagger>
     </Screen>
   );
 }

@@ -10,6 +10,15 @@ public enum OrigemAlteracao {
     /** Lançamento manual de receita ou despesa. */
     TRANSACAO_CRIADA(false),
 
+    /**
+     * Uma transação já gravada ganhou (ou trocou de) categoria.
+     *
+     * <p>Baixo impacto: não muda quanto o usuário gastou, só em que prateleira
+     * o gasto entra. Quem está classificando costuma classificar várias
+     * seguidas, e recalcular a cada clique seria trabalho jogado fora.
+     */
+    TRANSACAO_CATEGORIZADA(false),
+
     /** Parcela(s) de dívida quitada(s). */
     PAGAMENTO_DIVIDA(true),
 
@@ -26,7 +35,17 @@ public enum OrigemAlteracao {
     PROGRESSO_DIVIDA(false),
 
     /** Renda, método de quitação ou divisão do orçamento mudaram. */
-    PREFERENCIAS_ATUALIZADAS(true);
+    PREFERENCIAS_ATUALIZADAS(true),
+
+    /**
+     * Um extrato bancário foi importado (ou teve a importação desfeita).
+     *
+     * <p>Alto impacto mesmo sendo, no fundo, um monte de TRANSACAO_CRIADA: um
+     * extrato traz o mês inteiro de gastos de uma vez, e o usuário acabou de
+     * subir o PDF justamente para ver a análise sair. Esperar o debounce de 30
+     * minutos aqui seria responder "volte depois" a quem está olhando a tela.
+     */
+    EXTRATO_IMPORTADO(true);
 
     private final boolean altoImpacto;
 

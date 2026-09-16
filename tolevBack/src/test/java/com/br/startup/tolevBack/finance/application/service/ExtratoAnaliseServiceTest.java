@@ -1,4 +1,4 @@
-package com.br.startup.tolevBack.analysis.application.service.analyzers;
+package com.br.startup.tolevBack.finance.application.service;
 
 import com.br.startup.tolevBack.common.gemini.GeminiClient;
 import com.br.startup.tolevBack.common.gemini.GeminiException;
@@ -14,6 +14,7 @@ import org.springframework.web.client.RestClient;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,6 +26,9 @@ class ExtratoAnaliseServiceTest {
 
     private static final String BASE_URL = "https://gemini.test/v1beta";
     private static final byte[] PDF_FALSO = "%PDF-1.4 conteudo falso".getBytes();
+
+    /** O catalogo real vem do banco; aqui basta uma amostra para o enum do schema. */
+    private static final List<String> CATEGORIAS = List.of("Alimentação", "Outros", "Salário");
 
     private MockRestServiceServer server;
     private ExtratoAnaliseService service;
@@ -48,17 +52,22 @@ class ExtratoAnaliseServiceTest {
                 .andExpect(jsonPath("$.generationConfig.responseSchema.type").value("OBJECT"))
                 .andExpect(jsonPath("$.generationConfig.responseSchema.properties.tipoTransacaoMaisFrequente.enum")
                         .value(org.hamcrest.Matchers.containsInAnyOrder("PIX", "CREDITO", "DEBITO")))
+                // O catalogo entra como enum do schema: o modelo nao consegue
+                // devolver uma categoria que nao existe no banco.
+                .andExpect(jsonPath("$.generationConfig.responseSchema.properties.transacoes.items.properties.categoria.enum")
+                        .value(org.hamcrest.Matchers.contains("Alimentação", "Outros", "Salário")))
                 .andRespond(withSuccess("""
-                        {"candidates":[{"content":{"parts":[{"text":"{\\"transacoes\\":[{\\"tipo\\":\\"ENTRADA\\",\\"valor\\":100.00,\\"descricao\\":\\"salario\\",\\"dataTransacao\\":\\"2024-01-15\\"}],\\"totalEntradas\\":100.00,\\"totalSaidas\\":0.00,\\"tipoMaisFrequente\\":\\"ENTRADA\\",\\"tipoTransacaoMaisFrequente\\":\\"PIX\\",\\"transacaoMaiorValor\\":{\\"tipo\\":\\"ENTRADA\\",\\"valor\\":100.00,\\"descricao\\":\\"salario\\",\\"dataTransacao\\":\\"2024-01-15\\"}}"}]},"finishReason":"STOP"}]}
+                        {"candidates":[{"content":{"parts":[{"text":"{\\"transacoes\\":[{\\"tipo\\":\\"ENTRADA\\",\\"valor\\":100.00,\\"descricao\\":\\"salario\\",\\"dataTransacao\\":\\"2024-01-15\\",\\"categoria\\":\\"Salário\\"}],\\"totalEntradas\\":100.00,\\"totalSaidas\\":0.00,\\"tipoMaisFrequente\\":\\"ENTRADA\\",\\"tipoTransacaoMaisFrequente\\":\\"PIX\\",\\"transacaoMaiorValor\\":{\\"tipo\\":\\"ENTRADA\\",\\"valor\\":100.00,\\"descricao\\":\\"salario\\",\\"dataTransacao\\":\\"2024-01-15\\",\\"categoria\\":\\"Salário\\"}}"}]},"finishReason":"STOP"}]}
                         """, MediaType.APPLICATION_JSON));
 
-        ExtratoAnaliseService.ExtratoExtraido resultado = service.analisar(PDF_FALSO);
+        ExtratoAnaliseService.ExtratoExtraido resultado = service.analisar(PDF_FALSO, CATEGORIAS);
 
         assertThat(resultado.transacoes()).hasSize(1);
         assertThat(resultado.totalEntradas()).isEqualByComparingTo(BigDecimal.valueOf(100.00));
         assertThat(resultado.tipoMaisFrequente()).isEqualTo(ExtratoAnaliseService.TipoLancamento.ENTRADA);
         assertThat(resultado.tipoTransacaoMaisFrequente()).isEqualTo(ExtratoAnaliseService.TipoTransacaoMaisFrequente.PIX);
         assertThat(resultado.transacoes().get(0).dataTransacao()).isEqualTo(LocalDate.of(2024, 1, 15));
+        assertThat(resultado.transacoes().get(0).categoria()).isEqualTo("Salário");
         server.verify();
     }
 
@@ -69,14 +78,23 @@ class ExtratoAnaliseServiceTest {
                         {"candidates":[{"content":{"parts":[{"text":"isso não é JSON"}]},"finishReason":"STOP"}]}
                         """, MediaType.APPLICATION_JSON));
 
-        assertThatThrownBy(() -> service.analisar(PDF_FALSO))
+        assertThatThrownBy(() -> service.analisar(PDF_FALSO, CATEGORIAS))
                 .isInstanceOf(GeminiException.class)
                 .hasMessageContaining("não veio no formato esperado");
     }
 
     @Test
+    void catalogoVazioERejeitadoAntesDaChamada() {
+        // Sem categorias nao da para montar o enum do schema, e mandar o extrato
+        // sem restricao deixaria o modelo inventar nome de categoria.
+        assertThatThrownBy(() -> service.analisar(PDF_FALSO, List.of()))
+                .isInstanceOf(GeminiException.class)
+                .hasMessageContaining("Nenhuma categoria ativa");
+    }
+
+    @Test
     void pdfVazioERejeitadoAntesDaChamada() {
-        assertThatThrownBy(() -> service.analisar(new byte[0]))
+        assertThatThrownBy(() -> service.analisar(new byte[0], CATEGORIAS))
                 .isInstanceOf(GeminiException.class)
                 .hasMessageContaining("PDF vazio");
     }
