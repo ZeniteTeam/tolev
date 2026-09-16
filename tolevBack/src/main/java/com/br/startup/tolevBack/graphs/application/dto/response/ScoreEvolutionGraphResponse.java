@@ -7,8 +7,10 @@ import java.util.List;
 /**
  * Linha do tempo da nota de uma análise.
  *
- * @param variacao diferença entre o primeiro e o último ponto — positiva é melhora
- * @param tendencia MELHORANDO, PIORANDO ou ESTAVEL
+ * @param variacao  diferença entre o penúltimo e o último ponto, no sinal cru do
+ *                  score. Em RISCO um score maior é pior — quem traduz isso é
+ *                  {@code tendencia}, não o sinal.
+ * @param tendencia SEM_DADOS, PRIMEIRA_MEDICAO, MELHORANDO, PIORANDO ou ESTAVEL
  */
 public record ScoreEvolutionGraphResponse(
     Long idUsuario,

@@ -1,14 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getDividasByUser } from "../../../api/divida/get-dividas-by-user";
 import { useAuthStore } from "../../../store/authStore";
-import { DIVIDAS_SEED, type DividaView } from "../constants/dividas";
+import { type DividaView } from "../constants/dividas";
 import { toDividaView } from "../utils/divida-view";
 import { dividaKeys } from "./dividaKeys";
 
-/**
- * As dívidas de semente ficam no topo e o que vem do backend entra depois
- * delas — some quando a semente for removida.
- */
+/** As dívidas do usuário, como o backend as devolve. */
 export function useDividas() {
   const userId = useAuthStore((s) => s.userId);
   const query = useQuery({
@@ -18,8 +15,7 @@ export function useDividas() {
     retry: false,
   });
 
-  const fetched: DividaView[] = (query.data ?? []).map(toDividaView);
-  const dividas: DividaView[] = [...DIVIDAS_SEED, ...fetched];
+  const dividas: DividaView[] = (query.data ?? []).map(toDividaView);
 
   return { ...query, dividas };
 }

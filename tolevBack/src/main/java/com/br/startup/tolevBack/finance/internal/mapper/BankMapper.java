@@ -9,6 +9,7 @@ public class BankMapper {
         return new BankResponse(
                 banco.getId(),
                 banco.getTitulo(),
+                banco.getCodigoBanco(),
                 banco.getAgencia()
         );
     }

@@ -58,6 +58,7 @@ public enum RegraAnalise {
             "Você tem R$ {saldo} guardado e gasta R$ {despesaMensal} por mês. "
                     + "O recomendado são 6 meses de despesa — hoje seriam R$ {metaReserva}."),
 
+    //Poderiamos mudar isso
     ORCAMENTO_DIVIDAS_ESTOURADO(
             TipoRecomendacao.ALERTA, TipoImpacto.FINANCEIRO, new BigDecimal("3.00"),
             "As dívidas passaram do teto que você definiu",
@@ -121,7 +122,7 @@ public enum RegraAnalise {
         return tipoImpacto;
     }
 
-    /** Quão difícil é para o usuário seguir a recomendação, de 1 (trivial) a 5 (duro). */
+    /** Quão difícil é para o usuário seguir a recomendação, de 1 (tranquilo) a 5 (dificil). */
     public BigDecimal dificuldade() {
         return dificuldade;
     }

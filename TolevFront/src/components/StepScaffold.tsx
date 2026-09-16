@@ -1,4 +1,5 @@
 import { ArrowLeft } from "lucide-react-native";
+import { AnimatePresence, MotiView } from "moti";
 import { useState, type ReactNode } from "react";
 import {
   KeyboardAvoidingView,
@@ -9,8 +10,10 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useMensagemTemporaria } from "../hooks";
 import { colors } from "../theme";
 import HelpSheet, { type HelpContent } from "./HelpSheet";
+import Progress from "./Progress";
 
 type Props = {
   /** Índice da etapa atual começando em 1 (e não em 0), para a barra. */
@@ -23,8 +26,14 @@ type Props = {
   onContinue: () => void;
   continueLabel?: string;
   continueDisabled?: boolean;
-  /** Mensagem de erro logo acima do botão Continuar. */
+  /** Mensagem de erro logo acima do botão Continuar. Some sozinha em 3s. */
   error?: string;
+  /**
+   * Distingue duas ocorrências do mesmo erro, para o aviso reaparecer quando a
+   * mesma falha se repete. Só é preciso quando o texto não passa por vazio
+   * entre uma tentativa e outra.
+   */
+  errorKey?: string | number;
   /** Abre a folha "Onde encontro isso?" logo acima do botão. */
   help?: HelpContent;
 };
@@ -40,10 +49,12 @@ export default function StepScaffold({
   continueLabel = "Continuar",
   continueDisabled = false,
   error,
+  errorKey,
   help,
 }: Props) {
   const insets = useSafeAreaInsets();
   const [helpOpen, setHelpOpen] = useState(false);
+  const erroVisivel = useMensagemTemporaria(error, errorKey);
   const pct = Math.max(0, Math.min(100, (step / total) * 100));
 
   return (
@@ -59,10 +70,14 @@ export default function StepScaffold({
         >
           <ArrowLeft size={24} color={colors.text.secondary} strokeWidth={2.4} />
         </Pressable>
-        <View className="flex-1 h-3 rounded-pill bg-primary-100 overflow-hidden">
-          <View
-            className="h-full rounded-pill bg-primary-500"
-            style={{ width: `${pct}%` }}
+        {/* A barra desliza até a etapa nova em vez de saltar: é o que mostra
+            que o fluxo avançou, e não que a tela virou outra. */}
+        <View className="flex-1">
+          <Progress
+            pct={pct}
+            height={12}
+            trackColor={colors.primary[100]}
+            fillColor={colors.primary[500]}
           />
         </View>
       </View>
@@ -108,11 +123,20 @@ export default function StepScaffold({
             </Pressable>
           ) : null}
 
-          {error ? (
-            <Text className="text-[13px] text-coral-500 font-medium text-center mb-2.5">
-              {error}
-            </Text>
-          ) : null}
+          <AnimatePresence>
+            {erroVisivel ? (
+              <MotiView
+                from={{ opacity: 0, translateY: 4 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ type: "timing", duration: 180 }}
+              >
+                <Text className="text-[13px] text-coral-500 font-medium text-center mb-2.5">
+                  {erroVisivel}
+                </Text>
+              </MotiView>
+            ) : null}
+          </AnimatePresence>
 
           <Pressable
             onPress={continueDisabled ? undefined : onContinue}

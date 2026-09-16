@@ -42,6 +42,11 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
+                // A sonda do App Service chega sem token. Autenticada, ela
+                // receberia 401 e a plataforma leria a instância como doente
+                // justamente quando ela está sã. `show-details=never` mantém a
+                // resposta em {"status":"UP"} — nada a vazar.
+                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                 .anyRequest().authenticated())
             // Sem um entry point explícito o Spring Security responde 403 a quem
             // não está autenticado. O app trata 401 como "sessão expirada" e faz

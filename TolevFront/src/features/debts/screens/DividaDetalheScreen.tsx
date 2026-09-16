@@ -3,14 +3,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { AlertCircle, CalendarClock, Check, Clock, TrendingUp } from "lucide-react-native";
 import { useState } from "react";
 import { Alert, Text, View } from "react-native";
-import { Button, Ring, Screen } from "../../../components";
+import { Button, Progress, Ring, Screen, Stagger } from "../../../components";
 import { colors, shadows } from "../../../theme";
 import { getApiErrorMessage } from "../../../util/apiError";
 import { isoToBrDate, isoToMonthYear } from "../../../util/date";
+import CustoRealCard from "../components/CustoRealCard";
 import RegistrarPagamentoModal from "../components/RegistrarPagamentoModal";
 import {
   brl,
-  DIVIDAS_SEED,
   isQuitada,
   parcelasEmAberto,
   pctQuitado,
@@ -26,26 +26,24 @@ const REGIME_LABEL = { SIMPLES: "Juros simples", COMPOSTO: "Juros compostos" };
 export default function DividaDetalheScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { dividas } = useDividas();
+  const { dividas, isPending } = useDividas();
   const registrar = useRegistrarPagamento();
   const [modalVisible, setModalVisible] = useState(false);
   const id = route.params?.id;
-  const d = dividas.find((x) => x.id === id) ?? DIVIDAS_SEED[0];
+  const d = dividas.find((x) => x.id === id);
+
+  // A dívida pode ter sido quitada e removida enquanto a tela estava empilhada.
+  if (isPending) return <Screen bottomPad={40}><View /></Screen>;
+  if (!d) return <DividaNaoEncontrada onVoltar={() => navigation.goBack()} />;
+
+  const idDivida = d.id;
 
   function registrarPagamento(pagamentos: { numero: number; valorPago: number }[]) {
-    if (typeof d.id !== "number") {
-      Alert.alert(
-        "Dívida de exemplo",
-        "Esta é uma dívida de demonstração e ainda não está no servidor. Cadastre uma dívida para registrar pagamentos.",
-      );
-      setModalVisible(false);
-      return;
-    }
     if (pagamentos.length === 0) return;
 
     const total = pagamentos.reduce((s, p) => s + p.valorPago, 0);
     registrar.mutate(
-      { idDivida: d.id, parcelas: pagamentos },
+      { idDivida, parcelas: pagamentos },
       {
         onSuccess: () => {
           setModalVisible(false);
@@ -70,152 +68,158 @@ export default function DividaDetalheScreen() {
 
   return (
     <Screen bottomPad={40}>
-      <View className="pt-1 mb-[18px]">
-        <View
-          className="flex-row items-center gap-2 self-start px-3 py-1.5 rounded-pill mb-2.5"
-          style={{ backgroundColor: colors.primary[100] }}
-        >
+      <Stagger>
+        <View className="pt-1 mb-[18px]">
           <View
-            className="w-4 h-4 rounded-xs items-center justify-center"
-            style={{ backgroundColor: d.bankColor }}
+            className="flex-row items-center gap-2 self-start px-3 py-1.5 rounded-pill mb-2.5"
+            style={{ backgroundColor: colors.primary[100] }}
           >
-            <Icon size={10} color="#fff" strokeWidth={2} />
-          </View>
-          <Text className="text-xs font-semibold text-primary-700">{d.banco}</Text>
-        </View>
-        <Text className="font-bold text-2xl leading-7 text-ink">{d.nome}</Text>
-      </View>
-
-      <LinearGradient
-        colors={
-          quitada
-            ? [colors.primary[600], colors.primary[500]]
-            : [colors.primary[700], colors.primary[600]]
-        }
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="rounded-lg px-[22px] pt-[22px] pb-[18px] mb-4"
-        style={shadows.card}
-      >
-        {quitada ? (
-          <View className="flex-row items-center gap-2">
-            <View className="w-6 h-6 rounded-full items-center justify-center bg-white/20">
-              <Check size={15} color="#fff" strokeWidth={3} />
+            <View
+              className="w-4 h-4 rounded-xs items-center justify-center"
+              style={{ backgroundColor: d.bankColor }}
+            >
+              <Icon size={10} color="#fff" strokeWidth={2} />
             </View>
-            <Text className="text-white text-md font-bold">Dívida quitada</Text>
+            <Text className="text-xs font-semibold text-primary-700">{d.banco}</Text>
           </View>
-        ) : (
-          <Text className="text-white/[0.85] text-sm font-semibold">Saldo devedor</Text>
-        )}
-        <Text className="text-white text-[32px] leading-9 font-bold mt-1.5">
-          {quitada ? "Parabéns!" : brl(d.saldo)}
-        </Text>
-
-        {!quitada && (
-          <Text className="text-white/[0.78] text-[11px] mt-1 font-regular">
-            faltam {brl(totalEmAberto(d))} somando as parcelas em aberto
-          </Text>
-        )}
-
-        <View className="flex-row justify-between mt-3.5 mb-1.5">
-          <Text className="text-white/90 text-xs font-regular">
-            {parcelasPagas} de {d.parcelas} parcelas
-          </Text>
-          <Text className="text-white/90 text-xs font-regular">{pctPago}% quitado</Text>
+          <Text className="font-bold text-2xl leading-7 text-ink">{d.nome}</Text>
         </View>
-        <View className="h-2 rounded-pill overflow-hidden bg-white/[0.22]">
-          <View
-            className="h-full rounded-pill"
-            style={{ width: `${pctPago}%`, backgroundColor: colors.primary[300] }}
+
+        <LinearGradient
+          colors={
+            quitada
+              ? [colors.primary[600], colors.primary[500]]
+              : [colors.primary[700], colors.primary[600]]
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="rounded-lg px-[22px] pt-[22px] pb-[18px] mb-4"
+          style={shadows.card}
+        >
+          {quitada ? (
+            <View className="flex-row items-center gap-2">
+              <View className="w-6 h-6 rounded-full items-center justify-center bg-white/20">
+                <Check size={15} color="#fff" strokeWidth={3} />
+              </View>
+              <Text className="text-white text-md font-bold">Dívida quitada</Text>
+            </View>
+          ) : (
+            <Text className="text-white/[0.85] text-sm font-semibold">Saldo devedor</Text>
+          )}
+          <Text className="text-white text-[32px] leading-9 font-bold mt-1.5">
+            {quitada ? "Parabéns!" : brl(d.saldo)}
+          </Text>
+
+          {!quitada && (
+            <Text className="text-white/[0.78] text-[11px] mt-1 font-regular">
+              faltam {brl(totalEmAberto(d))} somando as parcelas em aberto
+            </Text>
+          )}
+
+          <View className="flex-row justify-between mt-3.5 mb-1.5">
+            <Text className="text-white/90 text-xs font-regular">
+              {parcelasPagas} de {d.parcelas} parcelas
+            </Text>
+            <Text className="text-white/90 text-xs font-regular">{pctPago}% quitado</Text>
+          </View>
+          <Progress
+            pct={pctPago}
+            height={8}
+            trackColor="rgba(255,255,255,0.22)"
+            fillColor={colors.primary[300]}
+          />
+
+          <View className="flex-row mt-4 pt-4 border-t border-t-white/[0.18] gap-3.5">
+            <HeaderStat label="Juros a.m." value={`${d.juros.toFixed(1).replace(".", ",")}%`} />
+            <View className="w-px bg-white/[0.18]" />
+            <HeaderStat label="Total a pagar" value={brl(d.totalAPagar)} />
+            <View className="w-px bg-white/[0.18]" />
+            <HeaderStat label="Custo dos juros" value={brl(d.totalJuros)} />
+          </View>
+        </LinearGradient>
+
+        <View className="flex-row gap-3 mb-4">
+          <View className="flex-1 bg-surface rounded-lg p-[18px]" style={shadows.card}>
+            <Ring style={{ width: 34, height: 34, borderRadius: 17 }}>
+              <CalendarClock size={17} color={colors.primary[700]} strokeWidth={2} />
+            </Ring>
+            <Text className="font-bold text-lg text-ink mt-3">
+              {quitada
+                ? "Quitada"
+                : isoToMonthYear(d.cronograma[d.cronograma.length - 1]?.vencimento) || "—"}
+            </Text>
+            <Text className="text-[11px] text-muted mt-0.5 font-regular">
+              {quitada ? "sem parcelas em aberto" : "última parcela"}
+            </Text>
+          </View>
+          <View className="flex-1 bg-surface rounded-lg p-[18px]" style={shadows.card}>
+            <View className="w-[34px] h-[34px] rounded-full items-center justify-center bg-coral-500/[0.12]">
+              <TrendingUp size={17} color={colors.coral[500]} strokeWidth={2} />
+            </View>
+            <Text className="font-bold text-lg text-coral-500 mt-3">{brl(jurosMes)}</Text>
+            <Text className="text-[11px] text-muted mt-0.5 font-regular">
+              {quitada ? "juros pagos" : "juros da próxima parcela"}
+            </Text>
+          </View>
+        </View>
+
+        <View className="bg-surface rounded-lg p-5 mb-4" style={shadows.card}>
+          <Text className="font-bold text-base text-ink mb-3.5">Condições do contrato</Text>
+          <Condicao label="Sistema" valor={SISTEMA_LABEL[d.sistema]} />
+          <Condicao label="Regime de juros" valor={REGIME_LABEL[d.regime]} />
+          <Condicao
+            label="Multa por atraso"
+            valor={d.multaAtraso > 0 ? `${fmtPct(d.multaAtraso)} sobre a parcela` : "não informada"}
+          />
+          <Condicao
+            label="Juros de mora"
+            valor={d.jurosMora > 0 ? `${fmtPct(d.jurosMora)} a.m.` : "não informados"}
+            last
           />
         </View>
 
-        <View className="flex-row mt-4 pt-4 border-t border-t-white/[0.18] gap-3.5">
-          <HeaderStat label="Juros a.m." value={`${d.juros.toFixed(1).replace(".", ",")}%`} />
-          <View className="w-px bg-white/[0.18]" />
-          <HeaderStat label="Total a pagar" value={brl(d.totalAPagar)} />
-          <View className="w-px bg-white/[0.18]" />
-          <HeaderStat label="Custo dos juros" value={brl(d.totalJuros)} />
-        </View>
-      </LinearGradient>
+        <CustoRealCard divida={d} />
 
-      <View className="flex-row gap-3 mb-4">
-        <View className="flex-1 bg-surface rounded-lg p-[18px]" style={shadows.card}>
-          <Ring style={{ width: 34, height: 34, borderRadius: 17 }}>
-            <CalendarClock size={17} color={colors.primary[700]} strokeWidth={2} />
-          </Ring>
-          <Text className="font-bold text-lg text-ink mt-3">
-            {quitada
-              ? "Quitada"
-              : isoToMonthYear(d.cronograma[d.cronograma.length - 1]?.vencimento) || "—"}
-          </Text>
-          <Text className="text-[11px] text-muted mt-0.5 font-regular">
-            {quitada ? "sem parcelas em aberto" : "última parcela"}
-          </Text>
-        </View>
-        <View className="flex-1 bg-surface rounded-lg p-[18px]" style={shadows.card}>
-          <View className="w-[34px] h-[34px] rounded-full items-center justify-center bg-coral-500/[0.12]">
-            <TrendingUp size={17} color={colors.coral[500]} strokeWidth={2} />
+        <View className="bg-surface rounded-lg p-5 mb-4" style={shadows.card}>
+          <View className="flex-row items-baseline justify-between mb-3.5">
+            <Text className="font-bold text-base text-ink">Parcelas</Text>
+            {proxima && (
+              <Text className="text-[11px] text-muted font-regular">
+                próxima em {isoToBrDate(proxima.vencimento) || "—"}
+              </Text>
+            )}
           </View>
-          <Text className="font-bold text-lg text-coral-500 mt-3">{brl(jurosMes)}</Text>
-          <Text className="text-[11px] text-muted mt-0.5 font-regular">
-            {quitada ? "juros pagos" : "juros da próxima parcela"}
-          </Text>
-        </View>
-      </View>
 
-      <View className="bg-surface rounded-lg p-5 mb-4" style={shadows.card}>
-        <Text className="font-bold text-base text-ink mb-3.5">Condições do contrato</Text>
-        <Condicao label="Sistema" valor={SISTEMA_LABEL[d.sistema]} />
-        <Condicao label="Regime de juros" valor={REGIME_LABEL[d.regime]} />
-        <Condicao
-          label="Multa por atraso"
-          valor={d.multaAtraso > 0 ? `${fmtPct(d.multaAtraso)} sobre a parcela` : "não informada"}
-        />
-        <Condicao
-          label="Juros de mora"
-          valor={d.jurosMora > 0 ? `${fmtPct(d.jurosMora)} a.m.` : "não informados"}
-          last
-        />
-      </View>
-
-      <View className="bg-surface rounded-lg p-5 mb-4" style={shadows.card}>
-        <View className="flex-row items-baseline justify-between mb-3.5">
-          <Text className="font-bold text-base text-ink">Parcelas</Text>
-          {proxima && (
-            <Text className="text-[11px] text-muted font-regular">
-              próxima em {isoToBrDate(proxima.vencimento) || "—"}
+          {d.cronograma.length === 0 ? (
+            <Text className="text-sm text-muted font-regular py-2">
+              Essa dívida ainda não tem parcelas geradas.
             </Text>
+          ) : (
+            <Stagger>
+              {d.cronograma.map((p, i) => (
+                <ParcelaRow key={p.numero} parcela={p} last={i === d.cronograma.length - 1} />
+              ))}
+            </Stagger>
           )}
         </View>
 
-        {d.cronograma.length === 0 ? (
-          <Text className="text-sm text-muted font-regular py-2">
-            Essa dívida ainda não tem parcelas geradas.
-          </Text>
-        ) : (
-          d.cronograma.map((p, i) => (
-            <ParcelaRow key={p.numero} parcela={p} last={i === d.cronograma.length - 1} />
-          ))
+        {!quitada && (
+          <Button variant="primary" onPress={() => setModalVisible(true)}>
+            Registrar pagamento
+          </Button>
         )}
-      </View>
-
-      {!quitada && (
-        <Button variant="primary" onPress={() => setModalVisible(true)}>
-          Registrar pagamento
+        <Button variant="ghost" onPress={() => navigation.goBack()} style={{ marginTop: 4 }}>
+          Voltar
         </Button>
-      )}
-      <Button variant="ghost" onPress={() => navigation.goBack()} style={{ marginTop: 4 }}>
-        Voltar
-      </Button>
 
-      <RegistrarPagamentoModal
-        visible={modalVisible}
-        divida={d}
-        submitting={registrar.isPending}
-        onClose={() => setModalVisible(false)}
-        onConfirm={registrarPagamento}
-      />
+        <RegistrarPagamentoModal
+          visible={modalVisible}
+          divida={d}
+          submitting={registrar.isPending}
+          onClose={() => setModalVisible(false)}
+          onConfirm={registrarPagamento}
+        />
+      </Stagger>
     </Screen>
   );
 }
@@ -288,5 +292,22 @@ function ParcelaRow({ parcela, last }: { parcela: ParcelaView; last: boolean }) 
         )}
       </View>
     </View>
+  );
+}
+
+function DividaNaoEncontrada({ onVoltar }: { onVoltar: () => void }) {
+  return (
+    <Screen bottomPad={40}>
+      <View className="items-center pt-20 px-4">
+        <View className="w-16 h-16 rounded-[20px] items-center justify-center bg-primary-100 mb-4">
+          <AlertCircle size={28} color={colors.primary[700]} strokeWidth={2} />
+        </View>
+        <Text className="font-bold text-[18px] text-ink text-center">Dívida não encontrada</Text>
+        <Text className="text-[14px] text-muted text-center leading-[21px] mt-2 mb-6 font-regular">
+          Ela pode ter sido quitada ou removida. Volte para ver sua lista atualizada.
+        </Text>
+        <Button onPress={onVoltar}>Voltar</Button>
+      </View>
+    </Screen>
   );
 }

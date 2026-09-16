@@ -1,0 +1,20 @@
+# Saidas de build: o container recompila do zero, nao aproveita nada disso.
+target/
+out/
+!.mvn/wrapper/maven-wrapper.properties
+
+# Metadados de repositorio e IDE
+.git/
+.gitignore
+.idea/
+*.iml
+
+# Segredos e arquivos locais -- nunca devem entrar numa imagem
+.env
+.env.*
+*.log
+
+# Dados financeiros de teste
+src/test/**/*.pdf
+
+docs/

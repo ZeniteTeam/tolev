@@ -1,8 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Landmark } from "lucide-react-native";
 import { useState } from "react";
-import { Text, View } from "react-native";
-import { PageTitle, Screen, TabsUnderline } from "../../../components";
+import { Pressable, Text, View } from "react-native";
+import { PageTitle, Screen, Stagger, TabSwitch, TabsUnderline } from "../../../components";
 import { colors, shadows } from "../../../theme";
 import DebtCard from "../components/DebtCard";
 import ProjecoesTab from "../components/ProjecoesTab";
@@ -25,20 +26,30 @@ export default function DividasScreen() {
         <TabsUnderline items={TABS} active={tab} onChange={setTab} />
       </View>
 
-      {tab === "lista" && <DividasLista />}
-      {tab === "projecoes" && <ProjecoesTab />}
+      {/* A `key` da aba remonta o painel, então a lista de dívidas e os
+          gráficos das projeções reaparecem com a própria entrada. */}
+      <TabSwitch tabKey={tab}>
+        {tab === "lista" && <DividasLista />}
+        {tab === "projecoes" && <ProjecoesTab />}
+      </TabSwitch>
     </Screen>
   );
 }
 
 function DividasLista() {
   const navigation = useNavigation<any>();
-  const { dividas } = useDividas();
+  const { dividas, isPending } = useDividas();
+
+  // Enquanto a primeira busca não volta, a lista vazia e o estado vazio são
+  // indistinguíveis — mostrar o convite para cadastrar aqui seria um pisca.
+  if (isPending) return null;
+  if (dividas.length === 0) return <DividasVazio />;
+
   const total = dividas.reduce((s, d) => s + d.saldo, 0);
   const minTotal = dividas.reduce((s, d) => s + d.min, 0);
 
   return (
-    <View className="pt-[22px]">
+    <Stagger className="pt-[22px]">
       <LinearGradient
         colors={[colors.primary[700], colors.primary[600]]}
         start={{ x: 0, y: 0 }}
@@ -74,6 +85,29 @@ function DividasLista() {
           onPress={() => navigation.navigate("DividaDetalhe", { id: d.id })}
         />
       ))}
-    </View>
+    </Stagger>
+  );
+}
+
+function DividasVazio() {
+  const navigation = useNavigation<any>();
+
+  return (
+    <Stagger className="items-center pt-16 px-4">
+      <View className="w-16 h-16 rounded-[20px] items-center justify-center bg-primary-50 mb-4">
+        <Landmark size={28} color={colors.primary[700]} strokeWidth={2} />
+      </View>
+      <Text className="font-bold text-[18px] text-ink text-center">Nenhuma dívida por aqui</Text>
+      <Text className="text-[14px] text-muted text-center leading-[21px] mt-2 mb-6 font-regular">
+        Cadastre sua primeira dívida para acompanhar o saldo, as parcelas e o plano de quitação.
+      </Text>
+      <Pressable
+        onPress={() => navigation.navigate("AdicionarDivida")}
+        className="h-[52px] px-7 rounded-pill items-center justify-center bg-primary-700 active:scale-[0.99]"
+        style={shadows.cta}
+      >
+        <Text className="font-bold text-[15px] text-white">Adicionar dívida</Text>
+      </Pressable>
+    </Stagger>
   );
 }

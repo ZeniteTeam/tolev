@@ -6,6 +6,8 @@ import com.br.startup.tolevBack.graphs.application.usecase.queries.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class GraphFacade {
@@ -49,7 +51,12 @@ public class GraphFacade {
         return getImpactRankingGraph.execute(idUsuario);
     }
 
-    public SpendingByCategoryGraphResponse getSpendingByCategory(Long idUsuario, int meses) {
-        return getSpendingByCategory.execute(idUsuario, meses);
+    public SpendingByCategoryGraphResponse getSpendingByCategory(Long idUsuario, int meses, Long idBanco) {
+        return getSpendingByCategory.execute(idUsuario, meses, idBanco);
+    }
+
+    public SpendingByCategoryGraphResponse getSpendingByCategory(
+            Long idUsuario, LocalDate inicio, LocalDate fim, Long idBanco) {
+        return getSpendingByCategory.execute(idUsuario, inicio, fim, idBanco);
     }
 }

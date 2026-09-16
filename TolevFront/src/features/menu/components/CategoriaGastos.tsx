@@ -1,6 +1,7 @@
 import { LucideIcon } from "lucide-react-native";
 import { Text, View } from "react-native";
-import { Donut, GiftedDonut } from "../../../components";
+import { Donut, GiftedDonut, Progress, Stagger } from "../../../components";
+import { motion } from "../../../theme";
 
 /** `color` e `icon` já vêm resolvidos por features/analysis/utils/categoria-view.ts. */
 export type Categoria = {
@@ -11,6 +12,13 @@ export type Categoria = {
 };
 
 type Props = { categorias: Categoria[] };
+
+/**
+ * O donut entra um passo antes da legenda: primeiro a forma, depois os nomes.
+ * É a ordem em que o gráfico é lido.
+ */
+const ATRASO_DONUT = motion.stagger.step;
+const ATRASO_LEGENDA = motion.stagger.step * 2;
 
 /** Protegido para um mês zerado render 0% e não NaN%. */
 function pctDe(value: number, total: number): number {
@@ -31,8 +39,9 @@ export function CategoriaGastosCompact({ categorias }: Props) {
         size={88}
         stroke={10}
         centerValue={`R$ ${(total / 1000).toFixed(1)}k`}
+        delay={ATRASO_DONUT}
       />
-      <View className="flex-1 gap-2">
+      <Stagger className="flex-1 gap-2" delay={ATRASO_LEGENDA}>
         {top3.map((c) => {
           const pct = pctDe(c.value, total);
           return (
@@ -43,7 +52,7 @@ export function CategoriaGastosCompact({ categorias }: Props) {
             </View>
           );
         })}
-      </View>
+      </Stagger>
     </View>
   );
 }
@@ -58,6 +67,7 @@ export function CategoriaGastosDetailed({ categorias }: Props) {
           data={categorias.map((c) => ({ value: c.value, color: c.color }))}
           size={140}
           stroke={14}
+          delay={ATRASO_DONUT}
           center={
             <View className="items-center">
               <Text className="text-[11px] text-muted font-medium">Total</Text>
@@ -66,7 +76,7 @@ export function CategoriaGastosDetailed({ categorias }: Props) {
           }
         />
       </View>
-      <View className="gap-3">
+      <Stagger className="gap-3" delay={ATRASO_LEGENDA}>
         {sorted.map((c) => {
           const pct = pctDe(c.value, total);
           const Icon = c.icon;
@@ -82,13 +92,15 @@ export function CategoriaGastosDetailed({ categorias }: Props) {
                 </View>
                 <Text className="text-[12px] font-bold" style={{ color: c.color }}>{pct}%</Text>
               </View>
-              <View className="bg-[#F1F5F3] h-1 rounded-pill mt-1.5 overflow-hidden ml-11">
-                <View className="h-full rounded-pill" style={{ width: `${pct}%`, backgroundColor: c.color }} />
+              {/* Mesma barra de antes, agora pelo `Progress`: o preenchimento
+                  cresce junto com a entrada da linha em vez de já chegar cheio. */}
+              <View className="mt-1.5 ml-11">
+                <Progress pct={pct} height={4} trackColor="#F1F5F3" fillColor={c.color} />
               </View>
             </View>
           );
         })}
-      </View>
+      </Stagger>
     </View>
   );
 }

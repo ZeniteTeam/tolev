@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { View } from "react-native";
-import { PageTitle, Screen, TabsUnderline } from "../../../components";
+import { PageTitle, Screen, TabSwitch, TabsUnderline } from "../../../components";
 import AnaliseTab from "../components/AnaliseTab";
 import PlanejamentoTab from "../components/PlanejamentoTab";
 
@@ -22,14 +22,22 @@ export default function FinancasScreen() {
         <TabsUnderline items={TABS} active={tab} onChange={setTab} />
       </View>
 
-      {tab === "analise" && (
-        <AnaliseTab onOpenCategorias={() => navigation.navigate("Categorias")} />
-      )}
-      {tab === "planejamento" && (
-        <PlanejamentoTab
-          onOpenMetodo={(id) => navigation.navigate("MetodoOnboarding", { id })}
-        />
-      )}
+      {/* A `key` da aba remonta o painel: trocar de aba redesenha os gráficos
+          da análise em vez de trocar o conteúdo embaixo do usuário. */}
+      <TabSwitch tabKey={tab}>
+        {tab === "analise" && (
+          <AnaliseTab
+            onOpenCategorias={() => navigation.navigate("Categorias")}
+            onImportarExtrato={() => navigation.navigate("ImportarExtrato")}
+            onAcompanharExtrato={() => navigation.navigate("ExtratoProcessando")}
+          />
+        )}
+        {tab === "planejamento" && (
+          <PlanejamentoTab
+            onOpenMetodo={(id) => navigation.navigate("MetodoOnboarding", { id })}
+          />
+        )}
+      </TabSwitch>
     </Screen>
   );
 }

@@ -14,8 +14,10 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
-import { Progress } from "../../../components";
+import { Progress, Stagger } from "../../../components";
 import { colors, shadows } from "../../../theme";
+import AporteExtraCard from "./AporteExtraCard";
+import OrdemDeAtaqueCard from "./OrdemDeAtaqueCard";
 import { METODOS, metodoById, type Metodo, type MetodoId } from "../constants/metodos";
 import { usePreferencias } from "../hooks/usePreferencias";
 import { useUpdatePreferencias } from "../hooks/useUpdatePreferencias";
@@ -36,7 +38,7 @@ export default function PlanejamentoTab({ onOpenMetodo }: Props) {
   return (
     <View className="pt-[18px]">
       <PlanSection title="Método de quitação" sub="Como priorizar o pagamento das suas dívidas" />
-      <View className="gap-3">
+      <Stagger className="gap-3">
         {METODOS.map((m) => (
           <MetodoCard
             key={m.id}
@@ -45,6 +47,16 @@ export default function PlanejamentoTab({ onOpenMetodo }: Props) {
             onPress={() => onOpenMetodo?.(m.id)}
           />
         ))}
+      </Stagger>
+
+      {/* Logo abaixo dos métodos, porque é o que justifica a fila que o método
+          ativo propõe — e muda de critério junto com ele. */}
+      <View className="mt-5">
+        <OrdemDeAtaqueCard />
+      </View>
+
+      <View className="mt-3.5">
+        <AporteExtraCard />
       </View>
 
       <View className="flex-row items-center gap-3 my-8">
@@ -124,7 +136,7 @@ function FluxoCaixa() {
     { icon: Coins, titulo: "Antecipar recebíveis", desc: "Adiante valores a receber para abater juros altos." },
   ];
   return (
-    <View className="bg-surface rounded-[18px] p-2" style={shadows.card}>
+    <Stagger className="bg-surface rounded-[18px] p-2" style={shadows.card}>
       {opcoes.map((o, i) => {
         const Icon = o.icon;
         return (
@@ -144,7 +156,7 @@ function FluxoCaixa() {
           </Pressable>
         );
       })}
-    </View>
+    </Stagger>
   );
 }
 
@@ -164,7 +176,7 @@ function Orcamento({ prefs }: { prefs?: PreferenciaFinanceiraResponse }) {
   };
 
   return (
-    <View className="gap-3">
+    <Stagger className="gap-3">
       {metodos.map((m) => {
         const active = sel === m.id;
         const Icon = m.icon;
@@ -209,7 +221,7 @@ function Orcamento({ prefs }: { prefs?: PreferenciaFinanceiraResponse }) {
           </Pressable>
         );
       })}
-    </View>
+    </Stagger>
   );
 }
 

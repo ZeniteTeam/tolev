@@ -62,7 +62,7 @@ public class GeminiClient {
      */
     public GeminiResponse gerar(GeminiRequest request, String model) {
         if (!properties.configurado()) {
-            throw new GeminiException(
+            throw new GeminiNaoConfiguradoException(
                     "GEMINI_API_KEY não configurada — defina a variável de ambiente para usar o Gemini.");
         }
 

@@ -17,7 +17,8 @@ export const onboardingSchema = z
     objetivoPrincipal: z.enum(OBJETIVO_PRINCIPAL, { message: OPCAO_OBRIGATORIA }),
     situacaoFinanceira: z.enum(SITUACAO_FINANCEIRA, { message: OPCAO_OBRIGATORIA }),
     ocupacao: z.enum(TIPO_EMPREGO, { message: OPCAO_OBRIGATORIA }),
-    // Dígitos da renda mensal em reais (ex.: "3500"). "0" é válido (sem renda).
+    // Dígitos crus da renda mensal, os dois últimos são os centavos
+    // (ex.: "350000" = R$ 3.500,00). "0" é válido (sem renda).
     rendaMensal: z.string().min(1, "Informe sua renda mensal"),
     nomeUsuario: z
       .string()

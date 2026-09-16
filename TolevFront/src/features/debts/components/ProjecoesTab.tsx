@@ -6,6 +6,7 @@ import {
   ProjectionAreaChart,
   ProjectionBarChart,
   Ring,
+  Stagger,
 } from "../../../components";
 import type { ProjectionMonth } from "../../../components/ProjectionBarChart";
 import { colors, shadows } from "../../../theme";
@@ -22,7 +23,7 @@ const MONTHS: ProjectionMonth[] = [
 
 export default function ProjecoesTab() {
   return (
-    <View className="pt-[22px]">
+    <Stagger className="pt-[22px]">
       <LinearGradient
         colors={[colors.primary[700], colors.primary[600]]}
         start={{ x: 0, y: 0 }}
@@ -110,7 +111,7 @@ export default function ProjecoesTab() {
           <Legend color={colors.coral[500]} label="Pagamento" />
         </View>
       </View>
-    </View>
+    </Stagger>
   );
 }
 
