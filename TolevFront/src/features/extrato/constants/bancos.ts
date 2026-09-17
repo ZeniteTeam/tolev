@@ -48,12 +48,12 @@ const VISUAL: Record<string, BancoVisual> = {
 const PASSOS_GENERICOS: ComoEncontrar = {
   passos: [
     "Abra o app do seu banco e procure por Extrato, Movimentações ou Lançamentos.",
-    "Escolha o período que quer importar — o mês inteiro costuma ser o mais útil.",
+    "Escolha o período que quer importar. O mês inteiro costuma ser o mais útil.",
     "Toque em Exportar, Compartilhar ou no ícone de download e escolha PDF.",
     "Salve o arquivo no celular e volte aqui para selecioná-lo.",
   ],
   observacao:
-    "Não achou? Procure por “extrato em PDF” na busca do app do banco — quase todos têm.",
+    "Não achou? Procure por “extrato em PDF” na busca do app do banco. Quase todos têm.",
 };
 
 const COMO_ENCONTRAR: Record<string, ComoEncontrar> = {

@@ -3,8 +3,7 @@
 #
 # A URL vem inteira do ambiente — diferente do perfil default, que fixa
 # localhost e só parametriza o nome do banco. Nada aqui tem fallback:
-# faltando variável, a aplicação falha no boot em vez de subir apontando
-# para um banco errado.
+# faltando variável, a aplicação falha no boot
 spring:
 
   datasource:

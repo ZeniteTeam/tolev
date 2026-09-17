@@ -128,7 +128,7 @@ export default function AporteExtraCard() {
             ) : (
               <>
                 Nem com <Text className="font-bold">+{brl(escolhido)} por mês</Text> as parcelas
-                cobrem os juros — o saldo continua subindo. Tente um valor maior, ou renegocie a
+                cobrem os juros, e o saldo continua subindo. Tente um valor maior, ou renegocie a
                 dívida de juro mais alto antes de aportar.
               </>
             )}

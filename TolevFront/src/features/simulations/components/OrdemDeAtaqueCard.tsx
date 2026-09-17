@@ -29,7 +29,7 @@ type Linha = { divida: DividaView; peso: number; rotulo: string };
 
 /**
  * Como cada critério lê a mesma lista de dívidas. O gráfico é o argumento
- * visual do método escolhido — mostrar "onde os juros sangram" para quem
+ * visual do método escolhido — mostrar "onde dá pra economizar mais" para quem
  * escolheu bola de neve seria defender a ordem oposta à que o app propõe.
  */
 const LEITURAS: Record<
@@ -47,7 +47,7 @@ const LEITURAS: Record<
   }
 > = {
   juros: {
-    titulo: "Onde seus juros sangram",
+    titulo: "Onde dá pra economizar mais",
     sub: "Custo mensal de cada dívida, só em juros",
     peso: jurosDoMes,
     rotulo: (d) => brl(jurosDoMes(d)),
@@ -58,7 +58,7 @@ const LEITURAS: Record<
       return (
         <>
           Juntas, suas dívidas custam <Text className="font-bold">{brl(totalMes)}</Text> por mês só
-          em juros — <Text className="font-bold">{brl(totalMes * 12)}</Text> no ano. Atacar a{" "}
+          em juros, ou <Text className="font-bold">{brl(totalMes * 12)}</Text> no ano. Atacar a{" "}
           {linhas[0].divida.nome} primeiro é o que corta mais rápido essa conta.
         </>
       );
@@ -76,7 +76,7 @@ const LEITURAS: Record<
       return (
         <>
           A {primeira.nome} é o menor saldo:{" "}
-          <Text className="font-bold">{brl(primeira.saldo)}</Text>. É a que some da lista primeiro —
+          <Text className="font-bold">{brl(primeira.saldo)}</Text>. É a que some da lista primeiro,
           e os <Text className="font-bold">{brl(parcelaDoMes(primeira))}</Text> por mês dela passam
           a empurrar a próxima da fila.
         </>

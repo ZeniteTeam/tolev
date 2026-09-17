@@ -129,7 +129,7 @@ export default function ImportarExtratoScreen() {
       total={TOTAL_ETAPAS}
       onBack={voltar}
       title="Envie o arquivo"
-      subtitle="Só PDF por enquanto — é o formato que todos os bancos exportam."
+      subtitle="Só PDF por enquanto. É o formato que todos os bancos exportam."
       onContinue={enviar}
       continueLabel={importar.isPending ? "Enviando…" : "Importar extrato"}
       continueDisabled={arquivo == null || importar.isPending}
@@ -172,7 +172,7 @@ export default function ImportarExtratoScreen() {
       <View className="bg-primary-25 rounded-[14px] px-4 py-3.5 mt-4">
         <Text className="text-[13px] text-ink font-regular leading-[19px]">
           A leitura demora um pouco. Você pode sair desta tela e continuar usando
-          o app — a gente te avisa quando terminar.
+          o app. A gente te avisa quando terminar.
         </Text>
       </View>
     </StepScaffold>

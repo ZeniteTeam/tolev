@@ -21,7 +21,7 @@ export const novaTransacaoSchema = z
     data: z
       .string()
       .min(1, "Informe a data da transação")
-      .refine(isValidBrDate, "Data inválida — use DD/MM/AAAA"),
+      .refine(isValidBrDate, "Data inválida. Use DD/MM/AAAA"),
     metodoPagamento: z.enum(METODO_PAGAMENTO, { message: "Escolha a forma de pagamento" }),
 
     /** null = dinheiro / carteira, sem conta conectada. */

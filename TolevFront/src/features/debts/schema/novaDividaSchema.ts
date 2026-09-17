@@ -10,7 +10,7 @@ import { digitsToDecimal } from "../../../util/masks";
  */
 const dataOpcional = z
   .string()
-  .refine((v) => v === "" || isValidBrDate(v), "Data inválida — use DD/MM/AAAA");
+  .refine((v) => v === "" || isValidBrDate(v), "Data inválida. Use DD/MM/AAAA");
 
 export const novaDividaSchema = z.object({
   nome: z.string().trim().min(1, "Dê um nome para essa dívida").max(255, "Nome muito longo"),
@@ -30,7 +30,7 @@ export const novaDividaSchema = z.object({
   dataPrimeiroVencimento: z
     .string()
     .min(1, "Informe o vencimento da primeira parcela")
-    .refine(isValidBrDate, "Data inválida — use DD/MM/AAAA"),
+    .refine(isValidBrDate, "Data inválida. Use DD/MM/AAAA"),
 
   // Encargos são opcionais: quem não achar no contrato segue sem travar.
   multaAtraso: z.string(),

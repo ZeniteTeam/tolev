@@ -231,7 +231,7 @@ export default function RegistrarPagamentoModal({
                   }}
                 >
                   {diferenca > 0
-                    ? `${brl(diferenca)} acima do previsto — o excedente abate o saldo devedor.`
+                    ? `${brl(diferenca)} acima do previsto. O excedente abate o saldo devedor.`
                     : `${brl(Math.abs(diferenca))} abaixo do previsto. As parcelas serão marcadas como pagas mesmo assim.`}
                 </Text>
               </View>
