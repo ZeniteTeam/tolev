@@ -36,7 +36,7 @@ public class MonthlyReportService {
     }
 
     //Descomentar para forçar o envio
-    
+
 //    @PostConstruct
 //    public void debugEnviarEmail() {
 //        System.out.println(">>> Disparando e-mail de teste via @PostConstruct...");
