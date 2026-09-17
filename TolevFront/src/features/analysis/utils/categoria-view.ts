@@ -11,10 +11,16 @@ export function toCategoriaView(pontos: CategoriaPonto[]): Categoria[] {
   }));
 }
 
+/**
+ * Quanto das despesas da janela já está classificado, em % de transações.
+ *
+ * Não-classificado é sem categoria OU em "Outros" (o backend já soma os dois em
+ * `transacoesAClassificar`) — igual à lista de pendentes logo abaixo do donut.
+ */
 export function percentualClassificado(
   totalTransacoes: number,
-  transacoesSemCategoria: number,
+  transacoesAClassificar: number,
 ): number | null {
   if (totalTransacoes === 0) return null;
-  return Math.round(100 - (transacoesSemCategoria / totalTransacoes) * 100);
+  return Math.round(100 - (transacoesAClassificar / totalTransacoes) * 100);
 }

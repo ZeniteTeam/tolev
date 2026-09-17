@@ -22,6 +22,8 @@ import java.util.Map;
 public class GetSpendingByCategory {
 
     private static final String SEM_CATEGORIA = "Sem categoria";
+    /** Guarda-chuva do sistema, semeada em V4__seed_categorias_gasto_sistema. */
+    private static final String CATCH_ALL = "Outros";
     private static final BigDecimal CEM = new BigDecimal("100");
 
     private final FinanceIntegrationApi financeIntegrationApi;
@@ -78,8 +80,8 @@ public class GetSpendingByCategory {
                 .sorted(Comparator.comparing(CategoriaPonto::valor).reversed())
                 .toList();
 
-        int transacoesSemCategoria = (int) transactions.stream()
-                .filter(t -> t.idCategoriaGastoSistema() == null && t.idCategoriaGastoUsuario() == null)
+        int transacoesAClassificar = (int) transactions.stream()
+                .filter(GetSpendingByCategory::pedeCategoria)
                 .count();
 
         return new SpendingByCategoryGraphResponse(
@@ -88,8 +90,24 @@ public class GetSpendingByCategory {
                 end,
                 totalDespesas,
                 transactions.size(),
-                transacoesSemCategoria,
+                transacoesAClassificar,
                 pontos);
+    }
+
+    /**
+     * Mesmo critério de {@code findParaClassificar}: sem categoria do usuário e
+     * (sem categoria do sistema OU na guarda-chuva "Outros"). "Outros" entra
+     * porque significa "decido depois" — é o que a lista do card mostra, então o
+     * percentual precisa contar igual, senão os dois se contradizem na tela.
+     *
+     * <p>"Outros" é identificada pelo nome porque só a categoria do sistema é a
+     * guarda-chuva: uma categoria do usuário homônima tem {@code
+     * idCategoriaGastoUsuario} preenchido e já cai fora pela primeira condição.
+     */
+    private static boolean pedeCategoria(TransactionResponse t) {
+        return t.idCategoriaGastoUsuario() == null
+                && (t.idCategoriaGastoSistema() == null
+                    || CATCH_ALL.equalsIgnoreCase(t.nomeCategoria()));
     }
 
     private BigDecimal percentual(BigDecimal parte, BigDecimal total) {

@@ -37,8 +37,12 @@ export interface SpendingByCategoryResponse {
   totalDespesas: number;
   /** Despesas da janela — é o denominador do "classificado". */
   totalTransacoes: number;
-  /** Quantas dessas não têm categoria nem do sistema nem do usuário. */
-  transacoesSemCategoria: number;
+  /**
+   * Quantas dessas ainda pedem categoria: sem categoria nenhuma OU em "Outros".
+   * É o mesmo conjunto da lista "para classificar" — "Outros" significa "decido
+   * depois", então conta como não classificada.
+   */
+  transacoesAClassificar: number;
   /** Já vem ordenado por `valor`, decrescente. Desenhe na ordem que chegar. */
   pontos: CategoriaPonto[];
 }
