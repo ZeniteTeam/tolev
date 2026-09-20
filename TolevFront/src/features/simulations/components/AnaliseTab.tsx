@@ -311,9 +311,9 @@ function ClassificacaoCard({ idBanco, meses }: { idBanco: number | null; meses: 
   const { data, isLoading, seguindoExtrato, faixaExtrato, verPeriodoEscolhido } =
     useGastosPorCategoria(meses, idBanco);
   const pct = data
-    ? percentualClassificado(data.totalTransacoes, data.transacoesSemCategoria)
+    ? percentualClassificado(data.totalTransacoes, data.transacoesAClassificar)
     : null;
-  const semCategoria = data?.transacoesSemCategoria ?? 0;
+  const aClassificar = data?.transacoesAClassificar ?? 0;
 
   // A janela vem do próprio gráfico, já resolvida pelo backend. Recontar os
   // meses aqui daria outra faixa justamente no caso em que a tela trocou para o
@@ -407,9 +407,9 @@ function ClassificacaoCard({ idBanco, meses }: { idBanco: number | null; meses: 
               </Text>
             </View>
             <Text className="text-[11px] text-muted leading-[15px] font-regular">
-              {semCategoria === 0
+              {aClassificar === 0
                 ? "Todas as suas transações estão categorizadas."
-                : `${semCategoria} ${semCategoria === 1 ? "transação precisa" : "transações precisam"} da sua ajuda para serem categorizadas.`}
+                : `${aClassificar} ${aClassificar === 1 ? "transação precisa" : "transações precisam"} da sua ajuda para serem categorizadas.`}
             </Text>
           </View>
         </View>
@@ -431,7 +431,7 @@ function ClassificacaoCard({ idBanco, meses }: { idBanco: number | null; meses: 
           <Text className="font-bold text-[14px] text-primary-700">
             {open
               ? "Ocultar lista"
-              : semCategoria > 0
+              : aClassificar > 0
               ? "Classificar manualmente"
               : "Revisar classificação"}
           </Text>
