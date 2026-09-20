@@ -3,6 +3,7 @@ package com.br.startup.tolevBack.finance.integration.implementation;
 import com.br.startup.tolevBack.finance.application.dto.response.AccountResponse;
 import com.br.startup.tolevBack.finance.application.dto.response.CategoryResponse;
 import com.br.startup.tolevBack.finance.application.dto.response.FinancialOverviewResponse;
+import com.br.startup.tolevBack.finance.application.dto.response.GastoFixoResponse;
 import com.br.startup.tolevBack.finance.application.dto.response.TransactionResponse;
 import com.br.startup.tolevBack.finance.application.usecase.queries.*;
 import com.br.startup.tolevBack.finance.integration.api.FinanceIntegrationApi;
@@ -21,6 +22,7 @@ public class FinanceIntegrationFacade implements FinanceIntegrationApi {
     private final GetTransactionsService getTransactions;
     private final GetFinancialOverviewService getFinancialOverview;
     private final GetCategoriesService getCategories;
+    private final GetGastosFixosService getGastosFixos;
 
     @Override
     public AccountResponse getAccountById(Long id) {
@@ -51,5 +53,10 @@ public class FinanceIntegrationFacade implements FinanceIntegrationApi {
     @Override
     public List<CategoryResponse> getCategories(Long idUsuario) {
         return getCategories.execute(idUsuario);
+    }
+
+    @Override
+    public List<GastoFixoResponse> getGastosFixos(Long idUsuario) {
+        return getGastosFixos.execute(idUsuario);
     }
 }

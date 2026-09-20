@@ -28,7 +28,17 @@ public class Divida {
     private String nomeDivida;
     private String credor;
     private String banco;
+    /**
+     * Saldo devedor corrente: principal ainda por amortizar. Cai a cada
+     * pagamento e é zerado na quitação — nunca use como valor contratado.
+     */
     private BigDecimal valorDivida;
+    /**
+     * O principal contratado, imutável. Existe porque {@link #valorDivida} é
+     * consumido pelos pagamentos: sem uma referência fixa não há como dizer
+     * quanto a dívida custou de juros depois que ela começa a ser paga.
+     */
+    private BigDecimal valorContratado;
     /** Juros mensal contratado, em % a.m. */
     private BigDecimal taxaJuros;
     /** Multa aplicada uma única vez sobre a parcela em atraso, em %. */

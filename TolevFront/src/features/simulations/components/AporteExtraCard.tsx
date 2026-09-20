@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 import { ChartReveal } from "../../../components";
 import { colors, shadows } from "../../../theme";
+import { decimalToDigits, digitsToDecimal, maskCurrency, onlyDigits } from "../../../util/masks";
 import { brl } from "../../debts/constants/dividas";
 import { useDividas } from "../../debts/hooks/useDividas";
 import { duracaoEmTexto, simularQuitacao } from "../../debts/utils/amortizacao";
@@ -10,10 +11,11 @@ import { metodoIdFromQuitacao } from "../../../types/preferencias";
 import { metodoById } from "../constants/metodos";
 import { usePreferencias } from "../hooks/usePreferencias";
 
-const APORTES = [50, 100, 200, 500];
-
 /** Teto do eixo quando a dívida não quita: 10 anos já conta a história. */
 const HORIZONTE_MAX = 121;
+
+/** R$ 9.999.999,99 — acima disso o número não cabe na linha. */
+const MAX_DIGITOS = 9;
 
 /**
  * E se você pagasse um pouco mais por mês?
@@ -28,8 +30,12 @@ export default function AporteExtraCard() {
   const { data: prefs } = usePreferencias();
 
   const salvo = prefs?.aporteExtraMensal ?? 0;
-  const [aporte, setAporte] = useState<number | null>(null);
-  const escolhido = aporte ?? (salvo > 0 ? salvo : 100);
+  // Dígitos crus, com os dois últimos valendo os centavos — mesmo esquema do
+  // resto do app, que é o que faz o cursor se comportar ao digitar.
+  const [digitos, setDigitos] = useState<string | null>(null);
+  const digitosAtuais = digitos ?? decimalToDigits(salvo > 0 ? salvo : 100);
+  const escolhido = digitsToDecimal(digitosAtuais);
+  const semAporte = escolhido <= 0;
 
   const metodo = metodoById(prefs ? metodoIdFromQuitacao(prefs.metodoQuitacao) : "avalanche");
 
@@ -50,8 +56,6 @@ export default function AporteExtraCard() {
   // seriam idênticas e o card não diria nada.
   if (base.curva.length < 2) return null;
 
-  const opcoes = Array.from(new Set(salvo > 0 ? [...APORTES, salvo] : APORTES)).sort((a, b) => a - b);
-
   // Só dá para comparar juros entre dois cenários que terminam. Num cenário que
   // não quita, o total de juros depende de onde a simulação parou — subtrair um
   // do outro produziria um número grande e sem significado nenhum.
@@ -66,35 +70,46 @@ export default function AporteExtraCard() {
         Pelo método {metodo.nome}, sobre suas dívidas de hoje
       </Text>
 
-      <View className="flex-row gap-2 mt-4 mb-[18px]">
-        {opcoes.map((v) => {
-          const ativo = v === escolhido;
-          return (
-            <Pressable
-              key={v}
-              onPress={() => setAporte(v)}
-              className="flex-1 h-9 rounded-pill items-center justify-center active:opacity-85"
-              style={{ backgroundColor: ativo ? colors.primary[700] : colors.primary[50] }}
-            >
-              <Text
-                className="font-bold text-[12px]"
-                style={{ color: ativo ? "#fff" : colors.text.secondary }}
-              >
-                +{brl(v)}
-              </Text>
-            </Pressable>
-          );
-        })}
+      {/* O gráfico refaz a simulação a cada dígito: a curva descendo enquanto
+          se digita é o que transforma o card em ferramenta, e não em tabela de
+          quatro valores que alguém escolheu por você. */}
+      <View className="mt-4 mb-[18px]">
+        <View className="h-[54px] rounded-[16px] bg-primary-50 flex-row items-center px-4 gap-2">
+          <Text className="font-bold text-[20px] text-primary-700">+</Text>
+          <TextInput
+            value={maskCurrency(digitosAtuais)}
+            onChangeText={(t) => setDigitos(onlyDigits(t).slice(0, MAX_DIGITOS))}
+            keyboardType="number-pad"
+            placeholder="R$ 0,00"
+            placeholderTextColor={colors.text.secondary}
+            selectionColor={colors.primary[500]}
+            className="flex-1 font-bold text-[20px] text-ink py-0"
+          />
+          <Text className="text-[13px] text-muted font-regular">por mês</Text>
+        </View>
+        {salvo > 0 && (
+          <Text className="text-[11px] text-muted mt-2 font-regular">
+            Seu plano hoje prevê {brl(salvo)} de aporte extra.
+          </Text>
+        )}
       </View>
 
-      <CurvasQuitacao base={base.curva} comAporte={comAporte.curva} />
+      <CurvasQuitacao base={base.curva} comAporte={semAporte ? base.curva : comAporte.curva} />
 
       <View className="flex-row gap-4 justify-center mt-3">
         <Legenda color={colors.border.default} label="Como está hoje" tracejada />
-        <Legenda color={colors.primary[500]} label={`Com +${brl(escolhido)}/mês`} />
+        {!semAporte && (
+          <Legenda color={colors.primary[500]} label={`Com +${brl(escolhido)}/mês`} />
+        )}
       </View>
 
-      {comparavel ? (
+      {semAporte ? (
+        <View className="mt-4 pt-4 border-t border-t-line-soft">
+          <Text className="text-[13px] text-muted leading-[19px] font-regular">
+            Digite quanto daria para pagar a mais por mês e veja o efeito na sua quitação.
+          </Text>
+        </View>
+      ) : comparavel ? (
         <View className="flex-row mt-4 pt-4 border-t border-t-line-soft gap-3.5">
           <View className="flex-1">
             <Text className="text-[11px] text-muted font-regular">Fica livre em</Text>

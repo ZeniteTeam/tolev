@@ -10,6 +10,7 @@ import {
 import type {
   RegimeJuros,
   SistemaAmortizacao,
+  StatusDivida,
   StatusParcela,
   TipoDivida,
 } from "../../../types/divida";
@@ -45,6 +46,8 @@ export type DividaView = {
   regime: RegimeJuros;
   icon: LucideIcon;
   tipo: TipoDivida;
+  /** O que o backend diz. Nulo em dívida gravada antes do status existir. */
+  status: StatusDivida | null;
 };
 
 /** Parcelas em aberto, na ordem de vencimento. */
@@ -52,9 +55,34 @@ export function parcelasEmAberto(d: DividaView): ParcelaView[] {
   return d.cronograma.filter((p) => p.status !== "PAGA" && p.status !== "CANCELADA");
 }
 
-/** Quanto ainda falta pagar, somando as parcelas em aberto. */
+/**
+ * Quanto ainda falta pagar, somando as parcelas em aberto — juros inclusos.
+ *
+ * É este o número que sai da conta do usuário, não o `saldo`, que é só o
+ * principal. R$ 4.000 a 8% a.m. em 12x custam quase R$ 6.000 até o fim, e
+ * anunciar os 4.000 faz o app parecer otimista sobre dinheiro que ainda vai
+ * ser desembolsado.
+ *
+ * Dívida sem cronograma gerado cai no principal — é tudo que se sabe dela.
+ */
 export function totalEmAberto(d: DividaView): number {
+  if (d.cronograma.length === 0) return d.saldo;
   return parcelasEmAberto(d).reduce((s, p) => s + p.valor, 0);
+}
+
+/**
+ * A quebra de {@link totalEmAberto}: quanto ainda é principal e quanto é juros.
+ *
+ * Sai das parcelas, não de `saldo` e `totalJuros`, para as duas partes somarem
+ * exatamente o total mostrado ao lado — leitor que confere não encontra R$ 3
+ * de diferença e conclui que o app erra a conta.
+ */
+export function quebraEmAberto(d: DividaView): { principal: number; juros: number } {
+  if (d.cronograma.length === 0) return { principal: d.saldo, juros: 0 };
+  return parcelasEmAberto(d).reduce(
+    (acc, p) => ({ principal: acc.principal + p.principal, juros: acc.juros + p.juros }),
+    { principal: 0, juros: 0 },
+  );
 }
 
 export const TIPO_ICON: Record<TipoDivida, LucideIcon> = {
@@ -98,7 +126,16 @@ export function pctQuitado(d: DividaView): number {
   return Math.min(100, Math.round((d.parcelasPagas.length / d.parcelas) * 100));
 }
 
-/** Uma dívida está quitada quando não há saldo ou todas as parcelas foram pagas. */
+/**
+ * Uma dívida está quitada.
+ *
+ * O backend marca `PAGA` ao quitar a última parcela, e essa é a resposta que
+ * vale. A inferência pelo cronograma fica como retaguarda para a dívida antiga,
+ * gravada antes do status existir — sem ela essas linhas ficariam para sempre
+ * na seção de abertas.
+ */
 export function isQuitada(d: DividaView): boolean {
+  if (d.status === "PAGA") return true;
+  if (d.status != null) return false;
   return d.saldo <= 0 || (d.parcelas > 0 && d.parcelasPagas.length >= d.parcelas);
 }

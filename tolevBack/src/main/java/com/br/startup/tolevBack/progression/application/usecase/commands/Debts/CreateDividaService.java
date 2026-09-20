@@ -67,6 +67,7 @@ public class CreateDividaService {
                 .banco(request.banco())
                 .tipo(request.tipo())
                 .valorDivida(saldo)
+                .valorContratado(saldo)
                 .taxaJuros(request.juros())
                 .multaAtraso(request.multaAtraso())
                 .jurosMora(request.jurosMora())

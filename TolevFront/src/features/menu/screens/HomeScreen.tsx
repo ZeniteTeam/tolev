@@ -8,26 +8,30 @@ import {
   CheckCircle,
   ChevronRight,
   Eye,
+  FileUp,
+  Landmark,
   Layers,
   Lightbulb,
+  LineChart,
   PauseCircle,
-  Thermometer,
+  Repeat,
   TrendingUp,
   type LucideIcon,
 } from "lucide-react-native";
-import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { BankFilter, Progress, Ring, Screen, Stagger } from "../../../components";
-import type { BankId } from "../../../components/BankFilter";
+import { Progress, Ring, Screen, Stagger } from "../../../components";
 import { colors, shadows } from "../../../theme";
+import { formatCurrencyBRL } from "../../../util/currency";
 import { useGastosPorCategoria } from "../../analysis/hooks/useGastosPorCategoria";
+import { useGastosFixos } from "../../expenses/hooks/useGastosFixos";
+import { pendentesDeConfirmacao } from "../../expenses/utils/gasto-fixo-view";
+import AtalhosCards, { type Atalho } from "../components/AtalhosCards";
 import { toCategoriaView } from "../../analysis/utils/categoria-view";
 import { rotuloFaixa } from "../../analysis/utils/periodo";
 import { CategoriaGastosCompact } from "../components/CategoriaGastos";
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-  const [bank, setBank] = useState<BankId>("all");
   // Mesma regra da aba Análise: extrato importado de outro período aparece
   // aqui em vez de virar um "sem despesas" que contradiz o app.
   const {
@@ -38,10 +42,51 @@ export default function HomeScreen() {
   } = useGastosPorCategoria(1, null);
   const categorias = gastos ? toCategoriaView(gastos.pontos) : [];
 
+  const { gastos: fixos, total: totalFixos } = useGastosFixos();
+  const fixosPendentes = pendentesDeConfirmacao(fixos);
+
+  const atalhos: Atalho[] = [
+    {
+      key: "gastos-fixos",
+      icon: Repeat,
+      title: "Gastos fixos",
+      sub:
+        fixos.length === 0
+          ? "cadastre os seus"
+          : fixosPendentes > 0
+            ? `${fixosPendentes} a conferir`
+            : `${fixos.length} · ${formatCurrencyBRL(totalFixos)}/mês`,
+      // Só chama atenção quando há algo a fazer — cadastro vazio ou valor velho.
+      destaque: fixos.length === 0 || fixosPendentes > 0,
+      onPress: () => navigation.navigate("GastosFixos"),
+    },
+    {
+      key: "importar-extrato",
+      icon: FileUp,
+      title: "Importar extrato",
+      sub: "PDF do seu banco",
+      onPress: () => navigation.navigate("ImportarExtrato"),
+    },
+    {
+      key: "adicionar-divida",
+      icon: Landmark,
+      title: "Nova dívida",
+      sub: "cadastrar parcelas",
+      onPress: () => navigation.navigate("AdicionarDivida"),
+    },
+    {
+      key: "simular",
+      icon: LineChart,
+      title: "Simular",
+      sub: "testar cenários",
+      onPress: () => navigation.navigate("Simulacao"),
+    },
+  ];
+
   return (
     <Screen bottomPad={120}>
       <Stagger>
-        <BankFilter active={bank} onChange={setBank} />
+        <AtalhosCards atalhos={atalhos} />
 
         <LinearGradient
           colors={[colors.primary[700], colors.primary[600]]}
@@ -122,19 +167,6 @@ export default function HomeScreen() {
                 <Progress pct={72} height={8} />
               </View>
               <Text className="text-[11px] text-muted mt-1.5 font-regular">280 pontos para o próximo nível</Text>
-            </View>
-          </View>
-        </SectionLink>
-
-        <SectionLink title="Termômetro da dívida" sub="40% do caminho" onPress={() => navigation.navigate("Dividas")}>
-          <View className="flex-row items-center gap-3.5">
-            <Ring size="lg"><Thermometer size={26} color={colors.primary[700]} strokeWidth={2} /></Ring>
-            <View className="flex-1">
-              <Text className="text-[12px] text-muted font-regular">Faltam para zerar</Text>
-              <Text className="font-bold text-[22px] text-coral-500 mt-0.5">7 meses</Text>
-              <View className="mt-2.5">
-                <Progress pct={40} height={8} />
-              </View>
             </View>
           </View>
         </SectionLink>

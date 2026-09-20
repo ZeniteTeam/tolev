@@ -9,6 +9,7 @@ export function periodoKey(periodo: PeriodoGastos): string {
 
 export const graphKeys = {
   all: ["graphs"] as const,
+  debtProjection: (userId: number) => [...graphKeys.all, "debt-projection", userId] as const,
   spendingByCategory: (
     userId: number,
     periodo: PeriodoGastos,

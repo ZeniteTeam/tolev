@@ -2,6 +2,7 @@ package com.br.startup.tolevBack.progression.application.dto.response;
 
 import com.br.startup.tolevBack.progression.internal.enums.RegimeJuros;
 import com.br.startup.tolevBack.progression.internal.enums.SistemaAmortizacao;
+import com.br.startup.tolevBack.progression.internal.enums.StatusDivida;
 import com.br.startup.tolevBack.progression.internal.enums.TipoDivida;
 
 import java.math.BigDecimal;
@@ -14,6 +15,14 @@ public record DividaResponse(
     String nome,
     String banco,
     TipoDivida tipo,
+    /**
+     * ATIVA / PAGA / ATRASADA. O backend já marca PAGA ao quitar a última
+     * parcela; sem expor isso o app precisava reinferir a partir do
+     * cronograma, e as duas respostas podiam discordar.
+     *
+     * <p>Pode vir nulo em dívida antiga, gravada antes do status existir.
+     */
+    StatusDivida status,
     BigDecimal saldo,
     BigDecimal juros,
     BigDecimal multaAtraso,

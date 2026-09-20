@@ -9,6 +9,7 @@ export type ProjectionMonth = { label: string; divida: number; pagto: number };
 type Props = {
   months: ProjectionMonth[];
   height?: number;
+  /** Teto do eixo. Omitido, sai do maior empilhamento — ver abaixo. */
   maxValue?: number;
   dividaColor?: string;
   pagtoColor?: string;
@@ -23,7 +24,7 @@ type Props = {
 export default function ProjectionBarChart({
   months,
   height = 140,
-  maxValue = 30,
+  maxValue,
   dividaColor = colors.primary[500],
   pagtoColor = colors.coral[500],
   delay = 0,
@@ -33,6 +34,15 @@ export default function ProjectionBarChart({
   const barWidth = Math.max(10, Math.round((width / count) * 0.42));
   const spacing = Math.max(6, (width - barWidth * count) / count);
   const sideSpacing = spacing / 2;
+
+  /**
+   * Sem teto explícito o gráfico se escala sozinho. O default fixo que existia
+   * aqui foi escrito para dados de mockup em dezenas; com reais de verdade toda
+   * barra estourava o topo e o gráfico virava um bloco sólido.
+   */
+  const teto =
+    maxValue ??
+    Math.max(1, ...months.map((m) => m.divida + m.pagto)) * 1.1;
 
   const stackData = months.map((m) => ({
     label: m.label,
@@ -50,7 +60,7 @@ export default function ProjectionBarChart({
             stackData={stackData}
             width={width}
             height={height}
-            maxValue={maxValue}
+            maxValue={teto}
             barWidth={barWidth}
             spacing={spacing}
             initialSpacing={sideSpacing}

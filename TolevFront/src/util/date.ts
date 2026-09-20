@@ -51,3 +51,14 @@ export function isoToMonthYear(value: string | null | undefined): string {
   if (!yyyy || !month || month < 1 || month > 12) return "";
   return `${MONTHS_PT[month - 1]}/${yyyy}`;
 }
+
+/**
+ * "yyyy-MM" ou "yyyy-MM-dd" → "Set". Rótulo de eixo, onde o ano não cabe e
+ * raramente importa: a série é curta e contígua.
+ */
+export function isoToShortMonth(value: string | null | undefined): string {
+  if (!value) return "";
+  const month = Number(value.split("-")[1]);
+  if (!month || month < 1 || month > 12) return "";
+  return MONTHS_PT[month - 1];
+}

@@ -41,5 +41,6 @@ export function toDividaView(d: DividaResponse): DividaView {
     regime: d.regimeJuros ?? "COMPOSTO",
     icon: d.tipo ? TIPO_ICON[d.tipo] : MoreHorizontal,
     tipo: d.tipo ?? "OUTROS",
+    status: d.status ?? null,
   };
 }

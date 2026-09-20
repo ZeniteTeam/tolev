@@ -3,6 +3,7 @@ package com.br.startup.tolevBack.finance.integration.api;
 import com.br.startup.tolevBack.finance.application.dto.response.AccountResponse;
 import com.br.startup.tolevBack.finance.application.dto.response.CategoryResponse;
 import com.br.startup.tolevBack.finance.application.dto.response.FinancialOverviewResponse;
+import com.br.startup.tolevBack.finance.application.dto.response.GastoFixoResponse;
 import com.br.startup.tolevBack.finance.application.dto.response.TransactionResponse;
 
 import java.time.LocalDate;
@@ -20,4 +21,10 @@ public interface FinanceIntegrationApi {
 
     /** Catálogo de categorias (sistema + usuário), para nomear os gastos na análise. */
     List<CategoryResponse> getCategories(Long idUsuario);
+
+    /**
+     * Os gastos fixos vivos do usuário. O módulo de gráficos precisa deles
+     * para descontar da renda antes de afirmar qualquer coisa sobre sobra.
+     */
+    List<GastoFixoResponse> getGastosFixos(Long idUsuario);
 }
