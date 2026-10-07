@@ -1,3 +1,8 @@
+> **Documento histórico.** Este era o primeiro rascunho (serviços soltos, Redis e
+> Metas, que não existem no código atual). A arquitetura vigente está em
+> [high-level-v2.md](high-level-v2.md), [frontend.md](frontend.md) e
+> [data-flow.md](data-flow.md).
+
 ```mermaid
 %%{init: {'theme':'dark', 'layout':'elk'}}%%
 

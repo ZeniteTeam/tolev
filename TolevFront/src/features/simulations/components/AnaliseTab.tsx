@@ -1,16 +1,13 @@
+import { useNavigation } from "@react-navigation/native";
 import {
   ChevronRight,
   ChevronUp,
-  Dumbbell,
   Edit3,
-  Home,
   Lightbulb,
   Plus,
-  Shield,
+  Repeat,
   Tag,
   Tags,
-  Tv,
-  Wifi,
   type LucideIcon,
 } from "lucide-react-native";
 import { useState } from "react";
@@ -23,6 +20,8 @@ import { getApiErrorMessage } from "../../../util/apiError";
 import { formatCurrencyBRL } from "../../../util/currency";
 import { isoToBrDate } from "../../../util/date";
 import { useGastosPorCategoria } from "../../analysis/hooks/useGastosPorCategoria";
+import { useGastosFixos } from "../../expenses/hooks/useGastosFixos";
+import { iconePara, pendentesDeConfirmacao } from "../../expenses/utils/gasto-fixo-view";
 import { CATEGORIA_COR_PADRAO } from "../../transactions/constants/transacoes";
 import { useCategorias } from "../../transactions/hooks/useCategorias";
 import {
@@ -202,39 +201,66 @@ function SuasCategoriasButton({ onOpen }: { onOpen?: () => void }) {
 }
 
 function GastosFixosCard() {
-  const fixos = [
-    { label: "Aluguel", valor: 1200, icon: Home },
-    { label: "Internet", valor: 120, icon: Wifi },
-    { label: "Academia", valor: 90, icon: Dumbbell },
-    { label: "Streaming", valor: 50, icon: Tv },
-    { label: "Seguro auto", valor: 180, icon: Shield },
-  ];
-  const total = fixos.reduce((s, f) => s + f.valor, 0);
+  const navigation = useNavigation<any>();
+  const { gastos, total, isPending } = useGastosFixos();
+  const pendentes = pendentesDeConfirmacao(gastos);
+
+  if (isPending) return <CardSkeleton height={180} />;
+
+  // Sem nenhum cadastrado o card vira convite: é o insumo que falta para o app
+  // dizer quanto sobra, então vale mais pedir do que mostrar uma lista vazia.
+  if (gastos.length === 0) {
+    return (
+      <Pressable
+        onPress={() => navigation.navigate("GastosFixos")}
+        className="bg-surface rounded-[18px] p-5 mb-3.5 flex-row items-center gap-3.5 active:opacity-90"
+        style={shadows.card}
+      >
+        <View className="w-11 h-11 rounded-[12px] bg-primary-100 items-center justify-center">
+          <Repeat size={21} color={colors.primary[700]} strokeWidth={2} />
+        </View>
+        <View className="flex-1">
+          <Text className="font-bold text-[15px] text-ink">Cadastre seus gastos fixos</Text>
+          <Text className="text-[12px] text-muted mt-0.5 font-regular leading-[17px]">
+            Aluguel, internet, academia — é com eles que dá para calcular quanto sobra.
+          </Text>
+        </View>
+        <ChevronRight size={20} color={colors.text.secondary} strokeWidth={2} />
+      </Pressable>
+    );
+  }
+
   return (
-    <View className="bg-surface rounded-[18px] p-5 mb-3.5" style={shadows.card}>
+    <Pressable
+      onPress={() => navigation.navigate("GastosFixos")}
+      className="bg-surface rounded-[18px] p-5 mb-3.5 active:opacity-90"
+      style={shadows.card}
+    >
       <View className="flex-row justify-between items-start mb-4">
-        <View>
+        <View className="flex-1 pr-3">
           <Text className="font-bold text-[16px] text-ink">Gastos fixos</Text>
           <Text className="text-[12px] text-muted mt-0.5 font-regular">
-            Recorrentes todo mês
+            {pendentes > 0
+              ? `${pendentes} ${pendentes === 1 ? "valor" : "valores"} a conferir neste mês`
+              : "Conferidos neste mês"}
           </Text>
         </View>
         <View className="items-end">
           <Text className="text-[11px] text-muted font-regular">Total</Text>
           <Text className="font-bold text-[16px] text-primary-700">
-            R$ {total.toLocaleString("pt-BR")}
+            {formatCurrencyBRL(total)}
           </Text>
         </View>
       </View>
       <Stagger>
-        {fixos.map((f, i) => {
-          const Icon = f.icon;
+        {gastos.map((g, i) => {
+          const Icon = iconePara(g.nome);
           return (
             <View
-              key={f.label}
+              key={g.id}
               className="flex-row items-center gap-3 py-[11px]"
               style={
-                i !== fixos.length - 1
+                i !== gastos.length - 1
                   ? { borderBottomWidth: 1, borderBottomColor: "#F1F5F3" }
                   : undefined
               }
@@ -242,17 +268,15 @@ function GastosFixosCard() {
               <View className="w-[34px] h-[34px] rounded-[9px] bg-primary-100 items-center justify-center">
                 <Icon size={16} color={colors.primary[700]} strokeWidth={2} />
               </View>
-              <Text className="flex-1 text-[14px] font-medium text-ink">
-                {f.label}
-              </Text>
+              <Text className="flex-1 text-[14px] font-medium text-ink">{g.nome}</Text>
               <Text className="text-[14px] font-bold text-ink">
-                R$ {f.valor.toLocaleString("pt-BR")}
+                {formatCurrencyBRL(g.valor, true)}
               </Text>
             </View>
           );
         })}
       </Stagger>
-    </View>
+    </Pressable>
   );
 }
 
@@ -287,9 +311,9 @@ function ClassificacaoCard({ idBanco, meses }: { idBanco: number | null; meses: 
   const { data, isLoading, seguindoExtrato, faixaExtrato, verPeriodoEscolhido } =
     useGastosPorCategoria(meses, idBanco);
   const pct = data
-    ? percentualClassificado(data.totalTransacoes, data.transacoesSemCategoria)
+    ? percentualClassificado(data.totalTransacoes, data.transacoesAClassificar)
     : null;
-  const semCategoria = data?.transacoesSemCategoria ?? 0;
+  const aClassificar = data?.transacoesAClassificar ?? 0;
 
   // A janela vem do próprio gráfico, já resolvida pelo backend. Recontar os
   // meses aqui daria outra faixa justamente no caso em que a tela trocou para o
@@ -383,9 +407,9 @@ function ClassificacaoCard({ idBanco, meses }: { idBanco: number | null; meses: 
               </Text>
             </View>
             <Text className="text-[11px] text-muted leading-[15px] font-regular">
-              {semCategoria === 0
+              {aClassificar === 0
                 ? "Todas as suas transações estão categorizadas."
-                : `${semCategoria} ${semCategoria === 1 ? "transação precisa" : "transações precisam"} da sua ajuda para serem categorizadas.`}
+                : `${aClassificar} ${aClassificar === 1 ? "transação precisa" : "transações precisam"} da sua ajuda para serem categorizadas.`}
             </Text>
           </View>
         </View>
@@ -407,7 +431,7 @@ function ClassificacaoCard({ idBanco, meses }: { idBanco: number | null; meses: 
           <Text className="font-bold text-[14px] text-primary-700">
             {open
               ? "Ocultar lista"
-              : semCategoria > 0
+              : aClassificar > 0
               ? "Classificar manualmente"
               : "Revisar classificação"}
           </Text>

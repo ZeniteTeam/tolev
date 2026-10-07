@@ -330,7 +330,7 @@ export default function AdicionarDividaScreen() {
                 type="percent"
                 icon={TrendingUp}
                 placeholder="0,00%"
-                hint="A taxa do contrato — é ela que monta suas parcelas"
+                hint="A taxa do contrato, que monta suas parcelas"
                 value={value}
                 onChange={onChange}
               />

@@ -32,7 +32,7 @@ const GROUPS: { label: string; items: NotifItem[] }[] = [
   {
     label: "Esta semana",
     items: [
-      { icon: CreditCard, tint: "green", title: "Fatura Nubank vence em 3 dias", sub: "R$ 420,00 — para manter seu plano em dia.", time: "Qua" },
+      { icon: CreditCard, tint: "green", title: "Fatura Nubank vence em 3 dias", sub: "R$ 420,00 para manter seu plano em dia.", time: "Qua" },
       { icon: Gift, tint: "coral", title: "Recompensa desbloqueada", sub: "Você ganhou +2 pontos de resiliência.", time: "Ter" },
       { icon: Thermometer, tint: "green", title: "Sua dívida diminuiu 4% essa semana", sub: "R$ 800,00 a menos para quitar.", time: "Seg" },
     ],

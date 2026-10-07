@@ -1,24 +1,17 @@
 #!/usr/bin/env bash
-# Phase 03 -- publica o backend no Azure App Service (rota A: jar no runtime
-# Java 21 gerenciado, sem registry e sem container).
+# Phase 03 -- publica o backend no App Service (jar no runtime Java 21 gerenciado).
 #
 #   ./scripts/azure/03-deploy-app-service.sh
 #
-# Pre-requisitos: `az login` feito e o Phase 02 verde -- se o backend nao sobe
-# na sua maquina contra o banco do Azure, ele tambem nao vai subir la.
-#
-# Idempotente de proposito: rodar de novo republica o jar sem recriar recurso
-# nenhum e sem trocar segredo nenhum. E o caminho normal de um novo deploy.
+# Pre-requisitos: `az login` e o Phase 02 verde.
+# Idempotente: reexecutar republica o jar sem recriar recurso nem trocar segredo.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 ENV_FILE="$ROOT/.env.azure"
 
 # ---------------------------------------------------------------- credenciais
-# Uma fonte de verdade so. Os mesmos valores que o Phase 02 provou funcionar sao
-# os que sobem para o App Service -- ninguem redigita hostname nem usuario, que
-# e de onde saem os "password authentication failed" de `tolevadmin` sem
-# underscore.
+# Fonte unica: os mesmos valores validados no Phase 02 sobem para o App Service.
 if [ ! -f "$ENV_FILE" ]; then
   echo "ERRO: $ENV_FILE nao existe. Copie de .env.azure.example e preencha." >&2
   exit 1
@@ -27,8 +20,8 @@ set -a
 . "$ENV_FILE"
 set +a
 
-RG=${RG:-rg-tolev}
-LOC=${LOC:-brazilsouth}
+RG=${RG:-tolev-pg}
+LOC=${LOC:-canadacentral}
 APP=${APP_NAME:-}
 PLAN=${PLAN_NAME:-plan-tolev}
 SKU=${PLAN_SKU:-B1}
@@ -40,8 +33,7 @@ falta() { echo "ERRO: $1 nao esta definido em .env.azure" >&2; exit 1; }
 [ -n "${SPRING_DATASOURCE_PASSWORD:-}" ] || falta SPRING_DATASOURCE_PASSWORD
 [ -n "${GEMINI_API_KEY:-}" ] || falta GEMINI_API_KEY
 
-# O perfil `azure` le jwt.secret sem fallback: sem esta variavel o boot morre na
-# resolucao de placeholder, com um stack trace que nao diz o nome dela.
+# O perfil `azure` le jwt.secret sem fallback: sem esta variavel o boot falha.
 [ -n "${JWT_SECRET:-}" ] || falta JWT_SECRET
 if [ "$(printf %s "$JWT_SECRET" | base64 -d 2>/dev/null | wc -c)" -lt 32 ]; then
   echo "ERRO: JWT_SECRET precisa ser Base64 de pelo menos 256 bits." >&2
@@ -65,10 +57,8 @@ fi
 if az webapp show --resource-group "$RG" --name "$APP" -o none 2>/dev/null; then
   echo ">> Web app $APP ja existe"
 else
-  # A string de runtime mudou de formato entre versoes da CLI ("JAVA|21-java21"
-  # nas antigas, "JAVA:21-java21" nas novas). Perguntar evita adivinhar errado.
-  # O `-o tsv` devolve a linha inteira (runtime, fim do suporte, SO, ...):
-  # sem o `cut -f1` o nome sai grudado no resto e a CLI recusa o runtime.
+  # O formato da string de runtime varia entre versoes da CLI, e `-o tsv` devolve
+  # a linha inteira -- sem o `cut -f1` a CLI recusa o runtime.
   RUNTIME=${RUNTIME:-$(az webapp list-runtimes --os linux -o tsv \
     | grep -iE 'java.*21' | head -1 | cut -f1)}
   RUNTIME=${RUNTIME:-"JAVA|21-java21"}
@@ -79,9 +69,8 @@ else
 fi
 
 # --------------------------------------------------------------------- segredos
-# JWT_SECRET ja publicado vence o do arquivo. Trocar a chave invalida todo token
-# em circulacao: quem estava logado leva "Sessao expirada" no proximo toque. Um
-# redeploy nao pode deslogar a base inteira.
+# JWT_SECRET ja publicado vence o do arquivo: trocar a chave invalida todo token
+# em circulacao, e um redeploy nao pode deslogar a base inteira.
 PUBLICADO=$(az webapp config appsettings list \
   --resource-group "$RG" --name "$APP" \
   --query "[?name=='JWT_SECRET'].value | [0]" -o tsv 2>/dev/null || true)
@@ -91,6 +80,8 @@ if [ -n "$PUBLICADO" ] && [ "$PUBLICADO" != "$JWT_SECRET" ]; then
   JWT_SECRET="$PUBLICADO"
 fi
 
+# JAVA_OPTS: teto de heap obrigatorio na B1. Sem ele a JVM se dimensiona pelo
+# host e leva OOM kill sob carga.
 echo ">> Publicando app settings"
 az webapp config appsettings set \
   --resource-group "$RG" --name "$APP" -o none --settings \
@@ -104,19 +95,15 @@ az webapp config appsettings set \
   GEMINI_MODEL="${GEMINI_MODEL:-gemini-3.5-flash}" \
   JAVA_OPTS="-Xms256m -Xmx1024m"
 
-# A B1 tem 1,75 GB divididos com a plataforma. Sem teto, a JVM dimensiona a heap
-# pelo host e leva OOM kill sob carga -- os restarts "misteriosos" das 3h.
-
 echo ">> Forcando HTTPS"
 az webapp update --resource-group "$RG" --name "$APP" --https-only true -o none
 
 # Liveness, e nao o /actuator/health cheio: o health completo inclui o indicador
-# do banco, e o banco fica parado de proposito para esticar o credito. A sonda
-# responderia DOWN com a aplicacao sa e a plataforma reiniciaria a toa.
+# do banco, e devolveria DOWN com a aplicacao sa sempre que o banco estivesse parado.
 echo ">> Apontando o health check para /actuator/health/liveness"
 az webapp config set --resource-group "$RG" --name "$APP" -o none \
   --generic-configurations '{"healthCheckPath": "/actuator/health/liveness"}' \
-  || echo "   AVISO: nao consegui configurar o health check (siga sem ele)"
+  || echo "   AVISO: health check nao configurado (siga sem ele)"
 
 # ----------------------------------------------------------------- build/deploy
 echo ">> Compilando o jar"
@@ -150,8 +137,8 @@ for i in $(seq 1 40); do
   sleep 8
 done
 
-# A prova de que e o SecurityConfig deste repo respondendo, e nao uma pagina de
-# erro da plataforma: o 401 tem corpo proprio, em portugues.
+# O 401 com corpo proprio em portugues prova que e o SecurityConfig deste
+# repositorio respondendo, e nao uma pagina de erro da plataforma.
 echo ">> Conferindo o 401 de rota protegida"
 CORPO=$(curl -s --max-time 15 "$BASE/transactions")
 CODIGO=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$BASE/transactions")
@@ -170,5 +157,5 @@ else
   echo "Veja o log: az webapp log tail --resource-group $RG --name $APP"
 fi
 echo
-echo "Proximo passo -- Phase 04: aponte o Expo para a API nova."
+echo "Proximo passo -- Phase 04: apontar o Expo para a API nova."
 echo "  TolevFront/.env -> EXPO_PUBLIC_API_URL=$BASE"

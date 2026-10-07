@@ -84,6 +84,25 @@ class GetSpendingByCategoryTest {
         assertThat(resposta.pontos().get(0).percentual()).isEqualByComparingTo("50.00");
     }
 
+    /**
+     * "Outros" conta como não classificada junto com as sem categoria nenhuma —
+     * mesmo conjunto da lista "para classificar", senão o donut e a lista se
+     * contradiriam no mesmo card.
+     */
+    @Test
+    void aClassificarContaAsSemCategoriaEAsEmOutros() {
+        var api = apiCom(List.of(
+                despesa("50.00", "Alimentação", BANCO), // classificada, fica de fora
+                despesa("30.00", "Outros", BANCO),       // guarda-chuva, conta
+                despesaSemCategoria("20.00", BANCO)));    // sem categoria, conta
+
+        var resposta = new GetSpendingByCategory(api)
+                .execute(USUARIO, LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 31), null);
+
+        assertThat(resposta.totalTransacoes()).isEqualTo(3);
+        assertThat(resposta.transacoesAClassificar()).isEqualTo(2);
+    }
+
     @Test
     void filtroPorBancoDeixaDeForaOQueVeioDeOutraProcedencia() {
         var api = apiCom(List.of(
@@ -116,6 +135,15 @@ class GetSpendingByCategoryTest {
 
     private static TransactionResponse receita(String valor, String categoria, Long idBanco) {
         return transacao(valor, categoria, idBanco, TipoTransacao.RECEITA);
+    }
+
+    /** Despesa sem categoria nenhuma: nem do sistema, nem do usuário. */
+    private static TransactionResponse despesaSemCategoria(String valor, Long idBanco) {
+        return new TransactionResponse(
+                1L, USUARIO, null, idBanco, null, null,
+                new BigDecimal(valor), LocalDate.of(2026, 7, 15), TipoTransacao.DESPESA,
+                null, null, false, null, null, null,
+                null, null, null, null);
     }
 
     private static TransactionResponse transacao(

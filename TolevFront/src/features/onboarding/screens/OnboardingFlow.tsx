@@ -40,7 +40,7 @@ const STEP_FIELDS: (keyof OnboardingValues)[][] = [
 const TITLES: { title: string; subtitle: string }[] = [
   { title: "Como podemos te chamar?", subtitle: "Seu primeiro nome ou um apelido." },
   { title: "O que te traz ao Tolev?", subtitle: "Escolha seu principal objetivo agora." },
-  { title: "Como está sua vida financeira hoje?", subtitle: "Sem julgamentos — é só pra te ajudar melhor." },
+  { title: "Como está sua vida financeira hoje?", subtitle: "Sem julgamentos, é só pra te ajudar melhor." },
   { title: "Como você ganha seu dinheiro?", subtitle: "Isso ajuda a entender sua renda." },
   { title: "Quanto você recebe por mês?", subtitle: "Um valor aproximado já basta." },
   { title: "Crie sua conta", subtitle: "Só falta isso pra você começar." },

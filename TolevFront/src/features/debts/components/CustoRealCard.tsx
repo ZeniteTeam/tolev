@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 import { GiftedDonut } from "../../../components";
 import { colors, shadows } from "../../../theme";
-import { brl, type DividaView } from "../constants/dividas";
+import { brl, isQuitada, type DividaView } from "../constants/dividas";
 
 type Props = {
   divida: DividaView;
@@ -16,9 +16,17 @@ type Props = {
  * devolver 12.900" diz, e é o número que muda decisão.
  */
 export default function CustoRealCard({ divida, delay = 0 }: Props) {
-  const principal = divida.saldo;
-  const juros = divida.totalJuros;
+  const quitada = isQuitada(divida);
   const total = divida.totalAPagar;
+  const juros = divida.totalJuros;
+
+  // O principal é o que sobra do total depois dos juros, nunca `saldo`: aquele
+  // é o que ainda falta pagar, cai a cada parcela e vai a zero na quitação.
+  // Usá-lo aqui encolhia a fatia verde conforme a dívida era paga, até o
+  // círculo virar 100% laranja numa dívida quitada — um gráfico afirmando que
+  // a dívida inteira foi juros. Derivar do total também garante que as duas
+  // fatias fechem exatamente a volta.
+  const principal = Math.max(0, total - juros);
 
   // Sem juros calculados não há custo a mostrar — o donut seria um círculo só.
   if (juros <= 0 || total <= 0) return null;
@@ -27,9 +35,13 @@ export default function CustoRealCard({ divida, delay = 0 }: Props) {
 
   return (
     <View className="bg-surface rounded-[18px] p-5 mb-4" style={shadows.card}>
-      <Text className="font-bold text-base text-ink">O custo real desta dívida</Text>
+      <Text className="font-bold text-base text-ink">
+        {quitada ? "O que esta dívida custou" : "O custo real desta dívida"}
+      </Text>
       <Text className="text-[12px] text-muted mt-0.5 font-regular">
-        Quanto você devolve além do que deve
+        {quitada
+          ? "Quanto você devolveu além do que pegou"
+          : "Quanto você devolve além do que pegou"}
       </Text>
 
       <View className="flex-row items-center gap-5 mt-[18px]">
@@ -50,10 +62,18 @@ export default function CustoRealCard({ divida, delay = 0 }: Props) {
         />
 
         <View className="flex-1 gap-3.5">
-          <Linha color={colors.primary[500]} label="Saldo devedor" valor={brl(principal)} />
-          <Linha color={colors.coral[500]} label="Juros até o fim" valor={brl(juros)} />
+          {/* "Valor contratado", não "saldo devedor": a fatia é o que foi
+              pego emprestado, e não muda quando uma parcela é paga. */}
+          <Linha color={colors.primary[500]} label="Valor contratado" valor={brl(principal)} />
+          <Linha
+            color={colors.coral[500]}
+            label={quitada ? "Juros pagos" : "Juros até o fim"}
+            valor={brl(juros)}
+          />
           <View className="pt-3 border-t border-t-line-soft">
-            <Text className="text-[11px] text-muted font-regular">Total a devolver</Text>
+            <Text className="text-[11px] text-muted font-regular">
+              {quitada ? "Total devolvido" : "Total a devolver"}
+            </Text>
             <Text className="font-bold text-[18px] text-ink mt-0.5">{brl(total)}</Text>
           </View>
         </View>

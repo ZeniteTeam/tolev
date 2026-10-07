@@ -39,6 +39,16 @@ public class GraphController {
     }
 
     /**
+     * Projeção de quitação: data prevista, quanto falta e a descida do saldo
+     * mês a mês. Sai do cronograma de parcelas — é o que a aba "Projeções"
+     * desenha inteira.
+     */
+    @GetMapping("/debt-projection")
+    public ResponseEntity<DebtProjectionGraphResponse> getDebtProjection(@RequestParam Long idUsuario) {
+        return ResponseEntity.ok(graphFacade.getDebtProjection(idUsuario));
+    }
+
+    /**
      * Despesas do periodo agrupadas por categoria, do maior gasto para o menor.
      *
      * <p>A janela vem de um jeito ou de outro: {@code inicio}+{@code fim} dizem

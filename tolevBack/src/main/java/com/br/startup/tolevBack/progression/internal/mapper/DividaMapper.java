@@ -33,9 +33,14 @@ public class DividaMapper {
         // Tudo que passa do valor contratado é custo — inclusive o ajuste de
         // primeiro período, que entra na tabela como saldo devedor maior e não
         // como juros de uma parcela específica.
-        BigDecimal saldo = divida.getValorDivida() != null ? divida.getValorDivida() : BigDecimal.ZERO;
+        //
+        // A referência é `valorContratado`, nunca `valorDivida`: este último é
+        // o saldo corrente, que os pagamentos consomem e a quitação zera. Usá-lo
+        // aqui fazia o custo dos juros crescer a cada parcela paga e, na dívida
+        // quitada, igualar o total da dívida inteira.
         BigDecimal totalAPagar = soma(ordenadas, ParcelaDivida::getValorTotal);
-        BigDecimal totalJuros = totalAPagar.subtract(saldo).max(BigDecimal.ZERO);
+        BigDecimal contratado = contratado(divida, ordenadas);
+        BigDecimal totalJuros = totalAPagar.subtract(contratado).max(BigDecimal.ZERO);
 
         return new DividaResponse(
                 divida.getId(),
@@ -43,6 +48,7 @@ public class DividaMapper {
                 divida.getNomeDivida(),
                 divida.getBanco(),
                 divida.getTipo(),
+                divida.getStatus(),
                 divida.getValorDivida(),
                 divida.getTaxaJuros(),
                 divida.getMultaAtraso(),
@@ -58,6 +64,21 @@ public class DividaMapper {
                 totalAPagar,
                 parcelas
         );
+    }
+
+    /**
+     * O principal contratado. Dívida gravada antes da coluna existir cai na
+     * soma do principal das parcelas, que também é imutável.
+     */
+    private static BigDecimal contratado(Divida divida, List<ParcelaDivida> parcelas) {
+        if (divida.getValorContratado() != null) {
+            return divida.getValorContratado();
+        }
+        BigDecimal somaPrincipal = soma(parcelas, ParcelaDivida::getValorPrincipal);
+        if (somaPrincipal.signum() > 0) {
+            return somaPrincipal;
+        }
+        return divida.getValorDivida() != null ? divida.getValorDivida() : BigDecimal.ZERO;
     }
 
     private static BigDecimal soma(

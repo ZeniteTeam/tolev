@@ -2,7 +2,14 @@ import { ChevronRight } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 import { Progress } from "../../../components";
 import { colors, shadows } from "../../../theme";
-import { brl, isQuitada, pctQuitado, type DividaView } from "../constants/dividas";
+import {
+  brl,
+  isQuitada,
+  pctQuitado,
+  quebraEmAberto,
+  totalEmAberto,
+  type DividaView,
+} from "../constants/dividas";
 
 type Props = {
   divida: DividaView;
@@ -12,6 +19,8 @@ type Props = {
 export default function DebtCard({ divida: d, onPress }: Props) {
   const quitada = isQuitada(d);
   const pctPago = quitada ? 100 : pctQuitado(d);
+  const falta = totalEmAberto(d);
+  const quebra = quebraEmAberto(d);
   const Icon = d.icon;
 
   return (
@@ -35,9 +44,31 @@ export default function DebtCard({ divida: d, onPress }: Props) {
       </View>
 
       <View className="flex-row justify-between items-end">
-        <View>
-          <Text className="text-[11px] text-muted mb-0.5 font-regular">Saldo devedor</Text>
-          <Text className="font-bold text-[20px] text-ink">{brl(d.saldo)}</Text>
+        <View className="flex-1 pr-3">
+          {/* Quitada não tem o que faltar: "Falta pagar R$ 0" está certo e lê
+              como erro de conta. O que interessa depois de pagar é o preço
+              total que a dívida teve. */}
+          <Text className="text-[11px] text-muted mb-0.5 font-regular">
+            {quitada ? "Custou no total" : "Falta pagar"}
+          </Text>
+          <Text className="font-bold text-[20px] text-ink">
+            {brl(quitada ? d.totalAPagar : falta)}
+          </Text>
+          {/* A quebra fica junto do número: sem ela "falta pagar" e o saldo que
+              o banco informa parecem contradição, e o usuário confia no menor. */}
+          {quitada ? (
+            d.totalJuros > 0 && (
+              <Text className="text-[11px] text-muted mt-0.5 font-regular">
+                {brl(d.totalJuros)} disso foram juros
+              </Text>
+            )
+          ) : (
+            quebra.juros > 0 && (
+              <Text className="text-[11px] text-muted mt-0.5 font-regular">
+                {brl(quebra.principal)} + {brl(quebra.juros)} de juros
+              </Text>
+            )
+          )}
         </View>
         <View className="flex-row gap-[18px]">
           <View className="items-end">

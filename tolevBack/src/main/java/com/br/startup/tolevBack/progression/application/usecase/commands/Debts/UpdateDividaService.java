@@ -60,6 +60,9 @@ public class UpdateDividaService {
         divida.setBanco(request.banco());
         divida.setTipo(request.tipo());
         divida.setValorDivida(saldo);
+        // Editar a dívida redefine o contrato: o valor informado passa a ser o
+        // principal de referência, e é dele que o custo dos juros é medido.
+        divida.setValorContratado(saldo);
         divida.setTaxaJuros(request.juros());
         divida.setMultaAtraso(request.multaAtraso());
         divida.setJurosMora(request.jurosMora());

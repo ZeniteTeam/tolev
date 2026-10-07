@@ -13,6 +13,9 @@ export const TIPO_DIVIDA = [
 ] as const;
 export type TipoDivida = (typeof TIPO_DIVIDA)[number];
 
+export const STATUS_DIVIDA = ["ATIVA", "PAGA", "ATRASADA"] as const;
+export type StatusDivida = (typeof STATUS_DIVIDA)[number];
+
 export const STATUS_PARCELA = ["PENDENTE", "PAGA", "ATRASADA", "CANCELADA"] as const;
 export type StatusParcela = (typeof STATUS_PARCELA)[number];
 
@@ -73,6 +76,8 @@ export interface DividaResponse {
   nome: string;
   banco: string;
   tipo: TipoDivida | null;
+  /** Nulo em dívida antiga, gravada antes do status existir. */
+  status: StatusDivida | null;
   saldo: number;
   juros: number;
   multaAtraso: number | null;

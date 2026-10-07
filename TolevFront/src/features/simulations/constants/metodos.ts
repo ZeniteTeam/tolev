@@ -58,7 +58,7 @@ export const METODOS: Metodo[] = [
     tagline: "Peso emocional primeiro",
     criterio: "emocional",
     overview:
-      "Você prioriza as dívidas que mais pesam na sua cabeça — as de maior impacto emocional — para aliviar o estresse antes de tudo.",
+      "Você prioriza as dívidas que mais pesam na sua cabeça, as de maior impacto emocional, para aliviar o estresse antes de tudo.",
     ordenar: (ds) => [...ds].sort((a, b) => b.emocional - a.emocional),
     pros: ["Alívio psicológico imediato", "Reduz a ansiedade financeira"],
     contras: ["Nem sempre é o mais econômico", "Ignora juros e saldo"],

@@ -14,6 +14,7 @@ import {
   isQuitada,
   parcelasEmAberto,
   pctQuitado,
+  quebraEmAberto,
   totalEmAberto,
   type ParcelaView,
 } from "../constants/dividas";
@@ -64,6 +65,7 @@ export default function DividaDetalheScreen() {
   // Os juros do mês são os da próxima parcela — o número real da tabela, não
   // uma estimativa sobre o saldo.
   const jurosMes = quitada ? 0 : (proxima?.juros ?? 0);
+  const quebra = quebraEmAberto(d);
   const Icon = d.icon;
 
   return (
@@ -104,15 +106,17 @@ export default function DividaDetalheScreen() {
               <Text className="text-white text-md font-bold">Dívida quitada</Text>
             </View>
           ) : (
-            <Text className="text-white/[0.85] text-sm font-semibold">Saldo devedor</Text>
+            <Text className="text-white/[0.85] text-sm font-semibold">Falta pagar</Text>
           )}
           <Text className="text-white text-[32px] leading-9 font-bold mt-1.5">
-            {quitada ? "Parabéns!" : brl(d.saldo)}
+            {quitada ? "Parabéns!" : brl(totalEmAberto(d))}
           </Text>
 
+          {/* O principal vira o detalhe, não a manchete: quem lê o saldo sozinho
+              subestima a dívida pelo tamanho exato dos juros que faltam. */}
           {!quitada && (
             <Text className="text-white/[0.78] text-[11px] mt-1 font-regular">
-              faltam {brl(totalEmAberto(d))} somando as parcelas em aberto
+              {brl(quebra.principal)} de principal + {brl(quebra.juros)} de juros por vencer
             </Text>
           )}
 

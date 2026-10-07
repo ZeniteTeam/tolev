@@ -15,7 +15,7 @@ export const STEPS: StepCopy[] = [
   {
     title: "O que aconteceu com seu dinheiro?",
     subtitle:
-      "Entrou ou saiu, e quanto. Esses dois são os únicos campos que você precisa saber de cabeça — o resto a gente pergunta depois.",
+      "Entrou ou saiu, e quanto. Esses dois são os únicos campos que você precisa saber de cabeça. O resto a gente pergunta depois.",
     help: {
       label: "Por que isso importa?",
       title: "Receita ou despesa",
@@ -24,7 +24,7 @@ export const STEPS: StepCopy[] = [
       ondeEncontrar: [
         "Receita é dinheiro que chegou até você: salário, freela, venda, presente, reembolso.",
         "Despesa é dinheiro que saiu: compra, conta, assinatura, transporte.",
-        "Pagou uma parcela de dívida? Registre em Dívidas, na tela da própria dívida — assim ela abate o saldo devedor.",
+        "Pagou uma parcela de dívida? Registre em Dívidas, na tela da própria dívida. Assim ela abate o saldo devedor.",
       ],
       footer: "Errou o valor? Nenhum lançamento é definitivo: dá pra ajustar depois.",
     },
@@ -40,7 +40,7 @@ export const STEPS: StepCopy[] = [
         "As categorias vêm prontas para você não ter que inventar um sistema do zero. Elas são o eixo de toda a análise de consumo.",
       ondeEncontrar: [
         "Escolha pelo motivo do gasto, não pelo lugar: um lanche no posto é Alimentação, não Transporte.",
-        "Na dúvida entre duas, escolha a que você usaria de novo numa compra parecida — consistência vale mais que precisão.",
+        "Na dúvida entre duas, escolha a que você usaria de novo numa compra parecida. Consistência vale mais que precisão.",
         "Não achou nenhuma que sirva? Use “Outros” agora e crie a sua depois em Finanças › Suas categorias.",
       ],
       footer: "Categorizar bem é o que transforma uma lista de gastos numa análise útil.",
@@ -49,7 +49,7 @@ export const STEPS: StepCopy[] = [
   {
     title: "Onde e quando foi?",
     subtitle:
-      "O lugar e a data. Com eles a análise consegue ver seus padrões — onde você mais gasta e em que momentos do mês.",
+      "O lugar e a data. Com eles a análise consegue ver seus padrões: onde você mais gasta e em que momentos do mês.",
     help: {
       label: "Preciso preencher tudo?",
       title: "Local, data e forma de pagamento",
@@ -58,7 +58,7 @@ export const STEPS: StepCopy[] = [
       ondeEncontrar: [
         "Estabelecimento: o nome do lugar, como você o chamaria. Escrever igual nas próximas vezes agrupa tudo no mesmo lugar.",
         "Data: o dia em que você gastou, não o dia em que a fatura vence.",
-        "Forma de pagamento: no crédito, o dinheiro sai da sua conta bem depois — é isso que a projeção de fluxo precisa saber.",
+        "Forma de pagamento: no crédito, o dinheiro sai da sua conta bem depois, e é isso que a projeção de fluxo precisa saber.",
       ],
       footer: "Deixou o estabelecimento em branco? Sem problema, a transação entra do mesmo jeito.",
     },
@@ -73,7 +73,7 @@ export const STEPS: StepCopy[] = [
       body:
         "Escolher “Dinheiro / carteira” é uma resposta completa, não um atalho. O app ainda não conecta bancos, então é o caso mais comum.",
       ondeEncontrar: [
-        "Ao ligar a transação a uma conta, o saldo dela se move junto — é assim que a tela de saldo continua batendo com a realidade.",
+        "Ao ligar a transação a uma conta, o saldo dela se move junto. É assim que a tela de saldo continua batendo com a realidade.",
         "Dinheiro / carteira registra o gasto sem mexer em saldo nenhum.",
         "Parcelado: informe o total de vezes e qual parcela é essa. Se você acabou de comprar em 10x, é a parcela 1 de 10.",
       ],

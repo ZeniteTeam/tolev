@@ -9,6 +9,8 @@ import LoginScreen from "../features/auth/screens/LoginScreen";
 import OnboardingFlow from "../features/onboarding/screens/OnboardingFlow";
 import AdicionarDividaScreen from "../features/debts/screens/AdicionarDividaScreen";
 import DividaDetalheScreen from "../features/debts/screens/DividaDetalheScreen";
+import AdicionarGastoFixoScreen from "../features/expenses/screens/AdicionarGastoFixoScreen";
+import GastosFixosScreen from "../features/expenses/screens/GastosFixosScreen";
 import AdicionarTransacaoScreen from "../features/transactions/screens/AdicionarTransacaoScreen";
 import ExtratoProcessandoScreen from "../features/extrato/screens/ExtratoProcessandoScreen";
 import ImportarExtratoScreen from "../features/extrato/screens/ImportarExtratoScreen";
@@ -60,6 +62,12 @@ const DividaDetalhe = () => (
 );
 const Categorias = () => (
   <ModalShell><CategoriasScreen /></ModalShell>
+);
+const GastosFixos = () => (
+  <ModalShell><GastosFixosScreen /></ModalShell>
+);
+const AdicionarGastoFixo = () => (
+  <ModalShell><AdicionarGastoFixoScreen /></ModalShell>
 );
 const Simulacao = () => (
   <ModalShell><SimulacaoScreen /></ModalShell>
@@ -139,6 +147,9 @@ export default function RootNavigator() {
             <Stack.Screen name="ImportarExtrato" component={ImportarExtratoScreen} options={VINDO_DE_BAIXO} />
             <Stack.Screen name="ExtratoProcessando" component={ExtratoProcessandoScreen} options={VINDO_DE_BAIXO} />
             <Stack.Screen name="Categorias" component={Categorias} />
+            <Stack.Screen name="GastosFixos" component={GastosFixos} />
+            {/* Cadastro curto: sobe de baixo como os outros fluxos de criação. */}
+            <Stack.Screen name="AdicionarGastoFixo" component={AdicionarGastoFixo} options={VINDO_DE_BAIXO} />
             <Stack.Screen name="Simulacao" component={Simulacao} options={VINDO_DE_BAIXO} />
             <Stack.Screen name="MetodoOnboarding" component={MetodoOnboardingScreen} />
             <Stack.Screen name="SimulacaoResultado" component={SimulacaoResultado} />
